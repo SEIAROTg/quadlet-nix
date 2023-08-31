@@ -451,8 +451,9 @@ in {
       default = serviceConfigDefault;
     };
 
-    _etc = mkOption { internal = true; };
-    _services = mkOption { internal = true; };
+    _configName = mkOption { internal = true; };
+    _unitName = mkOption { internal = true; };
+    _configText = mkOption { internal = true; };
   };
 
   config = let
@@ -465,20 +466,16 @@ in {
       Unit = {
         Description = "Podman container ${name}";
       };
+      Install = {
+        WantedBy = if config.autoStart then [ "default.target" ] else [];
+      };
       Container = quadletUtils.configToProperties containerConfig containerOpts;
       Service = serviceConfigDefault // config.serviceConfig;
     };
     unitConfigText = quadletUtils.unitConfigToText unitConfig;
   in {
-    _etc = {
-      ${configRelPath} = {
-        text = unitConfigText;
-        mode = "0600";
-      };
-    };
-    _services = quadletUtils.mkTriggerService {
-      inherit name unitConfigText;
-      autoStart = config.autoStart;
-    };
+    _configName = "${name}.container";
+    _unitName = "${name}.service";
+    _configText = quadletUtils.unitConfigToText unitConfig;
   };
 }

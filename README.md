@@ -4,7 +4,7 @@ Manages Podman containers and networks on NixOS via [Quadlet](https://docs.podma
 
 ## Why
 
-Comparing to alternatives like [`virtualisation.oci-containers`](https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/virtualisation/oci-containers.nix) or [`arion`](https://github.com/hercules-ci/arion), `quadlet-nix` is special in that:
+Compared to alternatives like [`virtualisation.oci-containers`](https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/virtualisation/oci-containers.nix) or [`arion`](https://github.com/hercules-ci/arion), `quadlet-nix` is special in that:
 
 |                                                          | `quadlet-nix` | `oci-containers` | `arion` |
 | -------------------------------------------------------- | ------------- | ---------------- | ------- |

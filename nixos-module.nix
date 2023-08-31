@@ -31,15 +31,33 @@ in {
     };
   };
 
-  config = {
+  config = let
+    allObjects = (attrValues cfg.containers) ++ (attrValues cfg.networks);
+  in {
     virtualisation.podman.enable = true;
-    environment.etc = mergeAttrsList (concatLists [
-      (map (p: p._etc) (attrValues cfg.containers))
-      (map (p: p._etc) (attrValues cfg.networks))
-    ]);
-    systemd.services = mergeAttrsList (concatLists [
-      (map (p: p._services) (attrValues cfg.containers))
-      (map (p: p._services) (attrValues cfg.networks))
-    ]);
+    environment.etc = mergeAttrsList (
+      map (p: {
+        "containers/systemd/${p._configName}" = {
+          text = p._configText;
+          mode = "0600";
+        };
+      }) allObjects);
+    # The symlinks are not necessary for the services to be honored by systemd,
+    # but necessary for NixOS activation process to pick them up for updates.
+    systemd.packages = [
+      (pkgs.linkFarm "quadlet-service-symlinks" (
+        map (p: {
+          name = "etc/systemd/system/${p._unitName}";
+          path = "/run/systemd/generator/${p._unitName}";
+        }) allObjects))
+    ];
+    # Inject X-RestartIfChanged=${hash} for NixOS to detect changes.
+    systemd.units = mergeAttrsList (
+      map (p: {
+        ${p._unitName} = {
+          overrideStrategy = "asDropin";
+          text = "[Unit]\nX-RestartIfChanged=${builtins.hashString "sha256" p._configText}";
+        };
+      }) allObjects);
   };
 }

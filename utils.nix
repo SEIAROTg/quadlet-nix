@@ -10,25 +10,6 @@ in {
       inherit property;
     };
 
-  mkTriggerService = { name, autoStart, unitConfigText }: {
-    "${name}-update-trigger" = {
-      enable = true;
-      description = "Triggers restart / removal of ${name} on updates.";
-      script = ":";
-      wantedBy = if autoStart then [ "default.target" ] else [];
-      bindsTo = [ "${name}.service" ];
-      after = [ "${name}.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = "true";
-      };
-      unitConfig = {
-        PropagatesStopTo = "${name}.service";
-        X-Fingerprint = builtins.hashString "sha256" unitConfigText;
-      };
-    };
-  };
-
   configToProperties = config: options: lib.mapAttrs'
     (name: value: lib.nameValuePair options.${name}.property (attrsToList value))
     (lib.filterAttrs (_: value: value != null) config);

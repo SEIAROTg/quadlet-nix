@@ -118,8 +118,9 @@ in {
       default = {};
     };
 
-    _etc = mkOption { internal = true; };
-    _services = mkOption { internal = true; };
+    _configName = mkOption { internal = true; };
+    _unitName = mkOption { internal = true; };
+    _configText = mkOption { internal = true; };
   };
 
   config = let
@@ -130,23 +131,17 @@ in {
       Unit = {
         Description = "Podman network ${name}";
       };
+      Install = {
+        WantedBy = if config.autoStart then [ "default.target" ] else [];
+      };
       Network = quadletUtils.configToProperties networkConfig networkOpts;
       Service = {
         ExecStop = "${pkgs.podman}/bin/podman network rm ${networkName}";
       } // config.serviceConfig;
     };
-    unitConfigText = quadletUtils.unitConfigToText unitConfig;
   in {
-    _etc = {
-      ${configRelPath} = {
-        text = unitConfigText;
-        mode = "0600";
-      };
-    };
-    _services = quadletUtils.mkTriggerService {
-      name = "${name}-network";
-      autoStart = config.autoStart;
-      inherit unitConfigText;
-    };
+    _configName = "${name}.network";
+    _unitName = "${name}-network.service";
+    _configText = quadletUtils.unitConfigToText unitConfig;
   };
 }
