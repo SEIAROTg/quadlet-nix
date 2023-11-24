@@ -10,9 +10,9 @@ Compared to alternatives like [`virtualisation.oci-containers`](https://github.c
 | -------------------------------------------------------- | ------------- | ---------------- | ------- |
 | **Supports networks**                                    | ✅             | ❌                | ✅       |
 | **Updates / deletes networks on change** | ✅             | /                | ❌       |
-| **Supports [podman-auto-update](podman-auto-update)**    | ✅             | ✅                | ❌       |
+| **Supports `podman-auto-update`[^1]**    | ✅             | ✅                | ❌       |
 
-[podman-auto-update]: https://docs.podman.io/en/latest/markdown/podman-auto-update.1.html
+[^1]: https://docs.podman.io/en/latest/markdown/podman-auto-update.1.html
 
 ## How
 
@@ -26,7 +26,7 @@ Compared to alternatives like [`virtualisation.oci-containers`](https://github.c
         quadlet-nix.inputs.nixpkgs.follows = "nixpkgs";
     };
     outputs = { nixpkgs, quadlet-nix, ... }@attrs: {
-        nixosConfigurations.machine = nixpksg.lib.nixosSystem {
+        nixosConfigurations.machine = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
                 ./configuration.nix
