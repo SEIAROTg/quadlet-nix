@@ -66,15 +66,13 @@ let
       property = "Label";
     };
 
-    # TODO: enable once podman support is released
-    # https://github.com/containers/podman/commit/9d9f4aaafea01b6604c3a54b9a934c21090ef64a
-    # name = quadletUtils.mkOption {
-    #   type = types.nullOr types.str;
-    #   default = null;
-    #   example = "foo";
-    #   description = "podman network create foo";
-    #   property = "NetworkName";
-    # };
+    name = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "foo";
+      description = "podman network create foo";
+      property = "NetworkName";
+    };
 
     options = quadletUtils.mkOption {
       type = types.nullOr types.str;
@@ -125,7 +123,9 @@ in {
 
   config = let
     configRelPath = "containers/systemd/${name}.network";
-    networkName = "systemd-${name}";
+    networkName = if config.networkConfig.name != null
+        then config.networkConfig.name
+        else "systemd-${name}";
     networkConfig = config.networkConfig;
     unitConfig = {
       Unit = {
