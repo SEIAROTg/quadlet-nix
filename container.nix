@@ -5,12 +5,12 @@ with lib;
 
 let
   containerOpts = {
-    addCapacities = quadletUtils.mkOption {
+    addCapabilities = quadletUtils.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "NET_ADMIN" ];
       description = "--cap-add";
-      property = "AddCapacity";
+      property = "AddCapability";
     };
 
     devices = quadletUtils.mkOption {
@@ -50,7 +50,7 @@ let
       default = [ ];
       example = [ "NET_ADMIN" ];
       description = "--cap-drop";
-      property = "CapDrop";
+      property = "DropCapability";
     };
 
     environments = quadletUtils.mkOption {
