@@ -130,7 +130,7 @@ in {
     unitConfig = {
       Unit = {
         Description = "Podman network ${name}";
-      };
+      } // config.unitConfig;
       Install = {
         WantedBy = if config.autoStart then [ "default.target" ] else [];
       };

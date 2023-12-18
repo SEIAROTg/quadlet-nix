@@ -465,7 +465,7 @@ in {
     unitConfig = {
       Unit = {
         Description = "Podman container ${name}";
-      };
+      } // config.unitConfig;
       Install = {
         WantedBy = if config.autoStart then [ "default.target" ] else [];
       };
