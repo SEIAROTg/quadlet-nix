@@ -35,7 +35,15 @@ in {
     allObjects = (attrValues cfg.containers) ++ (attrValues cfg.networks);
   in {
     virtualisation.podman.enable = true;
-    environment.etc = mergeAttrsList (
+    environment.etc =
+      # Ensure podman-user-generator is available for systemd user services.
+      {
+        "systemd/user-generators/podman-user-generator" = {
+          source = "${pkgs.podman}/lib/systemd/user-generators/podman-user-generator";
+          target = "systemd/user-generators/podman-user-generator";
+        };
+      }
+      // mergeAttrsList (
       map (p: {
         "containers/systemd/${p._configName}" = {
           text = p._configText;
