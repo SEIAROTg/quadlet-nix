@@ -1,4 +1,4 @@
-{ systemdLib }:
+{ libUtils }:
 { config, lib, pkgs, ... }@attrs:
 
 with lib;
@@ -7,9 +7,9 @@ let
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
     inherit lib;
-    systemdLib = systemdLib {
+    systemdLib = (libUtils {
       inherit lib config pkgs;
-    };
+    }).systemdUtils.lib;
   };
   # TODO: replace with lib.mergeAttrsList once stable.
   mergeAttrsList = foldl mergeAttrs {};

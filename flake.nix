@@ -7,8 +7,8 @@
 
   outputs = { nixpkgs, ... }:
   let
-    systemdLib = import "${nixpkgs}/nixos/lib/systemd-lib.nix";
+    libUtils = import "${nixpkgs}/nixos/lib/utils.nix";
   in {
-    nixosModules.quadlet = import ./nixos-module.nix { inherit systemdLib; };
+    nixosModules.quadlet = import ./nixos-module.nix { inherit libUtils; };
   };
 }
