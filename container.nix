@@ -45,6 +45,30 @@ let
       property = "ContainerName";
     };
 
+    dns = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "192.168.55.1" ];
+      description = "--dns";
+      property = "DNS";
+    };
+
+    dnsSearch = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "foo.com" ];
+      description = "--dns-search";
+      property = "DNSSearch";
+    };
+
+    dnsOption = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "ndots:1" ];
+      description = "--dns-option";
+      property = "DNSOption";
+    };
+
     dropCapabilities = quadletUtils.mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -431,6 +455,8 @@ let
 
   serviceConfigDefault = {
     Restart = "always";
+    # podman rootless requires "newuidmap" (the suid version, not the non-suid one from pkgs.shadow)
+    Environment = "PATH=/run/wrappers/bin";
     TimeoutStartSec = 900;
   };
 in {
