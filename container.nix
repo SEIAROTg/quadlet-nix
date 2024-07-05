@@ -319,6 +319,14 @@ let
       property = "SeccompProfile";
     };
 
+    secrets = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "secret[,opt=opt …]" ];
+      description = "--secret";
+      property = "Secret";
+    };
+
     securityLabelDisable = quadletUtils.mkOption {
       type = types.nullOr types.bool;
       default = null;
