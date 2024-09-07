@@ -1,13 +1,14 @@
-{ quadletUtils, pkgs }:
+{
+  quadletUtils,
+  pkgs,
+}:
 {
   config,
   name,
   lib,
   ...
 }:
-
 with lib;
-
 let
   networkOpts = {
     disableDns = quadletUtils.mkOption {
@@ -135,13 +136,13 @@ in
     };
 
     _configName = mkOption { internal = true; };
+    _name = mkOption { internal = true; };
     _unitName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
   };
 
   config =
     let
-      configRelPath = "containers/systemd/${name}.network";
       networkName =
         if config.networkConfig.name != null then config.networkConfig.name else "systemd-${name}";
       networkConfig = config.networkConfig;
@@ -159,6 +160,7 @@ in
       };
     in
     {
+      _name = networkName;
       _configName = "${name}.network";
       _unitName = "${name}-network.service";
       _configText = quadletUtils.unitConfigToText unitConfig;

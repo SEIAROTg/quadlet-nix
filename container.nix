@@ -5,9 +5,7 @@
   lib,
   ...
 }:
-
 with lib;
-
 let
   containerOpts = {
     addCapabilities = quadletUtils.mkOption {
@@ -259,7 +257,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "host" ];
-      description = "--network";
+      description = "--net";
       property = "Network";
     };
 
@@ -283,6 +281,13 @@ let
       default = null;
       description = "--sdnotify container";
       property = "Notify";
+    };
+
+    pod = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "The full name of the pod to link to.";
+      property = "Pod";
     };
 
     podmanArgs = quadletUtils.mkOption {
@@ -474,6 +479,7 @@ in
       default = serviceConfigDefault;
     };
 
+    _name = mkOption { internal = true; };
     _configName = mkOption { internal = true; };
     _unitName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
@@ -481,7 +487,6 @@ in
 
   config =
     let
-      configRelPath = "containers/systemd/${name}.container";
       containerName = if config.containerConfig.name != null then config.containerConfig.name else name;
       containerConfig = config.containerConfig // {
         name = containerName;
@@ -496,9 +501,9 @@ in
         Container = quadletUtils.configToProperties containerConfig containerOpts;
         Service = serviceConfigDefault // config.serviceConfig;
       };
-      unitConfigText = quadletUtils.unitConfigToText unitConfig;
     in
     {
+      _name = containerName;
       _configName = "${name}.container";
       _unitName = "${name}.service";
       _configText = quadletUtils.unitConfigToText unitConfig;
