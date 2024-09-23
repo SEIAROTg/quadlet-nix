@@ -1,5 +1,10 @@
 { quadletUtils, pkgs }:
-{ config, name, lib, ... }:
+{
+  config,
+  name,
+  lib,
+  ...
+}:
 
 with lib;
 
@@ -13,7 +18,13 @@ let
     };
 
     driver = quadletUtils.mkOption {
-      type = types.nullOr (types.enum [ "bridge" "macvlan" "ipvlan" ]);
+      type = types.nullOr (
+        types.enum [
+          "bridge"
+          "macvlan"
+          "ipvlan"
+        ]
+      );
       default = null;
       example = "bridge";
       description = "--driver";
@@ -36,7 +47,13 @@ let
     };
 
     ipamDriver = quadletUtils.mkOption {
-      type = types.nullOr (types.enum [ "host-local" "dhcp" "none" ]);
+      type = types.nullOr (
+        types.enum [
+          "host-local"
+          "dhcp"
+          "none"
+        ]
+      );
       default = null;
       example = "dhcp";
       description = "--ipam-driver";
@@ -98,7 +115,8 @@ let
       property = "Subnet";
     };
   };
-in {
+in
+{
   options = {
     autoStart = mkOption {
       type = types.bool;
@@ -109,11 +127,11 @@ in {
     networkConfig = networkOpts;
     unitConfig = mkOption {
       type = types.attrs;
-      default = {};
+      default = { };
     };
     serviceConfig = mkOption {
       type = types.attrs;
-      default = {};
+      default = { };
     };
 
     _configName = mkOption { internal = true; };
@@ -121,27 +139,28 @@ in {
     _configText = mkOption { internal = true; };
   };
 
-  config = let
-    configRelPath = "containers/systemd/${name}.network";
-    networkName = if config.networkConfig.name != null
-        then config.networkConfig.name
-        else "systemd-${name}";
-    networkConfig = config.networkConfig;
-    unitConfig = {
-      Unit = {
-        Description = "Podman network ${name}";
-      } // config.unitConfig;
-      Install = {
-        WantedBy = if config.autoStart then [ "default.target" ] else [];
+  config =
+    let
+      configRelPath = "containers/systemd/${name}.network";
+      networkName =
+        if config.networkConfig.name != null then config.networkConfig.name else "systemd-${name}";
+      networkConfig = config.networkConfig;
+      unitConfig = {
+        Unit = {
+          Description = "Podman network ${name}";
+        } // config.unitConfig;
+        Install = {
+          WantedBy = if config.autoStart then [ "default.target" ] else [ ];
+        };
+        Network = quadletUtils.configToProperties networkConfig networkOpts;
+        Service = {
+          ExecStop = "${pkgs.podman}/bin/podman network rm ${networkName}";
+        } // config.serviceConfig;
       };
-      Network = quadletUtils.configToProperties networkConfig networkOpts;
-      Service = {
-        ExecStop = "${pkgs.podman}/bin/podman network rm ${networkName}";
-      } // config.serviceConfig;
+    in
+    {
+      _configName = "${name}.network";
+      _unitName = "${name}-network.service";
+      _configText = quadletUtils.unitConfigToText unitConfig;
     };
-  in {
-    _configName = "${name}.network";
-    _unitName = "${name}-network.service";
-    _configText = quadletUtils.unitConfigToText unitConfig;
-  };
 }

@@ -1,5 +1,10 @@
 { quadletUtils }:
-{ config, name, lib, ... }:
+{
+  config,
+  name,
+  lib,
+  ...
+}:
 
 with lib;
 
@@ -30,7 +35,12 @@ let
     };
 
     autoUpdate = quadletUtils.mkOption {
-      type = types.nullOr (types.enum [ "registry" "local" ]);
+      type = types.nullOr (
+        types.enum [
+          "registry"
+          "local"
+        ]
+      );
       default = null;
       example = "registry";
       description = "--label \"io.containers.autoupdate=...\"";
@@ -56,7 +66,9 @@ let
     environments = quadletUtils.mkOption {
       type = types.attrs;
       default = { };
-      example = { foo = "bar"; };
+      example = {
+        foo = "bar";
+      };
       description = "--env";
       property = "Environment";
     };
@@ -91,7 +103,7 @@ let
       description = "--expose";
       property = "ExposeHostPort";
     };
-  
+
     group = quadletUtils.mkOption {
       type = types.nullOr types.str;
       default = null;
@@ -210,7 +222,7 @@ let
       description = "--ip";
       property = "IP";
     };
-  
+
     ip6 = quadletUtils.mkOption {
       type = types.nullOr types.str;
       default = null;
@@ -242,7 +254,7 @@ let
       description = "--mount";
       property = "Mount";
     };
-  
+
     networks = quadletUtils.mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -376,7 +388,9 @@ let
     sysctl = quadletUtils.mkOption {
       type = types.attrs;
       default = { };
-      example = { name = "value"; };
+      example = {
+        name = "value";
+      };
       description = "--sysctl";
       property = "Sysctl";
     };
@@ -441,7 +455,8 @@ let
     Restart = "always";
     TimeoutStartSec = 900;
   };
-in {
+in
+{
   options = {
     autoStart = mkOption {
       type = types.bool;
@@ -452,7 +467,7 @@ in {
     containerConfig = containerOpts;
     unitConfig = mkOption {
       type = types.attrs;
-      default = {};
+      default = { };
     };
     serviceConfig = mkOption {
       type = types.attrs;
@@ -464,26 +479,28 @@ in {
     _configText = mkOption { internal = true; };
   };
 
-  config = let
-    configRelPath = "containers/systemd/${name}.container";
-    containerName = if config.containerConfig.name != null
-      then config.containerConfig.name
-      else name;
-    containerConfig = config.containerConfig // { name = containerName; };
-    unitConfig = {
-      Unit = {
-        Description = "Podman container ${name}";
-      } // config.unitConfig;
-      Install = {
-        WantedBy = if config.autoStart then [ "default.target" ] else [];
+  config =
+    let
+      configRelPath = "containers/systemd/${name}.container";
+      containerName = if config.containerConfig.name != null then config.containerConfig.name else name;
+      containerConfig = config.containerConfig // {
+        name = containerName;
       };
-      Container = quadletUtils.configToProperties containerConfig containerOpts;
-      Service = serviceConfigDefault // config.serviceConfig;
+      unitConfig = {
+        Unit = {
+          Description = "Podman container ${name}";
+        } // config.unitConfig;
+        Install = {
+          WantedBy = if config.autoStart then [ "default.target" ] else [ ];
+        };
+        Container = quadletUtils.configToProperties containerConfig containerOpts;
+        Service = serviceConfigDefault // config.serviceConfig;
+      };
+      unitConfigText = quadletUtils.unitConfigToText unitConfig;
+    in
+    {
+      _configName = "${name}.container";
+      _unitName = "${name}.service";
+      _configText = quadletUtils.unitConfigToText unitConfig;
     };
-    unitConfigText = quadletUtils.unitConfigToText unitConfig;
-  in {
-    _configName = "${name}.container";
-    _unitName = "${name}.service";
-    _configText = quadletUtils.unitConfigToText unitConfig;
-  };
 }
