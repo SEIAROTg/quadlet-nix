@@ -26,7 +26,7 @@ Compared to alternatives like [`virtualisation.oci-containers`](https://github.c
         quadlet-nix.inputs.nixpkgs.follows = "nixpkgs";
     };
     outputs = { nixpkgs, quadlet-nix, ... }@attrs: {
-        nixosConfigurations.machine = nixpksg.lib.nixosSystem {
+        nixosConfigurations.machine = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
                 ./configuration.nix
