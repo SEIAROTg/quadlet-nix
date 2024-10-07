@@ -46,13 +46,17 @@ Compared to alternatives like [`virtualisation.oci-containers`](https://github.c
         containers = {
             nginx.containerConfig.image = "docker.io/library/nginx:latest";
             nginx.containerConfig.networks = [ "host" "internal.network" ];
+            nginx.containerConfig.pod = config.virtualisation.quadlet.pods.nginx-pod._configName;
             nginx.serviceConfig.TimeoutStartSec = "60";
         };
         networks = {
             internal.networkConfig.subnets = [ "10.0.123.1/24" ];
         };
+        pods = {
+          nginx-pod = { };
+        };
     };
 }
 ```
 
-See [`container.nix`](./container.nix) and [`network.nix`](./network.nix) for all options.
+See [`container.nix`](./container.nix), [`network.nix`](./network.nix), and [`pod.nix`](./pod.nix) for all options.
