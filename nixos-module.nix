@@ -18,7 +18,7 @@ let
   # TODO: replace with lib.mergeAttrsList once stable.
   mergeAttrsList = foldl mergeAttrs { };
 
-  containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
+  containerOpts = types.submodule (import ./container.nix { inherit quadletUtils pkgs; });
   networkOpts = types.submodule (import ./network.nix { inherit quadletUtils pkgs; });
   podOpts = types.submodule (import ./pod.nix { inherit quadletUtils; });
 in

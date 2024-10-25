@@ -1,4 +1,4 @@
-{ quadletUtils }:
+{ quadletUtils, pkgs }:
 {
   config,
   name,
@@ -209,8 +209,31 @@ let
     image = quadletUtils.mkOption {
       type = types.str;
       example = "docker.io/library/nginx:latest";
-      description = "Image specification";
+      description = ''
+        Image specification.
+
+        The podman systemd generator can error out if you do not specify the
+        registry. For imageFile, specify "localhost/".
+      '';
       property = "Image";
+    };
+
+    # https://github.com/NixOS/nixpkgs/blob/32e940c7c420600ef0d1ef396dc63b04ee9cad37/nixos/modules/virtualisation/oci-containers.nix#L21
+    imageFile = quadletUtils.mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = ''
+        Path to an image file to load before running the image. This can
+        be used to bypass pulling the image from the registry.
+
+        The `image` attribute must match the name and
+        tag of the image contained in this file, as they will be used to
+        run the container with that image. If they do not match, the
+        image will be pulled from the registry as usual.
+      '';
+      example = literalExpression "pkgs.dockerTools.buildImage {...};";
+      # HACK!!
+      property = "#imgfile";
     };
 
     ip = quadletUtils.mkOption {
@@ -499,7 +522,21 @@ in
           WantedBy = if config.autoStart then [ "default.target" ] else [ ];
         };
         Container = quadletUtils.configToProperties containerConfig containerOpts;
-        Service = serviceConfigDefault // config.serviceConfig;
+        Service =
+          serviceConfigDefault
+          // config.serviceConfig
+          // lib.optionalAttrs (containerConfig.imageFile != null) (
+            let
+              preStartScript = pkgs.writeShellApplication {
+                name = "pre-start";
+                runtimeInputs = [ ];
+                text = "${lib.getExe pkgs.podman} load -i \"${containerConfig.imageFile}\"";
+              };
+            in
+            {
+              ExecStartPre = [ "${preStartScript}/bin/${preStartScript.name}" ];
+            }
+          );
       };
     in
     {
