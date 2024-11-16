@@ -1,0 +1,28 @@
+name: test
+
+on:
+  push:
+  pull_request:
+  schedule:
+  - cron: '0 16 * * *'  # UTC 16:00 daily
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        system: [x86_64-linux, aarch64-linux]
+        nixpkgs-branch: [nixos-24.05, nixos-unstable]
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - uses: cachix/install-nix-action@v30
+      with:
+        nix_path: nixpkgs=channel:${{ matrix.nixpkgs-branch }}
+
+    - run: nix flake check --recreate-lock-file --override-input nixpkgs 'github:NixOS/nixpkgs/${{ matrix.nixpkgs-branch }}'
