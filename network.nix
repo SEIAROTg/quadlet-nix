@@ -8,8 +8,9 @@
   lib,
   ...
 }:
-with lib;
 let
+  inherit (lib) types mkOption;
+
   networkOpts = {
     disableDns = quadletUtils.mkOption {
       type = types.nullOr types.bool;

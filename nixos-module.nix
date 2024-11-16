@@ -5,8 +5,9 @@
   pkgs,
   ...
 }@attrs:
-with lib;
 let
+  inherit (lib) types lists foldl strings mkOption attrNames attrValues mergeAttrs;
+
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
     inherit lib;

@@ -5,8 +5,9 @@
   lib,
   ...
 }:
-with lib;
 let
+  inherit (lib) types mkOption;
+
   containerOpts = {
     addCapabilities = quadletUtils.mkOption {
       type = types.listOf types.str;

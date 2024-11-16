@@ -5,8 +5,9 @@
   lib,
   ...
 }:
-with lib;
 let
+  inherit (lib) types mkOption;
+
   podOpts = {
     name = quadletUtils.mkOption {
       type = types.nullOr types.str;
