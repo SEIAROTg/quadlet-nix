@@ -1,16 +1,18 @@
-{ testers, quadletModule }: testers.runNixOSTest ({ lib, ... }: {
+{ testers, quadletModule }: testers.runNixOSTest ({ ... }: {
   name = "pod";
-  nodes.machine = { pkgs, ... }: {
+  nodes.machine = { pkgs, config, ... }: {
     imports = [ quadletModule ];
     environment.systemPackages = [ pkgs.curl ];
-    virtualisation.quadlet = {
+    virtualisation.quadlet = let
+     inherit (config.virtualisation.quadlet) pods;
+    in {
       containers.nginx.containerConfig = {
         image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
-        pod = "foo.pod";
+        pod = pods.foo.ref;
       };
       containers.redis.containerConfig = {
         image = "docker-archive:${pkgs.dockerTools.examples.redis}";
-        pod = "foo.pod";
+        pod = pods.foo.ref;
       };
       pods.foo.podConfig = {
         publishPorts = [ "8080:80" ];

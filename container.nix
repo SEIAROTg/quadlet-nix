@@ -480,9 +480,9 @@ in
     };
 
     _name = mkOption { internal = true; };
-    _configName = mkOption { internal = true; };
     _unitName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
+    ref = mkOption { readOnly = true; };
   };
 
   config =
@@ -504,8 +504,8 @@ in
     in
     {
       _name = containerName;
-      _configName = "${name}.container";
       _unitName = "${name}.service";
       _configText = quadletUtils.unitConfigToText unitConfig;
+      ref = "${name}.container";
     };
 }

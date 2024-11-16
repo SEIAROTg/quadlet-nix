@@ -184,9 +184,9 @@ in
     };
 
     _name = mkOption { internal = true; };
-    _configName = mkOption { internal = true; };
     _unitName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
+    ref = mkOption { readOnly = true; };
   };
 
   config =
@@ -212,8 +212,8 @@ in
     in
     {
       _name = podName;
-      _configName = "${name}.pod";
       _unitName = "${name}-pod.service";
       _configText = quadletUtils.unitConfigToText unitConfig;
+      ref = "${name}.pod";
     };
 }

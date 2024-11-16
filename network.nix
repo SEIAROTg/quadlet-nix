@@ -135,10 +135,10 @@ in
       default = { };
     };
 
-    _configName = mkOption { internal = true; };
     _name = mkOption { internal = true; };
     _unitName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
+    ref = mkOption { readOnly = true; };
   };
 
   config =
@@ -161,8 +161,8 @@ in
     in
     {
       _name = networkName;
-      _configName = "${name}.network";
       _unitName = "${name}-network.service";
       _configText = quadletUtils.unitConfigToText unitConfig;
+      ref = "${name}.network";
     };
 }

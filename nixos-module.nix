@@ -64,7 +64,7 @@ in
         ];
       environment.etc = mergeAttrsList (
         map (p: {
-          "containers/systemd/${p._configName}" = {
+          "containers/systemd/${p.ref}" = {
             text = p._configText;
             mode = "0600";
           };

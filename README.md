@@ -1,6 +1,6 @@
 # quadlet-nix
 
-Manages Podman containers and networks on NixOS via [Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html).
+Manages Podman containers, networks, pods, etc. on NixOS via [Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html).
 
 ## Why
 
@@ -8,9 +8,9 @@ Compared to alternatives like [`virtualisation.oci-containers`](https://github.c
 
 |                                                          | `quadlet-nix` | `oci-containers` | `arion` |
 | -------------------------------------------------------- | ------------- | ---------------- | ------- |
-| **Supports networks**                                    | ✅             | ❌                | ✅       |
-| **Updates / deletes networks on change** | ✅             | /                | ❌       |
-| **Supports [podman-auto-update](podman-auto-update)**    | ✅             | ✅                | ❌       |
+| **Supports networks / pods**                             | ✅             | ❌              | ✅      |
+| **Updates / deletes networks on change**                 | ✅             | /               | ❌      |
+| **Supports [podman-auto-update][podman-auto-update]**    | ✅             | ✅              | ❌      |
 
 [podman-auto-update]: https://docs.podman.io/en/latest/markdown/podman-auto-update.1.html
 
@@ -40,20 +40,22 @@ Compared to alternatives like [`virtualisation.oci-containers`](https://github.c
 ### `configuration.nix`
 
 ```nix
-{
+{ config, ... }: {
     # ...
-    virtualisation.quadlet = {
+    virtualisation.quadlet = let
+        inherit (config.virtualisation.quadlet) networks pods;
+    in {
         containers = {
             nginx.containerConfig.image = "docker.io/library/nginx:latest";
-            nginx.containerConfig.networks = [ "host" "internal.network" ];
-            nginx.containerConfig.pod = "nginx-pod.pod";
+            nginx.containerConfig.networks = [ "podman" networks.internal.ref ];
+            nginx.containerConfig.pod = pods.foo.ref;
             nginx.serviceConfig.TimeoutStartSec = "60";
         };
         networks = {
             internal.networkConfig.subnets = [ "10.0.123.1/24" ];
         };
         pods = {
-          nginx-pod = { };
+            foo = { };
         };
     };
 }

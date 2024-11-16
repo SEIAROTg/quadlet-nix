@@ -1,16 +1,18 @@
-{ testers, quadletModule }: testers.runNixOSTest ({ lib, ... }: {
+{ testers, quadletModule }: testers.runNixOSTest ({ ... }: {
   name = "network";
-  nodes.machine = { pkgs, ... }: {
+  nodes.machine = { pkgs, config, ... }: {
     imports = [ quadletModule ];
     environment.systemPackages = [ pkgs.curl ];
-    virtualisation.quadlet = {
+    virtualisation.quadlet = let
+     inherit (config.virtualisation.quadlet) networks;
+    in {
       containers.nginx.containerConfig = {
         image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
         publishPorts = [ "8080:80" ];
-        networks = [ "foo.network" "bar.network" ];
+        networks = [ networks.foo.ref networks.bar.ref ];
       };
-      networks.foo = {};
-      networks.bar = {};
+      networks.foo = { };
+      networks.bar = { };
     };
   };
   testScript = ''
