@@ -44,31 +44,21 @@ in
 
   config =
     let
-      containerAndPodObjects = (attrValues cfg.containers) ++ (attrValues cfg.pods);
       allObjects = (attrValues cfg.containers) ++ (attrValues cfg.networks) ++ (attrValues cfg.pods);
     in
     {
       virtualisation.podman.enable = true;
       assertions =
         let
-          count_occurances =
-            str_list:
-            lib.lists.foldl' (
-              acc: el: if acc ? ${el} then acc // { ${el} = acc.${el} + 1; } else acc // { ${el} = 1; }
-            ) { } str_list;
-          find_duplicate_elements =
-            str_l: lib.attrsets.attrNames (lib.attrsets.filterAttrs (_: v: v > 1) (count_occurances str_l));
-          # assuming that only `name` defines the final name without the suffix!
-          # Containers and pods cannot have the same name!
-          duplicate_elements = find_duplicate_elements (map (x: x._name) containerAndPodObjects);
+          containerPodConflicts = lists.intersectLists (attrNames cfg.containers) (attrNames cfg.pods);
         in
         [
           {
-            assertion = duplicate_elements == [ ];
+            assertion = containerPodConflicts == [ ];
             message = ''
               The container/pod names should be unique!
               See: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#podname
-              The following names are not unique: ${lib.strings.concatStringsSep " " duplicate_elements}
+              The following names are not unique: ${strings.concatStringsSep " " containerPodConflicts}
             '';
           }
         ];
