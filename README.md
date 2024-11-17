@@ -86,6 +86,7 @@ See [`container.nix`](./container.nix) and [`network.nix`](./network.nix) for al
             modules = [
                 ./configuration.nix
                 home-manager.nixosModules.home-manager
+                # to enable podman & podman systemd generator
                 quadlet-nix.nixosModules.quadlet
             ];
         };
@@ -101,31 +102,27 @@ See [`container.nix`](./container.nix) and [`network.nix`](./network.nix) for al
     users.users.alice = {
         # ... insert your user config here
         # The follow lines are the important ones for rootless podman
-        home = "/home/alice";
         linger = true;
         autoSubUidGidRange = true;
+        uid = 1000;
     };
-    home-manager.users.alice =
-        { pkgs, config, ... }:
-        {
-            imports = [ inputs.quadlet-nix.homeManagerModules.default ];
-            home.stateVersion = "21.11";
-            home.homeDirectory = "/home/alice";
-            systemd.user.startServices = "sd-switch"; # This is crucial to ensure the systemd services are (re)started
-            virtualisation.user.quadlet.containers = {
-                echo-server = {
-                    autoStart = true;
-                    serviceConfig = {
-                        RestartSec = "10";
-                        Restart = "always";
-                    };
-                    containerConfig = {
-                        image = "docker.io/mendhak/http-https-echo:31";
-                        publishPorts = [ "127.0.0.1:8080:8080" ];
-                        userns = "keep-id";
-                    };
+    home-manager.users.alice = { pkgs, config, ... }: {
+        imports = [ inputs.quadlet-nix.homeManagerModules.quadlet ];
+        home.stateVersion = "...";
+        virtualisation.quadlet.containers = {
+            echo-server = {
+                autoStart = true;
+                serviceConfig = {
+                    RestartSec = "10";
+                    Restart = "always";
+                };
+                containerConfig = {
+                    image = "docker.io/mendhak/http-https-echo:31";
+                    publishPorts = [ "127.0.0.1:8080:8080" ];
+                    userns = "keep-id";
                 };
             };
         };
+    };
 }
 ```

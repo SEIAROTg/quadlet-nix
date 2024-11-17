@@ -6,7 +6,7 @@
   ...
 }@attrs:
 let
-  inherit (lib) types lists foldl strings mkOption attrNames attrValues mergeAttrs;
+  inherit (lib) types lists strings mkOption attrNames attrValues mergeAttrsList;
 
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
@@ -16,8 +16,6 @@ let
         inherit lib config pkgs;
       }).systemdUtils.lib;
   };
-  # TODO: replace with lib.mergeAttrsList once stable.
-  mergeAttrsList = foldl mergeAttrs { };
 
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
   networkOpts = types.submodule (import ./network.nix { inherit quadletUtils pkgs; });
@@ -69,7 +67,6 @@ in
         {
           "systemd/user-generators/podman-user-generator" = {
             source = "${pkgs.podman}/lib/systemd/user-generators/podman-user-generator";
-            target = "systemd/user-generators/podman-user-generator";
           };
         }
         // mergeAttrsList (
