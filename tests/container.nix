@@ -1,8 +1,5 @@
-{ testers, quadletModule }: testers.runNixOSTest ({ ... }: {
-  name = "container";
-  nodes.machine = { pkgs, ... }: {
-    imports = [ quadletModule ];
-    environment.systemPackages = [ pkgs.curl ];
+{
+  testConfig = { pkgs, ... }: {
     virtualisation.quadlet = {
       containers.nginx = {
         containerConfig.image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
@@ -12,21 +9,22 @@
     };
   };
   testScript = ''
-    import json
-
     machine.wait_for_unit("default.target")
+    machine.wait_for_unit("default.target", user=user)
     assert 'nginx' in machine.succeed("curl http://127.0.0.1:8080").lower()
-    containers = json.loads(machine.succeed("podman ps --format=json"))
+    containers = list_containers(user=user)
     assert len(containers) == 1
+    if user is not None:
+      assert not list_containers(user=None)
 
-    machine.stop_job("nginx")
+    machine.stop_job("nginx", user=user)
     machine.fail("curl http://127.0.0.1:8080")
-    containers = json.loads(machine.succeed("podman ps --format=json"))
+    containers = list_containers(user=user)
     assert len(containers) == 0
 
-    machine.start_job("nginx")
+    machine.start_job("nginx", user=user)
     assert 'nginx' in machine.succeed("curl http://127.0.0.1:8080").lower()
-    containers = json.loads(machine.succeed("podman ps --format=json"))
+    containers = list_containers(user=user)
     assert len(containers) == 1
   '';
-})
+}

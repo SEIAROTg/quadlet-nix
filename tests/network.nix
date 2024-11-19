@@ -1,8 +1,5 @@
-{ testers, quadletModule }: testers.runNixOSTest ({ ... }: {
-  name = "network";
-  nodes.machine = { pkgs, config, ... }: {
-    imports = [ quadletModule ];
-    environment.systemPackages = [ pkgs.curl ];
+{
+  testConfig = { pkgs, config, ... }: {
     virtualisation.quadlet = let
      inherit (config.virtualisation.quadlet) networks;
     in {
@@ -16,29 +13,31 @@
     };
   };
   testScript = ''
-    import json
-
     machine.wait_for_unit("default.target")
+    machine.wait_for_unit("default.target", user=user)
     assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
 
-    containers = json.loads(machine.succeed("podman ps --format=json"))
+    containers = list_containers(user=user)
     assert len(containers) == 1
-    networks = json.loads(machine.succeed("podman network ls --format=json"))
+    networks = list_networks(user=user)
     assert len(networks) == 3
     assert len(containers[0]["Networks"]) == 2
+    if user is not None:
+      assert not list_containers(user=None)
+      assert len(list_networks(user=None)) == 1
 
-    machine.stop_job("foo-network")
+    machine.stop_job("foo-network", user=user)
     machine.fail("curl http://127.0.0.1:8080")
-    containers = json.loads(machine.succeed("podman ps --format=json"))
+    containers = list_containers(user=user)
     assert len(containers) == 0
-    networks = json.loads(machine.succeed("podman network ls --format=json"))
+    networks = list_networks(user=user)
     assert len(networks) == 2
 
-    machine.start_job("nginx")
+    machine.start_job("nginx", user=user)
     assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
-    containers = json.loads(machine.succeed("podman ps --format=json"))
+    containers = list_containers(user=user)
     assert len(containers) == 1
-    networks = json.loads(machine.succeed("podman network ls --format=json"))
+    networks = list_networks(user=user)
     assert len(networks) == 3
   '';
-})
+}

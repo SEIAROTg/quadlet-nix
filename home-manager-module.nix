@@ -81,7 +81,12 @@ in
             };
             # Inject X-RestartIfChanged=${hash} for NixOS to detect changes.
             "systemd/user/${p._unitName}.d/override.conf" = {
-              text = "[Unit]\nX-RestartIfChanged=${builtins.hashString "sha256" p._configText}";
+              text = ''
+                [Unit]
+                X-RestartIfChanged=${builtins.hashString "sha256" p._configText}
+                [Service]
+                Environment=PATH=/run/wrappers/bin
+              '';
             };
           }) allObjects
         );
