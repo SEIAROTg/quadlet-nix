@@ -42,24 +42,25 @@
         ${testScript}
       '';
 
-      runRootfulTest = { name, testConfig, testScript, pkgs }: pkgs.testers.runNixOSTest ({ ... }: {
+      runRootfulTest = { name, testConfig, testScript, specialisation, pkgs }: pkgs.testers.runNixOSTest ({ ... }: {
         name = name + "-rootful";
         testScript = makeTestScript { user = "None"; inherit testScript; };
 
-        nodes.machine = { ... }: {
+        nodes.machine = { pkgs, ... }@attrs: {
           imports = [
             quadlet-nix.nixosModules.quadlet
             testConfig
           ];
           environment.systemPackages = [ pkgs.curl ];
+          specialisation = builtins.mapAttrs (name: value: { configuration = value; }) (specialisation attrs);
         };
       });
 
-      runRootlessTest = { name, testConfig, testScript, pkgs }: pkgs.testers.runNixOSTest ({ ... }: {
+      runRootlessTest = { name, testConfig, testScript, specialisation, pkgs }: pkgs.testers.runNixOSTest ({ ... }: {
         name = name + "-rootless";
         testScript = makeTestScript { user = "\"alice\""; inherit testScript; };
 
-        nodes.machine = { config, ... }: {
+        nodes.machine = { lib, pkgs, config, ... }@attrs: {
           imports = [
             quadlet-nix.nixosModules.quadlet
             home-manager.nixosModules.home-manager
@@ -75,20 +76,35 @@
           };
           users.groups.alice = {};
 
-          home-manager.users.alice = { ... }: {
+          home-manager.users.alice = lib.mkDefault ({ ... }: {
             imports = [
               quadlet-nix.homeManagerModules.quadlet
               testConfig
             ];
+            systemd.user.startServices = "sd-switch";
             home.stateVersion = config.system.nixos.release;
-          };
+          });
+
+          specialisation = builtins.mapAttrs (name: value: {
+            configuration = {
+              home-manager.users.alice = ({ ... }: {
+                imports = [
+                  quadlet-nix.homeManagerModules.quadlet
+                  testConfig
+                  value
+                ];
+                systemd.user.startServices = "sd-switch";
+                home.stateVersion = config.system.nixos.release;
+              });
+            };
+          }) (specialisation attrs);
         };
       });
 
       genTest = pkgs: runTest: file: let
         name = pkgs.lib.removeSuffix ".nix" (builtins.baseNameOf file);
-        value = ({ testConfig, testScript }: runTest {
-          inherit name pkgs testConfig testScript;
+        value = ({ testConfig, testScript, specialisation ? _: { } }: runTest {
+          inherit name pkgs testConfig testScript specialisation;
         }) (import file);
       in {
         name = value.config.name;
@@ -112,6 +128,7 @@
           (genRootfulTest ./pod.nix)
           (genRootlessTest ./pod.nix)
           (genRootfulTest ./switch.nix)
+          (genRootlessTest ./switch.nix)
         ];
       in builtins.listToAttrs (map (system: { name = system; value = genTests system; }) systems);
     };

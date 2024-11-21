@@ -75,23 +75,22 @@ in
             "containers/systemd/${p.ref}" = {
               text = p._configText;
             };
-            # Link the corresponding .service files so that the home-manager activation process knows about them
+            # Inject hash for the activation process to detect changes.
+            # Must be in the main file as it's the only thing home-manager switch process looks at.
             "systemd/user/${p._unitName}" = {
-              source = "${links}/${p._unitName}";
-            };
-            # Inject X-RestartIfChanged=${hash} for NixOS to detect changes.
-            "systemd/user/${p._unitName}.d/override.conf" = {
               text = ''
                 [Unit]
-                X-RestartIfChanged=${builtins.hashString "sha256" p._configText}
+                X-QuadletNixConfigHash=${builtins.hashString "sha256" p._configText}
                 [Service]
                 Environment=PATH=/run/wrappers/bin
               '';
             };
+            # Import quadlet-generated unit as a dropin override.
+            "systemd/user/${p._unitName}.d/override.conf" = {
+              source = "${links}/${p._unitName}";
+            };
           }) allObjects
         );
-      # This is crucial to ensure the systemd services are (re)started
-      systemd.user.startServices = "sd-switch";
       systemd.user.services.podman-auto-update = mkIf cfg.autoUpdate.enable {
         Unit = {
           Description = "Podman auto-update service";
