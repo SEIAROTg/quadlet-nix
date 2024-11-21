@@ -104,7 +104,6 @@ See [`container.nix`](./container.nix) and [`network.nix`](./network.nix) for al
         # The follow lines are the important ones for rootless podman
         linger = true;
         autoSubUidGidRange = true;
-        uid = 1000;
     };
     home-manager.users.alice = { pkgs, config, ... }: {
         imports = [ inputs.quadlet-nix.homeManagerModules.quadlet ];

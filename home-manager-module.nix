@@ -17,6 +17,11 @@ let
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
   networkOpts = types.submodule (import ./network.nix { inherit quadletUtils pkgs; });
   podOpts = types.submodule (import ./pod.nix { inherit quadletUtils; });
+
+  activationScript = lib.hm.dag.entryBefore [ "reloadSystemd" ] ''
+    mkdir -p '${config.xdg.configHome}/quadlet-nix/'
+    ln -sf "''${XDG_RUNTIME_DIR:-/run/user/$UID}/systemd/generator/" '${config.xdg.configHome}/quadlet-nix/out'
+  '';
 in
 {
   options.virtualisation.quadlet = {
@@ -48,26 +53,14 @@ in
       allObjects = (attrValues cfg.containers) ++ (attrValues cfg.networks) ++ (attrValues cfg.pods);
     in
     {
-      assertions = [
-        {
-          assertion = builtins.isInt osConfig.users.users.${config.home.username}.uid;
-          message = ''
-            users.users.${config.home.username}.uid must be set.
-          '';
-        }
-      ];
+      home.activation.quadletNix = mkIf (lib.length allObjects > 0) activationScript;
 
       xdg.configFile =
         let
-          links = pkgs.linkFarm "user-quadlet-service-symlinks" (
-            map (p: {
-              name = p._unitName;
-              # TODO: remove reliance on uid in config
-              path = "/run/user/${
-                toString osConfig.users.users.${config.home.username}.uid
-              }/systemd/generator/${p._unitName}";
-            }) allObjects
-          );
+          configPathLink = (pkgs.linkFarm "quadlet-out-path" [{
+            name = "quadlet-nix";
+            path = "${config.xdg.configHome}/quadlet-nix";
+          }]) + "/quadlet-nix";
         in
         mergeAttrsList (
           map (p: {
@@ -87,7 +80,7 @@ in
             };
             # Import quadlet-generated unit as a dropin override.
             "systemd/user/${p._unitName}.d/override.conf" = {
-              source = "${links}/${p._unitName}";
+              source = "${configPathLink}/out/${p._unitName}";
             };
           }) allObjects
         );

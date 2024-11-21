@@ -72,7 +72,6 @@
             linger = true;
             autoSubUidGidRange = true;
             isNormalUser = true;
-            uid = 1000;
           };
           users.groups.alice = {};
 
