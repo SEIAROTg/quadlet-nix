@@ -92,7 +92,10 @@ in
         map (p: {
           ${p._unitName} = {
             overrideStrategy = "asDropin";
-            text = "[Unit]\nX-RestartIfChanged=${builtins.hashString "sha256" p._configText}";
+            text = ''
+              [Unit]
+              X-QuadletNixConfigHash=${builtins.hashString "sha256" p._configText}
+            '';
           };
         }) allObjects
       );
