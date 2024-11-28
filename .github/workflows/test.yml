@@ -12,7 +12,9 @@ jobs:
 
     strategy:
       matrix:
-        system: [x86_64-linux, aarch64-linux]
+        # TODO: re-enable aarch64-linux once github has native runner
+        # https://github.com/orgs/community/discussions/19197
+        system: [x86_64-linux]
         version:
         - nixpkgs: nixos-24.11
           home-manager: release-24.11
