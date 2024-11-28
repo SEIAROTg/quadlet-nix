@@ -31,7 +31,10 @@ jobs:
 
     - run: >
         nix flake check
+        --keep-going
+        --all-systems
         --override-input quadlet-nix "path:$(pwd)"
         --override-input nixpkgs 'github:NixOS/nixpkgs/${{ matrix.version.nixpkgs }}'
         --override-input home-manager 'github:nix-community/home-manager/${{ matrix.version.home-manager }}'
+        --override-input test-config "path:$(pwd)/tests/${{ matrix.system }}"
         ./tests

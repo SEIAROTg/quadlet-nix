@@ -13,10 +13,13 @@
 
     home-manager.url = "path:/dev/null";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    test-config.url = "path:/dev/null";
   };
 
   outputs =
-    { nixpkgs, nixpkgs-2405, home-manager, quadlet-nix, ... }: let
+    { test-config, nixpkgs, nixpkgs-2405, home-manager, quadlet-nix, ... }: let
+      system = test-config.system;
       makeTestScript = { user, testScript }: { nodes, ... }: ''
         import json
         from typing import Any, Optional
@@ -115,22 +118,20 @@
 
     in {
       checks = let
-        systems = [ "x86_64-linux" "aarch64-linux" ];
-        genTests = system: let
-          pkgs = import nixpkgs { inherit system; };
-          genRootfulTest = genTest pkgs runRootfulTest;
-          sdSwitchBugAffected = let
-            version = pkgs.sd-switch.version;
-          in builtins.compareVersions version "0.5.0" >= 0;
-          sdSwitchBugOverlay = final: prev: {
-            sd-switch = (import nixpkgs-2405 { inherit system; }).sd-switch;
-          };
-          rootlessPkgs = if !sdSwitchBugAffected then pkgs else import nixpkgs {
-            inherit system;
-            overlays = [ sdSwitchBugOverlay ];
-          };
-          genRootlessTest = genTest rootlessPkgs runRootlessTest;
-        in builtins.listToAttrs [
+        pkgs = import nixpkgs { inherit system; };
+        genRootfulTest = genTest pkgs runRootfulTest;
+        sdSwitchBugAffected = let
+          version = pkgs.sd-switch.version;
+        in builtins.compareVersions version "0.5.0" >= 0;
+        sdSwitchBugOverlay = final: prev: {
+          sd-switch = (import nixpkgs-2405 { inherit system; }).sd-switch;
+        };
+        rootlessPkgs = if !sdSwitchBugAffected then pkgs else import nixpkgs {
+          inherit system;
+          overlays = [ sdSwitchBugOverlay ];
+        };
+        genRootlessTest = genTest rootlessPkgs runRootlessTest;
+        tests = builtins.listToAttrs [
           (genRootfulTest ./basic.nix)
           (genRootlessTest ./basic.nix)
           (genRootfulTest ./container.nix)
@@ -142,6 +143,8 @@
           (genRootfulTest ./switch.nix)
           (genRootlessTest ./switch.nix)
         ];
-      in builtins.listToAttrs (map (system: { name = system; value = genTests system; }) systems);
+      in {
+        "${system}" = tests;
+      };
     };
 }
