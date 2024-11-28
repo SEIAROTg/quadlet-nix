@@ -108,6 +108,8 @@ See [`container.nix`](./container.nix) and [`network.nix`](./network.nix) for al
     home-manager.users.alice = { pkgs, config, ... }: {
         imports = [ inputs.quadlet-nix.homeManagerModules.quadlet ];
         # This is crucial to ensure the systemd services are (re)started
+        # There appears to be some issues with sd-switch>=0.5.0 that causes services not to
+        # auto-start on boot. Consider using a different version.
         systemd.user.startServices = "sd-switch";
         home.stateVersion = "...";
         virtualisation.quadlet.containers = {

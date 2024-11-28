@@ -14,8 +14,8 @@ jobs:
       matrix:
         system: [x86_64-linux, aarch64-linux]
         version:
-        - nixpkgs: nixos-24.05
-          home-manager: release-24.05
+        - nixpkgs: nixos-24.11
+          home-manager: release-24.11
         - nixpkgs: nixos-unstable
           home-manager: master
 
@@ -31,7 +31,6 @@ jobs:
 
     - run: >
         nix flake check
-        --recreate-lock-file
         --override-input quadlet-nix "path:$(pwd)"
         --override-input nixpkgs 'github:NixOS/nixpkgs/${{ matrix.version.nixpkgs }}'
         --override-input home-manager 'github:nix-community/home-manager/${{ matrix.version.home-manager }}'

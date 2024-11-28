@@ -1,7 +1,6 @@
 { libUtils }:
 {
   config,
-  osConfig,
   lib,
   pkgs,
   ...
@@ -83,7 +82,22 @@ in
               source = "${configPathLink}/out/${p._unitName}";
             };
           }) allObjects
-        );
+        ) // {
+          # the stock service uses `sh` instead of `/bin/sh`.
+          # systemd only looks for command binary in a few static location.
+          # See: https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#Command%20lines
+          "systemd/user/podman-user-wait-network-online.service.d/override.conf" = {
+            text = ''
+              [Service]
+              ExecStart=
+              ExecStart=/bin/sh -c 'until systemctl is-active network-online.target; do sleep 0.5; done'
+              [Install]
+              WantedBy=default.target
+            '';
+          };
+        };
+      # TODO: link from ${pkgs.podman}/share/systemd/user/podman-auto-update.service
+      # when https://github.com/containers/podman/issues/24637 is fixed.
       systemd.user.services.podman-auto-update = mkIf cfg.autoUpdate.enable {
         Unit = {
           Description = "Podman auto-update service";
