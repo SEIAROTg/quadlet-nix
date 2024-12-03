@@ -15,11 +15,13 @@ Compared to alternatives like [`virtualisation.oci-containers`](https://github.c
 
 [podman-auto-update]: https://docs.podman.io/en/latest/markdown/podman-auto-update.1.html
 
-## How (rootful)
+## How
 
 See [`container.nix`](./container.nix), [`network.nix`](./network.nix), and [`pod.nix`](./pod.nix) for all options.
 
-### `flake.nix`
+### Example (rootful)
+
+#### `flake.nix`
 
 ```nix
 {
@@ -40,7 +42,7 @@ See [`container.nix`](./container.nix), [`network.nix`](./network.nix), and [`po
 }
 ```
 
-### `configuration.nix`
+#### `configuration.nix`
 
 ```nix
 { config, ... }: {
@@ -64,11 +66,9 @@ See [`container.nix`](./container.nix), [`network.nix`](./network.nix), and [`po
 }
 ```
 
-## How (rootless)
+### Example (rootless)
 
-See [`container.nix`](./container.nix) and [`network.nix`](./network.nix) for all options.
-
-### `flake.nix`
+#### `flake.nix`
 
 ```nix
 {
@@ -78,7 +78,6 @@ See [`container.nix`](./container.nix) and [`network.nix`](./network.nix) for al
         home-manager.inputs.nixpkgs.follows = "nixpkgs";
         quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
         quadlet-nix.inputs.nixpkgs.follows = "nixpkgs";
-        quadlet-nix.inputs.home-manager.follows = "home-manager";
     };
     outputs = { nixpkgs, quadlet-nix, home-manager, ... }@attrs: {
         nixosConfigurations.machine = nixpksg.lib.nixosSystem {
@@ -94,24 +93,25 @@ See [`container.nix`](./container.nix) and [`network.nix`](./network.nix) for al
 }
 ```
 
-### `configuration.nix`
+#### `configuration.nix`
 
 ```nix
 {
     # ...
     users.users.alice = {
-        # ... insert your user config here
-        # The follow lines are the important ones for rootless podman
+        # ...
+        # required for auto start before user login
         linger = true;
+        # required for rootless container with multiple users
         autoSubUidGidRange = true;
     };
     home-manager.users.alice = { pkgs, config, ... }: {
+        # ...
         imports = [ inputs.quadlet-nix.homeManagerModules.quadlet ];
-        # This is crucial to ensure the systemd services are (re)started
+        # This is crucial to ensure the systemd services are (re)started on config change
         # There appears to be some issues with sd-switch>=0.5.0 that causes services not to
         # auto-start on boot. Consider using a different version.
         systemd.user.startServices = "sd-switch";
-        home.stateVersion = "...";
         virtualisation.quadlet.containers = {
             echo-server = {
                 autoStart = true;
