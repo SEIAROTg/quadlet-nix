@@ -17,6 +17,14 @@ let
       property = "AddCapability";
     };
 
+    addHosts = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = ["hostname:192.168.10.11"];
+      description = "--add-host";
+      property = "AddHost";
+    };
+
     devices = quadletUtils.mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -87,7 +95,7 @@ let
     };
 
     environments = quadletUtils.mkOption {
-      type = types.attrs;
+      type = types.attrsOf types.str;
       default = { };
       example = {
         foo = "bar";
@@ -232,7 +240,7 @@ let
     };
 
     image = quadletUtils.mkOption {
-      type = types.str;
+      type = types.nonEmptyStr;
       example = "docker.io/library/nginx:latest";
       description = "Image specification";
       property = "Image";
@@ -334,7 +342,7 @@ let
     pull = quadletUtils.mkOption {
       type = types.nullOr types.str;
       default = null;
-      example = [ "never" ];
+      example = "never";
       description = "--pull";
       property = "Pull";
     };
@@ -416,7 +424,7 @@ let
     };
 
     sysctl = quadletUtils.mkOption {
-      type = types.attrs;
+      type = types.attrsOf types.str;
       default = { };
       example = {
         name = "value";
@@ -467,7 +475,7 @@ let
     volumes = quadletUtils.mkOption {
       type = types.listOf types.str;
       default = [ ];
-      example = [ ];
+      example = [ "/source:/dest" ];
       description = "--volume";
       property = "Volume";
     };
