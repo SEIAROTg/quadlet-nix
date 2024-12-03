@@ -205,7 +205,7 @@ in
           Description = "Podman pod ${name}";
         } // config.unitConfig;
         Install = {
-          WantedBy = if config.autoStart then [ "default.target" ] else [ ];
+          WantedBy = if config.autoStart then [ quadletUtils.defaultTarget ] else [ ];
         };
         Pod = quadletUtils.configToProperties podConfig podOpts;
         Service = serviceConfigDefault // config.serviceConfig;

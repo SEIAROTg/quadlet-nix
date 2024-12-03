@@ -1,4 +1,4 @@
-{ lib, systemdLib }:
+{ lib, systemdLib, isUserSystemd }:
 
 let
   attrsToList =
@@ -27,4 +27,8 @@ in
     builtins.concatStringsSep "\n\n" (
       lib.mapAttrsToList (name: section: "[${name}]\n${systemdLib.attrsToSection section}") unitConfig
     );
+
+  # systemd recommends multi-user.target over default.target.
+  # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#default.target
+  defaultTarget = if isUserSystemd then "default.target" else "multi-user.target";
 }

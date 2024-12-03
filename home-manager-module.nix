@@ -12,6 +12,7 @@ let
   quadletUtils = import ./utils.nix {
     inherit lib;
     systemdLib = (libUtils { inherit lib config pkgs; }).systemdUtils.lib;
+    isUserSystemd = true;
   };
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
   networkOpts = types.submodule (import ./network.nix { inherit quadletUtils pkgs; });

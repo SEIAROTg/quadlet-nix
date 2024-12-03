@@ -15,6 +15,7 @@ let
       (libUtils {
         inherit lib config pkgs;
       }).systemdUtils.lib;
+    isUserSystemd = false;
   };
 
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });

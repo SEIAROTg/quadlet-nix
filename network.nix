@@ -152,7 +152,7 @@ in
           Description = "Podman network ${name}";
         } // config.unitConfig;
         Install = {
-          WantedBy = if config.autoStart then [ "default.target" ] else [ ];
+          WantedBy = if config.autoStart then [ quadletUtils.defaultTarget ] else [ ];
         };
         Network = quadletUtils.configToProperties networkConfig networkOpts;
         Service = {

@@ -531,7 +531,7 @@ in
           Description = "Podman container ${name}";
         } // config.unitConfig;
         Install = {
-          WantedBy = if config.autoStart then [ "default.target" ] else [ ];
+          WantedBy = if config.autoStart then [ quadletUtils.defaultTarget ] else [ ];
         };
         Container = quadletUtils.configToProperties containerConfig containerOpts;
         Service = serviceConfigDefault // config.serviceConfig;
