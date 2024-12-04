@@ -16,10 +16,11 @@ let
         inherit lib config pkgs;
       }).systemdUtils.lib;
     isUserSystemd = false;
+    podmanPackage = config.virtualisation.podman.package;
   };
 
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
-  networkOpts = types.submodule (import ./network.nix { inherit quadletUtils pkgs; });
+  networkOpts = types.submodule (import ./network.nix { inherit quadletUtils; });
   podOpts = types.submodule (import ./pod.nix { inherit quadletUtils; });
 in
 {
@@ -67,7 +68,7 @@ in
         # Ensure podman-user-generator is available for systemd user services.
         {
           "systemd/user-generators/podman-user-generator" = {
-            source = "${pkgs.podman}/lib/systemd/user-generators/podman-user-generator";
+            source = "${quadletUtils.podmanPackage}/lib/systemd/user-generators/podman-user-generator";
           };
         }
         // mergeAttrsList (

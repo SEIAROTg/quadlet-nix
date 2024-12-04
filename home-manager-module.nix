@@ -1,21 +1,23 @@
 { libUtils }:
 {
   config,
+  osConfig ? { },
   lib,
   pkgs,
   ...
 }:
 let
-  inherit (lib) types mkOption attrValues mergeAttrsList mkIf;
+  inherit (lib) types mkOption attrValues mergeAttrsList mkIf getExe;
 
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
     inherit lib;
     systemdLib = (libUtils { inherit lib config pkgs; }).systemdUtils.lib;
     isUserSystemd = true;
+    podmanPackage = osConfig.virtualisation.podman.package or pkgs.podman;
   };
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
-  networkOpts = types.submodule (import ./network.nix { inherit quadletUtils pkgs; });
+  networkOpts = types.submodule (import ./network.nix { inherit quadletUtils; });
   podOpts = types.submodule (import ./pod.nix { inherit quadletUtils; });
 
   activationScript = lib.hm.dag.entryBefore [ "reloadSystemd" ] ''
@@ -108,8 +110,8 @@ in
           Type = "oneshot";
           # podman rootless requires "newuidmap" (the suid version, not the non-suid one from pkgs.shadow)
           Environment = "PATH=/run/wrappers/bin";
-          ExecStart = "${pkgs.podman}/bin/podman auto-update";
-          ExecStartPost = "${pkgs.podman}/bin/podman image prune -f";
+          ExecStart = "${getExe quadletUtils.podmanPackage} auto-update";
+          ExecStartPost = "${getExe quadletUtils.podmanPackage} image prune -f";
           TimeoutStartSec = "900s";
           TimeoutStopSec = "10s";
         };

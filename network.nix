@@ -1,6 +1,5 @@
 {
   quadletUtils,
-  pkgs,
 }:
 {
   config,
@@ -9,7 +8,7 @@
   ...
 }:
 let
-  inherit (lib) types mkOption;
+  inherit (lib) types mkOption getExe;
 
   networkOpts = {
     disableDns = quadletUtils.mkOption {
@@ -156,7 +155,7 @@ in
         };
         Network = quadletUtils.configToProperties networkConfig networkOpts;
         Service = {
-          ExecStop = "${pkgs.podman}/bin/podman network rm ${networkName}";
+          ExecStop = "${getExe quadletUtils.podmanPackage} network rm ${networkName}";
         } // config.serviceConfig;
       };
     in
