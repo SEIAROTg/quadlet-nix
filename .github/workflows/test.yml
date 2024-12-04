@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         # TODO: re-enable aarch64-linux once github has native runner
         # https://github.com/orgs/community/discussions/19197
@@ -31,12 +32,29 @@ jobs:
       with:
         nix_path: nixpkgs=channel:${{ matrix.version.nixpkgs }}
 
-    - run: >
-        nix flake check
-        --keep-going
-        --all-systems
+    - name: create flake.lock
+      run: >
+        nix flake lock
         --override-input quadlet-nix "path:$(pwd)"
         --override-input nixpkgs 'github:NixOS/nixpkgs/${{ matrix.version.nixpkgs }}'
         --override-input home-manager 'github:nix-community/home-manager/${{ matrix.version.home-manager }}'
         --override-input test-config "path:$(pwd)/tests/${{ matrix.system }}"
         ./tests
+
+    - name: run tests
+      run: >
+        nix run github:Mic92/nix-fast-build
+        --
+        --skip-cached
+        --no-nom
+        --result-format junit
+        --result-file result.xml
+        --flake ./tests#checks
+
+    - name: report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()    # run this step even if previous step failed
+      with:
+        name: test
+        path: result.xml
+        reporter: java-junit
