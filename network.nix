@@ -127,11 +127,11 @@ in
     };
     networkConfig = networkOpts;
     unitConfig = mkOption {
-      type = types.attrs;
+      type = types.attrsOf quadletUtils.unitOption;
       default = { };
     };
     serviceConfig = mkOption {
-      type = types.attrs;
+      type = types.attrsOf quadletUtils.unitOption;
       default = { };
     };
 

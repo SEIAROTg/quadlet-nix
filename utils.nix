@@ -1,4 +1,4 @@
-{ lib, systemdLib, isUserSystemd, podmanPackage }:
+{ lib, systemdUtils, isUserSystemd, podmanPackage }:
 
 let
   attrsToList =
@@ -25,8 +25,10 @@ in
   unitConfigToText =
     unitConfig:
     builtins.concatStringsSep "\n\n" (
-      lib.mapAttrsToList (name: section: "[${name}]\n${systemdLib.attrsToSection section}") unitConfig
+      lib.mapAttrsToList (name: section: "[${name}]\n${systemdUtils.lib.attrsToSection section}") unitConfig
     );
+
+  inherit (systemdUtils.unitOptions) unitOption;
 
   # systemd recommends multi-user.target over default.target.
   # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#default.target

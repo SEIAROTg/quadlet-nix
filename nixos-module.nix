@@ -11,10 +11,7 @@ let
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
     inherit lib;
-    systemdLib =
-      (libUtils {
-        inherit lib config pkgs;
-      }).systemdUtils.lib;
+    systemdUtils = (libUtils { inherit lib config pkgs; }).systemdUtils;
     isUserSystemd = false;
     podmanPackage = config.virtualisation.podman.package;
   };
