@@ -310,7 +310,7 @@ let
     };
 
     notify = quadletUtils.mkOption {
-      type = types.nullOr (types.enum [ "true" "false" "healthy" ]);
+      type = types.enum [ null true false "healthy" ];
       default = null;
       description = "--sdnotify container";
       property = "Notify";
