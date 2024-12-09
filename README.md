@@ -80,7 +80,7 @@ See [`container.nix`](./container.nix), [`network.nix`](./network.nix), and [`po
         quadlet-nix.inputs.nixpkgs.follows = "nixpkgs";
     };
     outputs = { nixpkgs, quadlet-nix, home-manager, ... }@attrs: {
-        nixosConfigurations.machine = nixpksg.lib.nixosSystem {
+        nixosConfigurations.machine = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
                 ./configuration.nix
