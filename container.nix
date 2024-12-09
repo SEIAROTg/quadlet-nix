@@ -142,6 +142,14 @@ let
       description = "--user UID:...";
       property = "Group";
     };
+    
+    gidMaps = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [  ];
+      example = [ "0:10000:10" ];
+      description = "--gidmap";
+      property = "GIDMap";
+    };
 
     healthCmd = quadletUtils.mkOption {
       type = types.nullOr types.str;
@@ -447,6 +455,14 @@ let
       example = [ "/work" ];
       description = "--tmpfs";
       property = "Tmpfs";
+    };
+
+    uidMaps = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "0:10000:10" ];
+      description = "--uidmap";
+      property = "UIDMap";
     };
 
     user = quadletUtils.mkOption {
