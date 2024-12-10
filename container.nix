@@ -143,10 +143,10 @@ let
       property = "Group";
     };
     
-    gidMap = quadletUtils.mkOption {
-      type = types.nullOr types.str;
-      default = null;
-      example = "0:10000:10";
+    gidMaps = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [  ];
+      example = [ "0:10000:10" ];
       description = "--gidmap";
       property = "GIDMap";
     };
@@ -457,10 +457,10 @@ let
       property = "Tmpfs";
     };
 
-    uidMap = quadletUtils.mkOption {
-      type = types.nullOr types.str;
-      default = null;
-      example = "0:10000:10";
+    uidMaps = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "0:10000:10" ];
       description = "--uidmap";
       property = "UIDMap";
     };
