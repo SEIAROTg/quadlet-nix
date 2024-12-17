@@ -11,11 +11,27 @@ let
   inherit (lib) types mkOption getExe;
 
   networkOpts = {
+    modules = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "/etc/nvd.conf" ];
+      description = "--module";
+      property = "ContainersConfModule";
+    };
+
     disableDns = quadletUtils.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--disable-dns";
       property = "DisableDNS";
+    };
+
+    dns = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "192.168.55.1" ];
+      description = "--dns";
+      property = "DNS";
     };
 
     driver = quadletUtils.mkOption {
@@ -38,6 +54,14 @@ let
       example = [ "192.168.55.3" ];
       description = "--gateway";
       property = "Gateway";
+    };
+
+    globalArgs = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [  ];
+      example = [ "--log-level=debug" ];
+      description = "global args";
+      property = "GlobalArgs";
     };
 
     internal = quadletUtils.mkOption {

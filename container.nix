@@ -54,12 +54,28 @@ let
       property = "AutoUpdate";
     };
 
+    cgroupsMode = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "no-conmon";
+      description = "--cgroups";
+      property = "CgroupsMode";
+    };
+
     name = quadletUtils.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "name";
       description = "--name";
       property = "ContainerName";
+    };
+
+    modules = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "/etc/nvd.conf" ];
+      description = "--module";
+      property = "ContainersConfModule";
     };
 
     dns = quadletUtils.mkOption {
@@ -92,6 +108,14 @@ let
       example = [ "NET_ADMIN" ];
       description = "--cap-drop";
       property = "DropCapability";
+    };
+
+    entrypoint = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "/foo.sh";
+      description = "--entrypoint";
+      property = "Entrypoint";
     };
 
     environments = quadletUtils.mkOption {
@@ -135,6 +159,22 @@ let
       property = "ExposeHostPort";
     };
 
+    gidMaps = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [  ];
+      example = [ "0:10000:10" ];
+      description = "--gidmap";
+      property = "GIDMap";
+    };
+
+    globalArgs = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [  ];
+      example = [ "--log-level=debug" ];
+      description = "global args";
+      property = "GlobalArgs";
+    };
+
     group = quadletUtils.mkOption {
       type = types.nullOr types.str;
       default = null;
@@ -142,13 +182,13 @@ let
       description = "--user UID:...";
       property = "Group";
     };
-    
-    gidMaps = quadletUtils.mkOption {
+
+    addGroups = quadletUtils.mkOption {
       type = types.listOf types.str;
-      default = [  ];
-      example = [ "0:10000:10" ];
-      description = "--gidmap";
-      property = "GIDMap";
+      default = [ ];
+      example = [ "keep-groups" ];
+      description = "--group-add";
+      property = "GroupAdd";
     };
 
     healthCmd = quadletUtils.mkOption {
@@ -165,6 +205,30 @@ let
       example = "2m";
       description = "--health-interval";
       property = "HealthInterval";
+    };
+
+    healthLogDestination = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "/foo/log";
+      description = "--health-log-destination";
+      property = "HealthLogDestination";
+    };
+
+    healthMaxLogCount = quadletUtils.mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      example = 5;
+      description = "--health-max-log-count";
+      property = "HealthMaxLogCount";
+    };
+
+    healthMaxLogSize = quadletUtils.mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      example = 500;
+      description = "	--health-max-log-size";
+      property = "HealthMaxLogSize";
     };
 
     healthOnFailure = quadletUtils.mkOption {
@@ -286,6 +350,22 @@ let
       property = "LogDriver";
     };
 
+    logOptions = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "path=/var/log/mykube.json" ];
+      description = "--log-opt";
+      property = "LogOpt";
+    };
+
+    mask = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "/proc/sys/foo:/proc/sys/bar";
+      description = "--security-opt mask=...";
+      property = "Mask";
+    };
+
     mounts = quadletUtils.mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -302,6 +382,14 @@ let
       property = "Network";
     };
 
+    networkAliases = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "name" ];
+      description = "--network-alias";
+      property = "NetworkAlias";
+    };
+
     noNewPrivileges = quadletUtils.mkOption {
       type = types.nullOr types.bool;
       default = null;
@@ -309,19 +397,19 @@ let
       property = "NoNewPrivileges";
     };
 
-    rootfs = quadletUtils.mkOption {
-      type = types.nullOr types.str;
-      default = null;
-      example = "/var/lib/rootfs";
-      description = "--rootfs";
-      property = "Rootfs";
-    };
-
     notify = quadletUtils.mkOption {
       type = types.enum [ null true false "healthy" ];
       default = null;
       description = "--sdnotify container";
       property = "Notify";
+    };
+
+    pidsLimit = quadletUtils.mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      example = 10000;
+      description = "--pids-limit";
+      property = "PidsLimit";
     };
 
     pod = quadletUtils.mkOption {
@@ -360,6 +448,21 @@ let
       default = null;
       description = "--read-only";
       property = "ReadOnly";
+    };
+
+    readOnlyTmpfs = quadletUtils.mkOption {
+      type = types.nullOr types.bool;
+      default = null;
+      description = "--read-only-tmpfs";
+      property = "ReadOnlyTmpfs";
+    };
+
+    rootfs = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "/var/lib/rootfs";
+      description = "--rootfs";
+      property = "Rootfs";
     };
 
     runInit = quadletUtils.mkOption {
@@ -431,6 +534,45 @@ let
       property = "ShmSize";
     };
 
+    startWithPod = quadletUtils.mkOption {
+      type = types.nullOr types.bool;
+      default = null;
+      description = "If pod is defined, container is started by pod";
+      property = "StartWithPod";
+    };
+
+    stopSignal = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "SIGINT";
+      description = "--stop-signal";
+      property = "StopSignal";
+    };
+
+    stopTimeout = quadletUtils.mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      example = 20;
+      description = "--stop-timeout";
+      property = "StopTimeout";
+    };
+
+    subGIDMap = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "gtest";
+      description = "--subgidname";
+      property = "SubGIDMap";
+    };
+
+    subUIDMap = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "utest";
+      description = "--subuidname";
+      property = "SubUIDMap";
+    };
+
     sysctl = quadletUtils.mkOption {
       type = types.attrsOf types.str;
       default = { };
@@ -465,6 +607,22 @@ let
       property = "UIDMap";
     };
 
+    ulimits = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "nofile=1000:10000" ];
+      description = "--ulimit";
+      property = "Ulimit";
+    };
+
+    unmask = quadletUtils.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "ALL";
+      description = "--security-opt unmask=...";
+      property = "Unmask";
+    };
+
     user = quadletUtils.mkOption {
       type = types.nullOr types.str;
       default = null;
@@ -479,13 +637,6 @@ let
       example = "keep-id:uid=200,gid=210";
       description = "--userns";
       property = "UserNS";
-    };
-
-    volatileTmp = quadletUtils.mkOption {
-      type = types.nullOr types.bool;
-      default = null;
-      description = "--tmpfs /tmp";
-      property = "VolatileTmp";
     };
 
     volumes = quadletUtils.mkOption {

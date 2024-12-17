@@ -25,6 +25,14 @@ let
       property = "AddHost";
     };
 
+    modules = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "/etc/nvd.conf" ];
+      description = "--module";
+      property = "ContainersConfModule";
+    };
+
     dns = quadletUtils.mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -57,14 +65,13 @@ let
       property = "GIDMap";
     };
 
-    # Not recommended to use by upstream:
-    # globalArgs = quadletUtils.mkOption {
-    #   type = types.listOf types.str;
-    #   default = [ ];
-    #   example = [ "--log-level=debug" ];
-    #   description = "";
-    #   property = "GlobalArgs";
-    # };
+    globalArgs = quadletUtils.mkOption {
+      type = types.listOf types.str;
+      default = [  ];
+      example = [ "--log-level=debug" ];
+      description = "global args";
+      property = "GlobalArgs";
+    };
 
     ip = quadletUtils.mkOption {
       type = types.nullOr types.str;
@@ -157,7 +164,7 @@ let
     volumes = quadletUtils.mkOption {
       type = types.listOf types.str;
       default = [ ];
-      example = [ ];
+      example = [ "/source:/dest" ];
       description = "--volume";
       property = "Volume";
     };
