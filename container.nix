@@ -682,8 +682,9 @@ in
     };
 
     _name = mkOption { internal = true; };
-    _unitName = mkOption { internal = true; };
+    _serviceName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
+    _wantedBy = mkOption { internal = true; };
     ref = mkOption { readOnly = true; };
   };
 
@@ -693,21 +694,21 @@ in
       containerConfig = config.containerConfig // {
         name = containerName;
       };
+      wantedBy = if config.autoStart then [ quadletUtils.defaultTarget ] else [ ];
       unitConfig = {
         Unit = {
           Description = "Podman container ${name}";
         } // config.unitConfig;
-        Install = {
-          WantedBy = if config.autoStart then [ quadletUtils.defaultTarget ] else [ ];
-        };
+        Install.WantedBy = wantedBy;
         Container = quadletUtils.configToProperties containerConfig containerOpts;
         Service = serviceConfigDefault // config.serviceConfig;
       };
     in
     {
       _name = containerName;
-      _unitName = "${name}.service";
+      _serviceName = name;
       _configText = quadletUtils.unitConfigToText unitConfig;
+      _wantedBy = wantedBy;
       ref = "${name}.container";
     };
 }

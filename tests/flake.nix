@@ -6,7 +6,6 @@
   # inputs path to be set in --override-input
   inputs = {
     nixpkgs.url = "path:/dev/null";
-    nixpkgs-2405.url = "github:NixOS/nixpkgs/nixos-24.05";
 
     quadlet-nix.url = "path:/dev/null";
     quadlet-nix.inputs.nixpkgs.follows = "nixpkgs";
@@ -18,7 +17,7 @@
   };
 
   outputs =
-    { test-config, nixpkgs, nixpkgs-2405, home-manager, quadlet-nix, ... }: let
+    { test-config, nixpkgs, home-manager, quadlet-nix, ... }: let
       system = test-config.system;
       makeTestScript = { user, testScript }: { nodes, ... }: ''
         import json
@@ -80,8 +79,6 @@
           users.groups.alice = {};
 
           home-manager.users.alice = lib.mkDefault ({ ... }: {
-            # sd-switch 0.5.0 doesn't start services on boot
-            nixpkgs.overlays = [ (final: prev: { sd-switch = pkgs.sd-switch; }) ];
             imports = [
               quadlet-nix.homeManagerModules.quadlet
               testConfig
@@ -120,17 +117,7 @@
       checks = let
         pkgs = import nixpkgs { inherit system; };
         genRootfulTest = genTest pkgs runRootfulTest;
-        sdSwitchBugAffected = let
-          version = pkgs.sd-switch.version;
-        in builtins.compareVersions version "0.5.0" >= 0;
-        sdSwitchBugOverlay = final: prev: {
-          sd-switch = (import nixpkgs-2405 { inherit system; }).sd-switch;
-        };
-        rootlessPkgs = if !sdSwitchBugAffected then pkgs else import nixpkgs {
-          inherit system;
-          overlays = [ sdSwitchBugOverlay ];
-        };
-        genRootlessTest = genTest rootlessPkgs runRootlessTest;
+        genRootlessTest = genTest pkgs runRootlessTest;
         tests = builtins.listToAttrs [
           (genRootfulTest ./basic.nix)
           (genRootlessTest ./basic.nix)

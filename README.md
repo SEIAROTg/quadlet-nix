@@ -109,8 +109,6 @@ See [`container.nix`](./container.nix), [`network.nix`](./network.nix), and [`po
         # ...
         imports = [ inputs.quadlet-nix.homeManagerModules.quadlet ];
         # This is crucial to ensure the systemd services are (re)started on config change
-        # There appears to be some issues with sd-switch>=0.5.0 that causes services not to
-        # auto-start on boot. Consider using a different version.
         systemd.user.startServices = "sd-switch";
         virtualisation.quadlet.containers = {
             echo-server = {

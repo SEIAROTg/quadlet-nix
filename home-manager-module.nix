@@ -70,19 +70,9 @@ in
             "containers/systemd/${p.ref}" = {
               text = p._configText;
             };
-            # Inject hash for the activation process to detect changes.
-            # Must be in the main file as it's the only thing home-manager switch process looks at.
-            "systemd/user/${p._unitName}" = {
-              text = ''
-                [Unit]
-                X-QuadletNixConfigHash=${builtins.hashString "sha256" p._configText}
-                [Service]
-                Environment=PATH=/run/wrappers/bin
-              '';
-            };
             # Import quadlet-generated unit as a dropin override.
-            "systemd/user/${p._unitName}.d/override.conf" = {
-              source = "${configPathLink}/out/${p._unitName}";
+            "systemd/user/${p._serviceName}.service.d/override.conf" = {
+              source = "${configPathLink}/out/${p._serviceName}.service";
             };
           }) allObjects
         ) // {
@@ -90,32 +80,45 @@ in
           # systemd only looks for command binary in a few static location.
           # See: https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#Command%20lines
           "systemd/user/podman-user-wait-network-online.service.d/override.conf" = {
-            text = ''
-              [Service]
-              ExecStart=
-              ExecStart=/bin/sh -c 'until systemctl is-active network-online.target; do sleep 0.5; done'
-              [Install]
-              WantedBy=default.target
-            '';
+            text = quadletUtils.unitConfigToText {
+              Service.ExecSearchPath = "/bin";
+              Install.WantedBy = [ "default.target" ];
+            };
           };
         };
-      # TODO: link from ${pkgs.podman}/share/systemd/user/podman-auto-update.service
-      # when https://github.com/containers/podman/issues/24637 is fixed.
-      systemd.user.services.podman-auto-update = mkIf cfg.autoUpdate.enable {
-        Unit = {
-          Description = "Podman auto-update service";
-          Documentation = "man:podman-auto-update(1)";
-        };
-        Service = {
-          Type = "oneshot";
-          # podman rootless requires "newuidmap" (the suid version, not the non-suid one from pkgs.shadow)
-          Environment = "PATH=/run/wrappers/bin";
-          ExecStart = "${getExe quadletUtils.podmanPackage} auto-update";
-          ExecStartPost = "${getExe quadletUtils.podmanPackage} image prune -f";
-          TimeoutStartSec = "900s";
-          TimeoutStopSec = "10s";
+
+      systemd.user.services = mergeAttrsList (
+        map (p: {
+          # Inject hash for the activation process to detect changes.
+          # Must be in the main file as it's the only thing home-manager switch process looks at.
+          # WantedBy must be set through `systemd.user.services` which generates .targets.wants symlinks.
+          # sd-switch only starts new services with those symlinks.
+          ${p._serviceName} = {
+            Unit.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
+            Service.Environment = [ "PATH=/run/wrappers/bin" ];
+            Install.WantedBy = p._wantedBy;
+          };
+        }) allObjects
+      ) // {
+        # TODO: link from ${pkgs.podman}/share/systemd/user/podman-auto-update.service
+        # when https://github.com/containers/podman/issues/24637 is fixed.
+        podman-auto-update = mkIf cfg.autoUpdate.enable {
+          Unit = {
+            Description = "Podman auto-update service";
+            Documentation = "man:podman-auto-update(1)";
+          };
+          Service = {
+            Type = "oneshot";
+            # podman rootless requires "newuidmap" (the suid version, not the non-suid one from pkgs.shadow)
+            Environment = "PATH=/run/wrappers/bin";
+            ExecStart = "${getExe quadletUtils.podmanPackage} auto-update";
+            ExecStartPost = "${getExe quadletUtils.podmanPackage} image prune -f";
+            TimeoutStartSec = "900s";
+            TimeoutStopSec = "10s";
+          };
         };
       };
+
       systemd.user.timers.podman-auto-update = mkIf cfg.autoUpdate.enable {
         Unit = {
           Description = "Podman auto-update timer";

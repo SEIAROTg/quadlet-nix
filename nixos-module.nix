@@ -80,20 +80,19 @@ in
       systemd.packages = [
         (pkgs.linkFarm "quadlet-service-symlinks" (
           map (p: {
-            name = "etc/systemd/system/${p._unitName}";
-            path = "/run/systemd/generator/${p._unitName}";
+            name = "etc/systemd/system/${p._serviceName}.service";
+            path = "/run/systemd/generator/${p._serviceName}.service";
           }) allObjects
         ))
       ];
       # Inject X-RestartIfChanged=${hash} for NixOS to detect changes.
       systemd.units = mergeAttrsList (
         map (p: {
-          ${p._unitName} = {
+          "${p._serviceName}.service" = {
             overrideStrategy = "asDropin";
-            text = ''
-              [Unit]
-              X-QuadletNixConfigHash=${builtins.hashString "sha256" p._configText}
-            '';
+            text = quadletUtils.unitConfigToText {
+              Unit.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
+            };
           };
         }) allObjects
       );

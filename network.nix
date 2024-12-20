@@ -160,8 +160,9 @@ in
     };
 
     _name = mkOption { internal = true; };
-    _unitName = mkOption { internal = true; };
+    _serviceName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
+    _wantedBy = mkOption { internal = true; };
     ref = mkOption { readOnly = true; };
   };
 
@@ -170,13 +171,12 @@ in
       networkName =
         if config.networkConfig.name != null then config.networkConfig.name else "systemd-${name}";
       networkConfig = config.networkConfig;
+      wantedBy = if config.autoStart then [ quadletUtils.defaultTarget ] else [ ];
       unitConfig = {
         Unit = {
           Description = "Podman network ${name}";
         } // config.unitConfig;
-        Install = {
-          WantedBy = if config.autoStart then [ quadletUtils.defaultTarget ] else [ ];
-        };
+        Install.WantedBy = wantedBy;
         Network = quadletUtils.configToProperties networkConfig networkOpts;
         Service = {
           ExecStop = "${getExe quadletUtils.podmanPackage} network rm ${networkName}";
@@ -185,8 +185,9 @@ in
     in
     {
       _name = networkName;
-      _unitName = "${name}-network.service";
+      _serviceName = "${name}-network";
       _configText = quadletUtils.unitConfigToText unitConfig;
+      _wantedBy = wantedBy;
       ref = "${name}.network";
     };
 }

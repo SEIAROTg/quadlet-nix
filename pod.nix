@@ -192,8 +192,9 @@ in
     };
 
     _name = mkOption { internal = true; };
-    _unitName = mkOption { internal = true; };
+    _serviceName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
+    _wantedBy = mkOption { internal = true; };
     ref = mkOption { readOnly = true; };
   };
 
@@ -207,21 +208,21 @@ in
       podConfig = config.podConfig // {
         name = podName;
       };
+      wantedBy = if config.autoStart then [ quadletUtils.defaultTarget ] else [ ];
       unitConfig = {
         Unit = {
           Description = "Podman pod ${name}";
         } // config.unitConfig;
-        Install = {
-          WantedBy = if config.autoStart then [ quadletUtils.defaultTarget ] else [ ];
-        };
+        Install.WantedBy = wantedBy;
         Pod = quadletUtils.configToProperties podConfig podOpts;
         Service = serviceConfigDefault // config.serviceConfig;
       };
     in
     {
       _name = podName;
-      _unitName = "${name}-pod.service";
+      _serviceName = "${name}-pod";
       _configText = quadletUtils.unitConfigToText unitConfig;
+      _wantedBy = wantedBy;
       ref = "${name}.pod";
     };
 }
