@@ -127,3 +127,34 @@ See [`container.nix`](./container.nix), [`network.nix`](./network.nix), and [`po
     };
 }
 ```
+
+### Example (raw config)
+
+`quadlet-nix` can also accept existing quadlet files without rewriting in Nix via `rawConfig`. Using this will cause all other options (except `autoStart`) to be ignored though.
+
+```nix
+{ config, ... }: {
+    # ...
+    virtualisation.quadlet = let
+        inherit (config.virtualisation.quadlet) networks pods;
+    in {
+        containers = {
+            nginx.rawConfig = ''
+                [Container]
+                Image=docker.io/library/nginx:latest
+                Network=podman
+                Network=${networks.internal.ref}
+                Pod=${pods.foo.ref}
+                [Service]
+                TimeoutStartSec=60
+            '';
+        };
+        networks = {
+            internal.networkConfig.subnets = [ "10.0.123.1/24" ];
+        };
+        pods = {
+            foo = { };
+        };
+    };
+}
+```

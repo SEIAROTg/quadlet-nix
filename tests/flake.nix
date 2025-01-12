@@ -129,6 +129,8 @@
           (genRootlessTest ./pod.nix)
           (genRootfulTest ./switch.nix)
           (genRootlessTest ./switch.nix)
+          (genRootfulTest ./raw.nix)
+          (genRootlessTest ./raw.nix)
         ];
       in {
         "${system}" = tests;

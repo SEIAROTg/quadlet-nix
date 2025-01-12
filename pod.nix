@@ -191,7 +191,11 @@ in
       default = { };
     };
 
-    _name = mkOption { internal = true; };
+    rawConfig = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+    };
+
     _serviceName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
     _autoStart = mkOption { internal = true; };
@@ -217,9 +221,10 @@ in
       };
     in
     {
-      _name = podName;
       _serviceName = "${name}-pod";
-      _configText = quadletUtils.unitConfigToText unitConfig;
+      _configText = if config.rawConfig != null
+        then config.rawConfig
+        else quadletUtils.unitConfigToText unitConfig;
       _autoStart = config.autoStart;
       ref = "${name}.pod";
     };

@@ -671,17 +671,24 @@ in
       example = true;
       description = "When enabled, the container is automatically started on boot.";
     };
+
     containerConfig = containerOpts;
+
     unitConfig = mkOption {
       type = types.attrsOf quadletUtils.unitOption;
       default = { };
     };
+
     serviceConfig = mkOption {
       type = types.attrsOf quadletUtils.unitOption;
-      default = serviceConfigDefault;
+      default = { };
     };
 
-    _name = mkOption { internal = true; };
+    rawConfig = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+    };
+
     _serviceName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
     _autoStart = mkOption { internal = true; };
@@ -703,9 +710,10 @@ in
       };
     in
     {
-      _name = containerName;
       _serviceName = name;
-      _configText = quadletUtils.unitConfigToText unitConfig;
+      _configText = if config.rawConfig != null
+        then config.rawConfig
+        else quadletUtils.unitConfigToText unitConfig;
       _autoStart = config.autoStart;
       ref = "${name}.container";
     };
