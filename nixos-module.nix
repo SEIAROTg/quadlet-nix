@@ -12,7 +12,6 @@ let
   quadletUtils = import ./utils.nix {
     inherit lib;
     systemdUtils = (libUtils { inherit lib config pkgs; }).systemdUtils;
-    isUserSystemd = false;
     podmanPackage = config.virtualisation.podman.package;
   };
 
@@ -93,6 +92,9 @@ in
             text = quadletUtils.unitConfigToText {
               Unit.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
             };
+            # systemd recommends multi-user.target over default.target.
+            # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#default.target
+            wantedBy = if p._autoStart then [ "multi-user.target" ] else [];
           };
         }) allObjects
       );

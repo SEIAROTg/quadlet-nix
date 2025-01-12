@@ -1,4 +1,4 @@
-{ lib, systemdUtils, isUserSystemd, podmanPackage }:
+{ lib, systemdUtils, podmanPackage }:
 
 let
   attrsToList =
@@ -29,10 +29,5 @@ in
     );
 
   inherit (systemdUtils.unitOptions) unitOption;
-
-  # systemd recommends multi-user.target over default.target.
-  # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#default.target
-  defaultTarget = if isUserSystemd then "default.target" else "multi-user.target";
-
   inherit podmanPackage;
 }

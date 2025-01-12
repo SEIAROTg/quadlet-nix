@@ -13,7 +13,6 @@ let
   quadletUtils = import ./utils.nix {
     inherit lib;
     systemdUtils = (libUtils { inherit lib config pkgs; }).systemdUtils;
-    isUserSystemd = true;
     podmanPackage = osConfig.virtualisation.podman.package or pkgs.podman;
   };
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
@@ -96,7 +95,7 @@ in
           ${p._serviceName} = {
             Unit.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
             Service.Environment = [ "PATH=/run/wrappers/bin" ];
-            Install.WantedBy = p._wantedBy;
+            Install.WantedBy = if p._autoStart then [ "default.target" ] else [];
           };
         }) allObjects
       ) // {
