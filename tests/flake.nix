@@ -131,6 +131,8 @@
           (genRootlessTest ./switch.nix)
           (genRootfulTest ./raw.nix)
           (genRootlessTest ./raw.nix)
+          (genRootfulTest ./health.nix)
+          (genRootlessTest ./health.nix)
         ];
       in {
         "${system}" = tests;

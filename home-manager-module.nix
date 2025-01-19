@@ -94,7 +94,6 @@ in
           # sd-switch only starts new services with those symlinks.
           ${p._serviceName} = {
             Unit.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
-            Service.Environment = [ "PATH=/run/wrappers/bin" ];
             Install.WantedBy = if p._autoStart then [ "default.target" ] else [];
           };
         }) allObjects
@@ -108,8 +107,6 @@ in
           };
           Service = {
             Type = "oneshot";
-            # podman rootless requires "newuidmap" (the suid version, not the non-suid one from pkgs.shadow)
-            Environment = "PATH=/run/wrappers/bin";
             ExecStart = "${getExe quadletUtils.podmanPackage} auto-update";
             ExecStartPost = "${getExe quadletUtils.podmanPackage} image prune -f";
             TimeoutStartSec = "900s";
