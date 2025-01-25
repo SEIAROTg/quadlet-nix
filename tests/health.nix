@@ -21,11 +21,11 @@
   };
 
   testScript = ''
-    import time
-
     machine.wait_for_unit("default.target")
     machine.wait_for_unit("default.target", user=user)
-    time.sleep(2)  # wait for health command cycles
+    machine.wait_for_unit("good.service", user=user, timeout=30)
+    machine.wait_for_unit("bad.service", user=user, timeout=30)
+    machine.sleep(2)  # wait for health command cycles
 
     containers = list_containers(user=user)
     assert len(containers) == 2

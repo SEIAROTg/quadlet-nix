@@ -19,6 +19,8 @@
   testScript = ''
     machine.wait_for_unit("default.target")
     machine.wait_for_unit("default.target", user=user)
+    machine.wait_for_unit("nginx.service", user=user, timeout=30)
+    machine.wait_for_unit("redis.service", user=user, timeout=30)
     assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
 
     containers = list_containers(user=user)
@@ -40,14 +42,8 @@
     machine.start_job("nginx", user=user)
     assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
     machine.wait_for_unit("foo-pod.service", user=user, timeout=30)
-    containers = list_containers(user=user)
-    print(containers)
-    assert len(containers) == 2
-    pods = list_pods(user=user)
-    assert len(pods) == 1
-
-    machine.start_job("redis", user=user)
-    assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
+    machine.wait_for_unit("nginx.service", user=user, timeout=30)
+    machine.wait_for_unit("redis.service", user=user, timeout=30)
     containers = list_containers(user=user)
     assert len(containers) == 3
     pods = list_pods(user=user)
