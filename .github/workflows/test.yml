@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         # TODO: re-enable aarch64-linux once github has native runner
         # https://github.com/orgs/community/discussions/19197
@@ -30,6 +31,8 @@ jobs:
     - uses: cachix/install-nix-action@v30
       with:
         nix_path: nixpkgs=channel:${{ matrix.version.nixpkgs }}
+
+    - uses: DeterminateSystems/magic-nix-cache-action@v2
 
     - run: >
         nix flake check
