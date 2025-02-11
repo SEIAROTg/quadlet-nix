@@ -312,7 +312,8 @@ let
     };
 
     image = quadletUtils.mkOption {
-      type = types.nonEmptyStr;
+      type = types.nullOr types.str;
+      default = null;
       example = "docker.io/library/nginx:latest";
       description = "Image specification";
       property = "Image";
