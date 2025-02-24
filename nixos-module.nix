@@ -13,6 +13,7 @@ let
     inherit lib;
     systemdUtils = (libUtils { inherit lib config pkgs; }).systemdUtils;
     podmanPackage = config.virtualisation.podman.package;
+    autoEscape = config.virtualisation.quadlet.autoEscape;
   };
 
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
@@ -42,6 +43,16 @@ in
         type = types.attrsOf volumeOpts;
         default = { };
       };
+
+      autoEscape = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Enables appropriate quoting / escaping.
+
+          Not enabled by default to avoid breaking existing configurations. In the future this will be required.
+        '';
+      };
     };
   };
 
@@ -67,6 +78,17 @@ in
               The container/pod names should be unique!
               See: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#podname
               The following names are not unique: ${strings.concatStringsSep " " containerPodConflicts}
+            '';
+          }
+        ];
+      warnings =
+        quadletUtils.assertionsToWarnings [
+          {
+            assertion = !(builtins.any (p: p._autoEscapeRequired) allObjects);
+            message = ''
+              `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
+
+              This will become a hard error in the future. If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
             '';
           }
         ];

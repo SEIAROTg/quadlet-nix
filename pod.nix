@@ -63,6 +63,7 @@ let
       example = [ "0:10000:10" ];
       description = "--gidmap";
       property = "GIDMap";
+      encoding = "quoted_unescaped";
     };
 
     globalArgs = quadletUtils.mkOption {
@@ -71,6 +72,7 @@ let
       example = [ "--log-level=debug" ];
       description = "global args";
       property = "GlobalArgs";
+      encoding = "quoted_escaped";
     };
 
     ip = quadletUtils.mkOption {
@@ -111,6 +113,7 @@ let
       example = [ "--cpus=2" ];
       description = "Additional podman arguments";
       property = "PodmanArgs";
+      encoding = "quoted_escaped";
     };
 
     publishPorts = quadletUtils.mkOption {
@@ -151,6 +154,7 @@ let
       example = [ "0:10000:10" ];
       description = "--uidmap";
       property = "UIDMap";
+      encoding = "quoted_unescaped";
     };
 
     userns = quadletUtils.mkOption {
@@ -199,6 +203,7 @@ in
     _serviceName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
     _autoStart = mkOption { internal = true; };
+    _autoEscapeRequired = mkOption { internal = true; };
     ref = mkOption { readOnly = true; };
   };
 
@@ -225,6 +230,7 @@ in
       _configText = if config.rawConfig != null
         then config.rawConfig
         else quadletUtils.unitConfigToText unitConfig;
+      _autoEscapeRequired = quadletUtils.autoEscapeRequired podConfig podOpts;
       _autoStart = config.autoStart;
       ref = "${name}.pod";
     };

@@ -46,6 +46,7 @@ let
       example = [ "--log-level=debug" ];
       description = "global args";
       property = "GlobalArgs";
+      encoding = "quoted_escaped";
     };
 
     group = quadletUtils.mkOption {
@@ -70,6 +71,7 @@ let
       example = [ "foo=bar" ];
       description = "--label";
       property = "Label";
+      encoding = "quoted_escaped";
     };
 
     modules = quadletUtils.mkOption {
@@ -93,6 +95,7 @@ let
       example = [ "--driver=image" ];
       description = "Additional podman arguments";
       property = "PodmanArgs";
+      encoding = "quoted_escaped";
     };
 
     type = quadletUtils.mkOption {
@@ -140,6 +143,7 @@ in
     _serviceName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
     _autoStart = mkOption { internal = true; };
+    _autoEscapeRequired = mkOption { internal = true; };
     ref = mkOption { readOnly = true; };
   };
 
@@ -163,6 +167,7 @@ in
         then config.rawConfig
         else quadletUtils.unitConfigToText unitConfig;
       _autoStart = config.autoStart;
+      _autoEscapeRequired = quadletUtils.autoEscapeRequired volumeConfig volumeOpts;
       ref = "${name}.volume";
     };
 }

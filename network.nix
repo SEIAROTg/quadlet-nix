@@ -62,6 +62,7 @@ let
       example = [ "--log-level=debug" ];
       description = "global args";
       property = "GlobalArgs";
+      encoding = "quoted_escaped";
     };
 
     internal = quadletUtils.mkOption {
@@ -106,6 +107,7 @@ let
       example = [ "XYZ" ];
       description = "--label";
       property = "Label";
+      encoding = "quoted_escaped";
     };
 
     name = quadletUtils.mkOption {
@@ -122,6 +124,7 @@ let
       example = "isolate";
       description = "--opt";
       property = "Options";
+      encoding = "quoted_escaped";
     };
 
     podmanArgs = quadletUtils.mkOption {
@@ -130,6 +133,7 @@ let
       example = [ "--dns=192.168.55.1" ];
       description = "extra arguments to podman";
       property = "PodmanArgs";
+      encoding = "quoted_escaped";
     };
 
     subnets = quadletUtils.mkOption {
@@ -170,6 +174,7 @@ in
     _serviceName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
     _autoStart = mkOption { internal = true; };
+    _autoEscapeRequired = mkOption { internal = true; };
     ref = mkOption { readOnly = true; };
   };
 
@@ -194,6 +199,7 @@ in
         then config.rawConfig
         else quadletUtils.unitConfigToText unitConfig;
       _autoStart = config.autoStart;
+      _autoEscapeRequired = quadletUtils.autoEscapeRequired networkConfig networkOpts;
       ref = "${name}.network";
     };
 }

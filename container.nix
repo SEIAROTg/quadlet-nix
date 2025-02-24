@@ -15,6 +15,7 @@ let
       example = [ "NET_ADMIN" ];
       description = "--cap-add";
       property = "AddCapability";
+      encoding = "quoted_unescaped";
     };
 
     addHosts = quadletUtils.mkOption {
@@ -31,6 +32,7 @@ let
       example = [ "/dev/foo" ];
       description = "--device";
       property = "AddDevice";
+      encoding = "quoted_unescaped";
     };
 
     annotations = quadletUtils.mkOption {
@@ -39,6 +41,7 @@ let
       example = [ "XYZ" ];
       description = "--annotation";
       property = "Annotation";
+      encoding = "quoted_escaped";
     };
 
     autoUpdate = quadletUtils.mkOption {
@@ -108,6 +111,7 @@ let
       example = [ "NET_ADMIN" ];
       description = "--cap-drop";
       property = "DropCapability";
+      encoding = "quoted_unescaped";
     };
 
     entrypoint = quadletUtils.mkOption {
@@ -126,6 +130,7 @@ let
       };
       description = "--env";
       property = "Environment";
+      encoding = "quoted_escaped";
     };
 
     environmentFiles = quadletUtils.mkOption {
@@ -134,6 +139,7 @@ let
       example = [ "/tmp/env" ];
       description = "--env-file";
       property = "EnvironmentFile";
+      encoding = "quoted_escaped";
     };
 
     environmentHost = quadletUtils.mkOption {
@@ -144,11 +150,13 @@ let
     };
 
     exec = quadletUtils.mkOption {
-      type = types.nullOr types.str;
+      type = types.nullOr (types.oneOf [ types.str (types.listOf types.str) ]);
       default = null;
       example = "/usr/bin/command";
       description = "Command after image specification";
       property = "Exec";
+      # CAVEAT: doesn't prevent systemd environment variable substitution, but probably a quadlet problem?
+      encoding = "quoted_escaped_singleline";
     };
 
     exposePorts = quadletUtils.mkOption {
@@ -165,6 +173,7 @@ let
       example = [ "0:10000:10" ];
       description = "--gidmap";
       property = "GIDMap";
+      encoding = "quoted_unescaped";
     };
 
     globalArgs = quadletUtils.mkOption {
@@ -173,6 +182,7 @@ let
       example = [ "--log-level=debug" ];
       description = "global args";
       property = "GlobalArgs";
+      encoding = "quoted_escaped";
     };
 
     group = quadletUtils.mkOption {
@@ -341,6 +351,7 @@ let
       example = [ "XYZ" ];
       description = "--label";
       property = "Label";
+      encoding = "quoted_escaped";
     };
 
     logDriver = quadletUtils.mkOption {
@@ -357,6 +368,7 @@ let
       example = [ "path=/var/log/mykube.json" ];
       description = "--log-opt";
       property = "LogOpt";
+      encoding = "quoted_unescaped";
     };
 
     mask = quadletUtils.mkOption {
@@ -365,6 +377,7 @@ let
       example = "/proc/sys/foo:/proc/sys/bar";
       description = "--security-opt mask=...";
       property = "Mask";
+      encoding = "quoted_escaped";
     };
 
     mounts = quadletUtils.mkOption {
@@ -373,6 +386,7 @@ let
       example = [ "type=..." ];
       description = "--mount";
       property = "Mount";
+      encoding = "quoted_escaped";
     };
 
     networks = quadletUtils.mkOption {
@@ -426,6 +440,7 @@ let
       example = [ "--add-host foobar" ];
       description = "Additional podman arguments";
       property = "PodmanArgs";
+      encoding = "quoted_escaped";
     };
 
     publishPorts = quadletUtils.mkOption {
@@ -487,6 +502,7 @@ let
       example = [ "secret[,opt=opt …]" ];
       description = "--secret";
       property = "Secret";
+      encoding = "quoted_escaped";
     };
 
     securityLabelDisable = quadletUtils.mkOption {
@@ -582,6 +598,7 @@ let
       };
       description = "--sysctl";
       property = "Sysctl";
+      encoding = "quoted_unescaped";
     };
 
     timezone = quadletUtils.mkOption {
@@ -606,6 +623,7 @@ let
       example = [ "0:10000:10" ];
       description = "--uidmap";
       property = "UIDMap";
+      encoding = "quoted_unescaped";
     };
 
     ulimits = quadletUtils.mkOption {
@@ -622,6 +640,7 @@ let
       example = "ALL";
       description = "--security-opt unmask=...";
       property = "Unmask";
+      encoding = "quoted_escaped";
     };
 
     user = quadletUtils.mkOption {
@@ -691,6 +710,7 @@ in
     _serviceName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
     _autoStart = mkOption { internal = true; };
+    _autoEscapeRequired = mkOption { internal = true; };
     ref = mkOption { readOnly = true; };
   };
 
@@ -714,6 +734,7 @@ in
         then config.rawConfig
         else quadletUtils.unitConfigToText unitConfig;
       _autoStart = config.autoStart;
+      _autoEscapeRequired = quadletUtils.autoEscapeRequired containerConfig containerOpts;
       ref = "${name}.container";
     };
 }

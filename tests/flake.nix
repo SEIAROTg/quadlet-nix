@@ -135,6 +135,8 @@
           (genRootlessTest ./raw.nix)
           (genRootfulTest ./health.nix)
           (genRootlessTest ./health.nix)
+          (genRootfulTest ./escaping.nix)
+          (genRootlessTest ./escaping.nix)
         ];
       in {
         "${system}" = tests;

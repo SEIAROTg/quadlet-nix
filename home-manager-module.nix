@@ -7,13 +7,14 @@
   ...
 }:
 let
-  inherit (lib) types mkOption attrValues mergeAttrsList mkIf getExe;
+  inherit (lib) types lists strings mkOption attrNames attrValues mergeAttrsList mkIf getExe;
 
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
     inherit lib;
     systemdUtils = (libUtils { inherit lib config pkgs; }).systemdUtils;
     podmanPackage = osConfig.virtualisation.podman.package or pkgs.podman;
+    autoEscape = config.virtualisation.quadlet.autoEscape;
   };
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
   networkOpts = types.submodule (import ./network.nix { inherit quadletUtils; });
@@ -53,6 +54,15 @@ in
       type = types.attrsOf volumeOpts;
       default = { };
     };
+    autoEscape = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Enables appropriate quoting / escaping.
+
+        Not enabled by default to avoid breaking existing configurations. In the future this will be required.
+      '';
+    };
   };
   config =
     let
@@ -64,6 +74,32 @@ in
       ]);
     in
     {
+      assertions =
+        let
+          containerPodConflicts = lists.intersectLists (attrNames cfg.containers) (attrNames cfg.pods);
+        in
+        [
+          {
+            assertion = containerPodConflicts == [ ];
+            message = ''
+              The container/pod names should be unique!
+              See: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#podname
+              The following names are not unique: ${strings.concatStringsSep " " containerPodConflicts}
+            '';
+          }
+        ];
+      warnings =
+        quadletUtils.assertionsToWarnings [
+          {
+            assertion = !(builtins.any (p: p._autoEscapeRequired) allObjects);
+            message = ''
+              `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
+
+              This will become a hard error in the future. If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
+            '';
+          }
+        ];
+
       home.activation.quadletNix = mkIf (lib.length allObjects > 0) activationScript;
 
       xdg.configFile =
