@@ -18,6 +18,7 @@ let
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
   networkOpts = types.submodule (import ./network.nix { inherit quadletUtils; });
   podOpts = types.submodule (import ./pod.nix { inherit quadletUtils; });
+  volumeOpts = types.submodule (import ./volume.nix { inherit quadletUtils; });
 
   activationScript = lib.hm.dag.entryBefore [ "reloadSystemd" ] ''
     mkdir -p '${config.xdg.configHome}/quadlet-nix/'
@@ -48,10 +49,19 @@ in
       type = types.attrsOf podOpts;
       default = { };
     };
+    volumes = mkOption {
+      type = types.attrsOf volumeOpts;
+      default = { };
+    };
   };
   config =
     let
-      allObjects = (attrValues cfg.containers) ++ (attrValues cfg.networks) ++ (attrValues cfg.pods);
+      allObjects = builtins.concatLists (map attrValues [
+        cfg.containers
+        cfg.networks
+        cfg.pods
+        cfg.volumes
+      ]);
     in
     {
       home.activation.quadletNix = mkIf (lib.length allObjects > 0) activationScript;

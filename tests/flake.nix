@@ -127,6 +127,8 @@
           (genRootlessTest ./network.nix)
           (genRootfulTest ./pod.nix)
           (genRootlessTest ./pod.nix)
+          (genRootfulTest ./volume.nix)
+          (genRootlessTest ./volume.nix)
           (genRootfulTest ./switch.nix)
           (genRootlessTest ./switch.nix)
           (genRootfulTest ./raw.nix)
