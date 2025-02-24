@@ -80,7 +80,10 @@ in
           # See: https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#Command%20lines
           "systemd/user/podman-user-wait-network-online.service.d/override.conf" = {
             text = quadletUtils.unitConfigToText {
-              Service.ExecSearchPath = "/bin";
+              Service.ExecStart = [
+                ""
+                "/bin/sh -c 'until systemctl is-active network-online.target; do sleep 0.5; done'"
+              ];
               Install.WantedBy = [ "default.target" ];
             };
           };
