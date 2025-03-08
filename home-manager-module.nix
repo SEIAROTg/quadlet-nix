@@ -16,6 +16,7 @@ let
     podmanPackage = osConfig.virtualisation.podman.package or pkgs.podman;
     autoEscape = config.virtualisation.quadlet.autoEscape;
   };
+  buildOpts = types.submodule (import ./build.nix { inherit quadletUtils; });
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
   networkOpts = types.submodule (import ./network.nix { inherit quadletUtils; });
   podOpts = types.submodule (import ./pod.nix { inherit quadletUtils; });
@@ -37,6 +38,10 @@ in
         type = types.str;
         default = "*-*-* 00:00:00";
       };
+    };
+    builds = mkOption {
+      type = types.attrsOf buildOpts;
+      default = { };
     };
     containers = mkOption {
       type = types.attrsOf containerOpts;
@@ -67,6 +72,7 @@ in
   config =
     let
       allObjects = builtins.concatLists (map attrValues [
+        cfg.builds
         cfg.containers
         cfg.networks
         cfg.pods

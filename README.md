@@ -17,7 +17,7 @@ Compared to alternatives like [`virtualisation.oci-containers`](https://github.c
 
 ## How
 
-See [`container.nix`](./container.nix), [`network.nix`](./network.nix), and [`pod.nix`](./pod.nix) for all options.
+See [`build.nix`](./build.nix), [`container.nix`](./container.nix), [`network.nix`](./network.nix), [`pod.nix`](./pod.nix), and [`volume.nix`](./volume.nix) for all options.
 
 ### Example (rootful)
 

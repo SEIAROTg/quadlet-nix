@@ -16,6 +16,7 @@ let
     autoEscape = config.virtualisation.quadlet.autoEscape;
   };
 
+  buildOpts = types.submodule (import ./build.nix { inherit quadletUtils; });
   containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
   networkOpts = types.submodule (import ./network.nix { inherit quadletUtils; });
   podOpts = types.submodule (import ./pod.nix { inherit quadletUtils; });
@@ -24,6 +25,11 @@ in
 {
   options = {
     virtualisation.quadlet = {
+      builds = mkOption {
+        type = types.attrsOf buildOpts;
+        default = { };
+      };
+
       containers = mkOption {
         type = types.attrsOf containerOpts;
         default = { };
@@ -59,6 +65,7 @@ in
   config =
     let
       allObjects = builtins.concatLists (map attrValues [
+        cfg.builds
         cfg.containers
         cfg.networks
         cfg.pods

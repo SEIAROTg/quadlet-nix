@@ -121,6 +121,8 @@
         tests = builtins.listToAttrs [
           (genRootfulTest ./basic.nix)
           (genRootlessTest ./basic.nix)
+          (genRootfulTest ./build.nix)
+          (genRootlessTest ./build.nix)
           (genRootfulTest ./container.nix)
           (genRootlessTest ./container.nix)
           (genRootfulTest ./network.nix)
