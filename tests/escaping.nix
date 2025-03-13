@@ -12,9 +12,10 @@
           environments = {
             FOO = "aaa bbb $ccc \"ddd\n\n ";
             bar = "\"aaa\"";
+            ONLY_SPACES = "aaa bbb";
           };
           # quoted_escaped_singleline
-          exec = "-c 'echo -n \"$FOO\" > /tmp/foo.txt; echo -n \"$bar\" > /tmp/bar.txt'";
+          exec = "-c 'echo -n \"$FOO\" > /tmp/foo.txt; echo -n \"$bar\" > /tmp/bar.txt; echo -n \"$ONLY_SPACES\" > /tmp/only_spaces.txt'";
           volumes = [
             "/tmp:/tmp"
           ];
@@ -57,6 +58,9 @@
 
     machine.wait_for_file("/tmp/baz.txt", timeout=10)
     assert machine.succeed("cat /tmp/baz.txt") == 'ccc bbb aaa\n'
+
+    machine.wait_for_file("/tmp/only_spaces.txt", timeout=10)
+    assert machine.succeed("cat /tmp/only_spaces.txt") == 'aaa bbb'
   '';
 
 }
