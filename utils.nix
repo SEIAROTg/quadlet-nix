@@ -29,7 +29,7 @@ let
     in
       if encoding == null then
         raw
-      else if (builtins.match ".*[\t\n\r].*" raw) != null then
+      else if (builtins.match ".*[:space:].*" raw) != null then
         encoded
       else if "\"${raw}\"" == encoded then
         raw
