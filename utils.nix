@@ -29,7 +29,8 @@ let
     in
       if encoding == null then
         raw
-      else if (builtins.match ".*[:space:].*" raw) != null then
+      # https://github.com/systemd/systemd/blob/f0d76134661e62622c6030cb4d05d4669b41e25a/src/basic/string-util.h#L14
+      else if (builtins.match ".*[ \t\n\r].*" raw) != null then
         encoded
       else if "\"${raw}\"" == encoded then
         raw
