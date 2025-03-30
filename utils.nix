@@ -54,8 +54,6 @@ let
         (encode options.${name}.encoding value);
     in lib.mapAttrs' encodeEntry nonNullConfig;
 
-in
-{
   mkOption =
     { property, encoding ? null, ... }@attrs:
     (lib.mkOption (lib.filterAttrs (name: _: !(builtins.elem name [ "property" "encoding" ])) attrs))
@@ -63,6 +61,10 @@ in
       inherit property;
       inherit encoding;
     };
+
+in
+{
+  inherit mkOption;
 
   configToProperties = config: options: configToProperties autoEscape config options;
   autoEscapeRequired = config: options: configToProperties autoEscape config options != configToProperties true config options;
@@ -75,6 +77,15 @@ in
 
   assertionsToWarnings = asssertions:
     map (x: x.message) (builtins.filter (x: !x.assertion) asssertions);
+
+  quadletOpts = {
+    defaultDependencies = mkOption {
+      type = lib.types.nullOr lib.types.bool;
+      default = null;
+      description = "Add Quadlet’s default network dependencies to the unit";
+      property = "DefaultDependencies";
+    };
+  };
 
   inherit (systemdUtils.unitOptions) unitOption;
   inherit podmanPackage;

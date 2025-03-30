@@ -118,6 +118,8 @@ in
   options = {
     volumeConfig = volumeOpts;
 
+    quadletConfig = quadletUtils.quadletOpts;
+
     autoStart = mkOption {
       type = types.bool;
       default = true;
@@ -153,13 +155,14 @@ in
       volumeConfig = config.volumeConfig // {
         name = volumeName;
       };
+      quadlet = quadletUtils.configToProperties config.quadletConfig quadletUtils.quadletOpts;
       unitConfig = {
         Unit = {
           Description = "Podman volume ${name}";
         } // config.unitConfig;
         Volume = quadletUtils.configToProperties volumeConfig volumeOpts;
         Service = config.serviceConfig;
-      };
+      } // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
     {
       _serviceName = "${name}-volume";

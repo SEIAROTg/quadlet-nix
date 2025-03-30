@@ -156,6 +156,8 @@ in
 
     networkConfig = networkOpts;
 
+    quadletConfig = quadletUtils.quadletOpts;
+
     unitConfig = mkOption {
       type = types.attrsOf quadletUtils.unitOption;
       default = { };
@@ -183,6 +185,7 @@ in
       networkName =
         if config.networkConfig.name != null then config.networkConfig.name else "systemd-${name}";
       networkConfig = config.networkConfig;
+      quadlet = quadletUtils.configToProperties config.quadletConfig quadletUtils.quadletOpts;
       unitConfig = {
         Unit = {
           Description = "Podman network ${name}";
@@ -191,7 +194,7 @@ in
         Service = {
           ExecStop = "${getExe quadletUtils.podmanPackage} network rm ${networkName}";
         } // config.serviceConfig;
-      };
+      } // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
     {
       _serviceName = "${name}-network";

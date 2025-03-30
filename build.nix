@@ -208,6 +208,8 @@ in
   options = {
     buildConfig = buildOpts;
 
+    quadletConfig = quadletUtils.quadletOpts;
+
     autoStart = mkOption {
       type = types.bool;
       default = true;
@@ -243,13 +245,14 @@ in
       buildConfig = config.buildConfig // {
         tag = buildTag;
       };
+      quadlet = quadletUtils.configToProperties config.quadletConfig quadletUtils.quadletOpts;
       unitConfig = {
         Unit = {
           Description = "Podman build ${name}";
         } // config.unitConfig;
         Build = quadletUtils.configToProperties buildConfig buildOpts;
         Service = serviceConfigDefault // config.serviceConfig;
-      };
+      } // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
     {
       _serviceName = "${name}-build";

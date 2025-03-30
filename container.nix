@@ -690,6 +690,8 @@ in
       description = "When enabled, the container is automatically started on boot.";
     };
 
+    quadletConfig = quadletUtils.quadletOpts;
+
     containerConfig = containerOpts;
 
     unitConfig = mkOption {
@@ -720,13 +722,14 @@ in
       containerConfig = config.containerConfig // {
         name = containerName;
       };
+      quadlet = quadletUtils.configToProperties config.quadletConfig quadletUtils.quadletOpts;
       unitConfig = {
         Unit = {
           Description = "Podman container ${name}";
         } // config.unitConfig;
         Container = quadletUtils.configToProperties containerConfig containerOpts;
         Service = serviceConfigDefault // config.serviceConfig;
-      };
+      } // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
     {
       _serviceName = name;
