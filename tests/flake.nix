@@ -70,6 +70,12 @@
           ];
           environment.systemPackages = [ pkgs.curl ];
 
+          # brings up network-online.target
+          systemd.targets.test-network = {
+            wants = [ "network-online.target" ];
+            wantedBy = [ "multi-user.target" ];
+          };
+
           users.users.alice = {
             group = "alice";
             linger = true;
