@@ -91,7 +91,7 @@ in
       warnings =
         quadletUtils.assertionsToWarnings [
           {
-            assertion = !(builtins.any (p: p._autoEscapeRequired) allObjects);
+            assertion = cfg.autoEscape || !(builtins.any (p: p._autoEscapeRequired) allObjects);
             message = ''
               `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
 
