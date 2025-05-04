@@ -183,8 +183,10 @@ in
   config =
     let
       networkName =
-        if config.networkConfig.name != null then config.networkConfig.name else "systemd-${name}";
-      networkConfig = config.networkConfig;
+        if config.networkConfig.name != null then config.networkConfig.name else name;
+      networkConfig = config.networkConfig // {
+        name = networkName;
+      };
       quadlet = quadletUtils.configToProperties config.quadletConfig quadletUtils.quadletOpts;
       unitConfig = {
         Unit = {
