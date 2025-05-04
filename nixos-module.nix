@@ -99,15 +99,7 @@ in
             '';
           }
         ];
-      environment.etc =
-        # TODO: switch to `systemd.user.generators` once 24.11 is released.
-        # Ensure podman-user-generator is available for systemd user services.
-        {
-          "systemd/user-generators/podman-user-generator" = {
-            source = "${quadletUtils.podmanPackage}/lib/systemd/user-generators/podman-user-generator";
-          };
-        }
-        // mergeAttrsList (
+      environment.etc = mergeAttrsList (
         map (p: {
           "containers/systemd/${p.ref}" = {
             text = p._configText;
