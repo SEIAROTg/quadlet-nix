@@ -13,8 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: re-enable aarch64-linux once github has native runner
-        # https://github.com/orgs/community/discussions/19197
+        # TODO: re-enable aarch64-linux once github native runner supports nested virtualization.
         system: [x86_64-linux]
         version:
         - nixpkgs: nixos-24.11
@@ -32,7 +31,13 @@ jobs:
       with:
         nix_path: nixpkgs=channel:${{ matrix.version.nixpkgs }}
 
-    - uses: DeterminateSystems/magic-nix-cache-action@v2
+    - uses: cachix/cachix-action@v16
+      env:
+        CACHIX_AUTH_TOKEN_PRESENT: ${{ secrets.CACHIX_AUTH_TOKEN != '' }}
+      if: ${{ env.CACHIX_AUTH_TOKEN_PRESENT == 'true' }}
+      with:
+        name: quadlet-nix
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
 
     - run: >
         nix flake check
