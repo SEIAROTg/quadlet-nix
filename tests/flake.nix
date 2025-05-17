@@ -8,7 +8,6 @@
     nixpkgs.url = "path:/dev/null";
 
     quadlet-nix.url = "path:/dev/null";
-    quadlet-nix.inputs.nixpkgs.follows = "nixpkgs";
 
     home-manager.url = "path:/dev/null";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";

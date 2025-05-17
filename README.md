@@ -28,7 +28,6 @@ See [`build.nix`](./build.nix), [`container.nix`](./container.nix), [`network.ni
     inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
         quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
-        quadlet-nix.inputs.nixpkgs.follows = "nixpkgs";
     };
     outputs = { nixpkgs, quadlet-nix, ... }@attrs: {
         nixosConfigurations.machine = nixpkgs.lib.nixosSystem {
@@ -77,7 +76,6 @@ See [`build.nix`](./build.nix), [`container.nix`](./container.nix), [`network.ni
         home-manager.url = "github:nix-community/home-manager";
         home-manager.inputs.nixpkgs.follows = "nixpkgs";
         quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
-        quadlet-nix.inputs.nixpkgs.follows = "nixpkgs";
     };
     outputs = { nixpkgs, quadlet-nix, home-manager, ... }@attrs: {
         nixosConfigurations.machine = nixpkgs.lib.nixosSystem {
