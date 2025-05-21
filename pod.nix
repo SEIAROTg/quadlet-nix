@@ -68,7 +68,7 @@ let
 
     globalArgs = quadletUtils.mkOption {
       type = types.listOf types.str;
-      default = [  ];
+      default = [ ];
       example = [ "--log-level=debug" ];
       description = "global args";
       property = "GlobalArgs";
@@ -190,23 +190,29 @@ in
     unitConfig = mkOption {
       type = types.attrsOf quadletUtils.unitOption;
       default = { };
+      description = "test";
     };
 
     serviceConfig = mkOption {
       type = types.attrsOf quadletUtils.unitOption;
       default = { };
+      description = "test";
     };
 
     rawConfig = mkOption {
       type = types.nullOr types.str;
       default = null;
+      description = "test";
     };
 
     _serviceName = mkOption { internal = true; };
     _configText = mkOption { internal = true; };
     _autoStart = mkOption { internal = true; };
     _autoEscapeRequired = mkOption { internal = true; };
-    ref = mkOption { readOnly = true; };
+    ref = mkOption {
+      readOnly = true;
+      description = "test";
+    };
   };
 
   config =
@@ -230,9 +236,8 @@ in
     in
     {
       _serviceName = "${name}-pod";
-      _configText = if config.rawConfig != null
-        then config.rawConfig
-        else quadletUtils.unitConfigToText unitConfig;
+      _configText =
+        if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
       _autoEscapeRequired = quadletUtils.autoEscapeRequired podConfig podOpts;
       _autoStart = config.autoStart;
       ref = "${name}.pod";
