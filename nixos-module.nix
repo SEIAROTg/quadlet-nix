@@ -5,7 +5,15 @@
   ...
 }:
 let
-  inherit (lib) types lists strings mkOption attrNames attrValues mergeAttrsList;
+  inherit (lib)
+    types
+    lists
+    strings
+    mkOption
+    attrNames
+    attrValues
+    mergeAttrsList
+    ;
 
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
@@ -27,26 +35,31 @@ in
       builds = mkOption {
         type = types.attrsOf buildOpts;
         default = { };
+        description = "test";
       };
 
       containers = mkOption {
         type = types.attrsOf containerOpts;
         default = { };
+        description = "test";
       };
 
       networks = mkOption {
         type = types.attrsOf networkOpts;
         default = { };
+        description = "test";
       };
 
       pods = mkOption {
         type = types.attrsOf podOpts;
         default = { };
+        description = "test";
       };
 
       volumes = mkOption {
         type = types.attrsOf volumeOpts;
         default = { };
+        description = "test";
       };
 
       autoEscape = mkOption {
@@ -63,13 +76,15 @@ in
 
   config =
     let
-      allObjects = builtins.concatLists (map attrValues [
-        cfg.builds
-        cfg.containers
-        cfg.networks
-        cfg.pods
-        cfg.volumes
-      ]);
+      allObjects = builtins.concatLists (
+        map attrValues [
+          cfg.builds
+          cfg.containers
+          cfg.networks
+          cfg.pods
+          cfg.volumes
+        ]
+      );
     in
     {
       virtualisation.podman.enable = true;
@@ -87,24 +102,24 @@ in
             '';
           }
         ];
-      warnings =
-        quadletUtils.assertionsToWarnings [
-          {
-            assertion = !(builtins.any (p: p._autoEscapeRequired) allObjects);
-            message = ''
-              `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
+      warnings = quadletUtils.assertionsToWarnings [
+        {
+          assertion = !(builtins.any (p: p._autoEscapeRequired) allObjects);
+          message = ''
+            `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
 
-              This will become a hard error in the future. If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
-            '';
-          }
-        ];
+            This will become a hard error in the future. If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
+          '';
+        }
+      ];
       environment.etc = mergeAttrsList (
         map (p: {
           "containers/systemd/${p.ref}" = {
             text = p._configText;
             mode = "0600";
           };
-        }) allObjects);
+        }) allObjects
+      );
       # The symlinks are not necessary for the services to be honored by systemd,
       # but necessary for NixOS activation process to pick them up for updates.
       systemd.packages = [
@@ -125,7 +140,7 @@ in
             };
             # systemd recommends multi-user.target over default.target.
             # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#default.target
-            wantedBy = if p._autoStart then [ "multi-user.target" ] else [];
+            wantedBy = if p._autoStart then [ "multi-user.target" ] else [ ];
           };
         }) allObjects
       );
