@@ -116,6 +116,13 @@ let
       property = "NetworkName";
     };
 
+    networkDeleteOnStop = quadletOptions.mkOption {
+      type = types.nullOr types.bool;
+      default = null;
+      description = "When set to true the network is deleted when the service is stopped";
+      property = "NetworkDeleteOnStop";
+    };
+
     options = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
@@ -162,6 +169,7 @@ in
         } // config.unitConfig;
         Network = quadletUtils.configToProperties networkConfig networkOpts;
         Service = {
+          # TODO: switches to NetworkDeleteOnStop once podman in stable nixpkgs supports it
           ExecStop = "${getExe quadletUtils.podmanPackage} network rm ${networkName}";
         } // config.serviceConfig;
       } // (if quadlet == { } then { } else { Quadlet = quadlet; });

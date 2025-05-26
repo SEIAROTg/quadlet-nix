@@ -151,6 +151,22 @@ let
       property = "Pull";
     };
 
+    retry = quadletOptions.mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      example = 5;
+      cli = "--retry";
+      property = "Retry";
+    };
+
+    retryDelay = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "5s";
+      cli = "--retry-delay";
+      property = "RetryDelay";
+    };
+
     secrets = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];

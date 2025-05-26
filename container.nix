@@ -380,6 +380,14 @@ let
       encoding = "quoted_escaped";
     };
 
+    memory = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "20g";
+      cli = "--memory";
+      property = "Memory";
+    };
+
     mounts = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -471,6 +479,39 @@ let
       default = null;
       cli = "--read-only-tmpfs";
       property = "ReadOnlyTmpfs";
+    };
+
+    reloadCmd = quadletOptions.mkOption {
+      type = types.nullOr (types.oneOf [ types.str (types.listOf types.str) ]);
+      default = null;
+      description = "Adds ExecReload and run exec with the value";
+      example = "/usr/bin/command";
+      property = "ReloadCmd";
+      encoding = "quoted_escaped_singleline";
+    };
+
+    reloadSignal = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "Add ExecReload and run kill with the signal";
+      example = "SIGHUP";
+      property = "ReloadSignal";
+    };
+
+    retry = quadletOptions.mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      example = 5;
+      cli = "--retry";
+      property = "Retry";
+    };
+
+    retryDelay = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "5s";
+      cli = "--retry-delay";
+      property = "RetryDelay";
     };
 
     rootfs = quadletOptions.mkOption {
@@ -606,7 +647,7 @@ let
       default = null;
       example = "local";
       cli = "--tz";
-      property = "TimeZone";
+      property = "Timezone";
     };
 
     tmpfses = quadletOptions.mkOption {

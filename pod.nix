@@ -75,6 +75,14 @@ let
       encoding = "quoted_escaped";
     };
 
+    hostname = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "new-host-name";
+      cli = "--hostname";
+      property = "HostName";
+    };
+
     ip = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
@@ -89,6 +97,15 @@ let
       example = "2001:db8::1";
       cli = "--ip6";
       property = "IP6";
+    };
+
+    labels = quadletOptions.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "XYZ" ];
+      cli = "--label";
+      property = "Label";
+      encoding = "quoted_escaped";
     };
 
     networks = quadletOptions.mkOption {
@@ -124,12 +141,14 @@ let
       property = "PublishPort";
     };
 
-    serviceName = quadletOptions.mkOption {
+    # ServiceName not supported as custom service names can make quadlet-nix lost.
+
+    shmSize = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
-      example = "service-name";
-      description = "Instructs Quadlet to use the provided name.";
-      property = "ServiceName";
+      example = "100m";
+      cli = "--shm-size";
+      property = "ShmSize";
     };
 
     subGIDMap = quadletOptions.mkOption {
