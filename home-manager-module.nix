@@ -15,7 +15,7 @@ let
     podmanPackage = osConfig.virtualisation.podman.package or pkgs.podman;
     autoEscape = config.virtualisation.quadlet.autoEscape;
   };
-  quadletOptions = import ./common-options.nix {
+  quadletOptions = import ./options.nix {
     inherit lib quadletUtils;
   };
   activationScript = lib.hm.dag.entryBefore [ "reloadSystemd" ] ''
