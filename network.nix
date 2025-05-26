@@ -58,8 +58,8 @@ let
       type = types.listOf types.str;
       default = [  ];
       example = [ "--log-level=debug" ];
-      description = "global args";
-      property = "Additional command line arguments to insert between `podman` and `network create`";
+      description = "Additional command line arguments to insert between `podman` and `network create`";
+      property = "GlobalArgs";
       encoding = "quoted_escaped";
     };
 
