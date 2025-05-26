@@ -2,24 +2,92 @@
 
 Manages Podman containers, networks, pods, etc. on NixOS via [Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html).
 
-## Why
+## Features
 
-Compared to alternatives like [`virtualisation.oci-containers`](https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/virtualisation/oci-containers.nix) or [`arion`](https://github.com/hercules-ci/arion), `quadlet-nix` is special in that:
-
-|                                                          | `quadlet-nix` | `oci-containers` | `arion` |
-| -------------------------------------------------------- | ------------- | ---------------- | ------- |
-| **Supports networks / pods**                             | ✅            | ❌               | ✅      |
-| **Updates / deletes networks on change**                 | ✅            | /                | ❌      |
-| **Supports [podman-auto-update][podman-auto-update]**    | ✅            | ✅               | ❌      |
-| **Supports rootless containers**                         | ✅            | ❌               | ❓      |
+- Supports Podman containers, networks, pods, volumes, etc.
+- Supports declarative update and deletion of networks.
+- Supports rootful and rootless (via [Home Manager](https://github.com/nix-community/home-manager)) resources behind the same interface.
+- Supports [Podman auto-update][podman-auto-update].
+- Supports cross-referencing between resources in Nix language.
+- Full quadlet options support, typed and properly escaped.
+- Reliability through effective testing.
+- Simplicity.
+- Whatever offered by Nix or Quadlet.
 
 [podman-auto-update]: https://docs.podman.io/en/latest/markdown/podman-auto-update.1.html
+
+## Motivation
+
+This project was started in Aug 2023, as a result of [the author's frustration on some relatively simple container management needs](https://seiarotg.me/post/tidy-up-homelab-containers/), where then available technologies are either overly restrictive, or overly complex that requires non-trivial but pointless investment ad-hoc domain knowledge.
+
+`quadlet-nix` is designed to be a simple tool that just works. Quadlet options are directly mapped into Nix, allowing users to effectively manage their Podman resources in the Nix language, without having to acquire domain knowledge in yet another tool. Prior knowledge and documentation of Podman continue to apply.
+
+## Comparison
+
+Below are comparisons with several alternatives for declaratively managing Podman containers on NixOS, effective as of May 2025.
+
+<details>
+<summary><a href="https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/virtualisation/oci-containers.nix" target="_blank">NixOS <code>virtualisation.oci-containers</code></a></summary>
+
+- 👍 Part of NixOS, no additional dependencies.
+- 👍 Rootless container support without additional dependencies.
+- 👍 Supports Docker.
+- 😐 Compatible with podman auto-update (requires external setup).
+- 👎 Limited options.
+- 👎 Lack of support for networks, pods, etc.
+
+</details>
+
+<details>
+<summary><a href="https://github.com/hercules-ci/arion" target="_blank"><code>arion</code></a></summary>
+
+- 👍 Supports Docker.
+- 😐 More indirection and moving parts.
+- 👎 Limited options.
+- 👎 Incompatible with podman auto-update.
+
+</details>
+
+<details>
+<summary><a href="https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html"  target="_blank">Vanilla Podman Quadlet</a></summary>
+
+- 👍 Even less indirection.
+- 😐 Compatible with podman auto-update (requires external setup).
+- 😐 Requires more work to set up.
+- 👎 Not integrated with rest of Nix configuration.
+
+</details>
+
+<details>
+<summary><a href="https://nix-community.github.io/home-manager/options.xhtml#opt-services.podman.enable" target="_blank">Home Manager <code>services.podman</code></a></summary>
+
+- 👍 Part of Home Manager, no additional dependencies if you are already using it.
+- 👎 Lack of rootful container support.
+
+</details>
+
+<details>
+<summary><a href="https://github.com/aksiksi/compose2nix" target="_blank"><code>compose2nix</code></a></summary>
+
+- 👍 Supports Docker.
+- 😐 Compatible with podman auto-update (requires external setup).
+- 😐 More indirection and moving parts.
+- 👎 Less maintainable Nix files due to generated boilerplate.
+- 👎 Manual regeneration is required.
+- 👎 Lack of rootless container support.
+- 👎 Limited options.
+- 👎 Fragmented configuration with source of truth being outside of Nix.
+
+</details>
 
 ## How
 
 See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for all options.
 
-### Example (rootful)
+## Recipes
+
+<details open>
+<summary>Rootful containers</summary>
 
 #### `flake.nix`
 
@@ -65,7 +133,10 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
 }
 ```
 
-### Example (rootless)
+</details>
+
+<details>
+<summary>Rootless containers (via Home Manager)</summary>
 
 #### `flake.nix`
 
@@ -126,9 +197,12 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
 }
 ```
 
-### Example (raw config)
+</details>
 
-`quadlet-nix` can also accept existing quadlet files without rewriting in Nix via `rawConfig`. Using this will cause all other options (except `autoStart`) to be ignored though.
+<details>
+<summary>Install raw Quadlet files</summary>
+
+If you wish to write raw Quadlet files instead of using the Nix options, you may do so with `rawConfig`. Using this will cause all other options (except `autoStart`) to be ignored though.
 
 ```nix
 { config, ... }: {
@@ -156,3 +230,45 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
     };
 }
 ```
+</details>
+
+<details>
+<summary>Work with <code>pkgs.dockerTools</code></summary>
+
+Podman natively supports multiple transport, including `docker-archive` that can be used with `pkgs.dockerTools`.
+
+```nix
+{ pkgs, ... }: let
+    image = pkgs.dockerTools.buildImage {
+        # ...
+    };
+in {
+    virtualisation.quadlet.containers = {
+        foo.containerConfig.image = "docker-archive:${image}";
+    };
+}
+```
+
+See: https://docs.podman.io/en/v5.5.0/markdown/podman-run.1.html#image
+
+</details>
+
+<details>
+<summary>Debug & log access</summary>
+
+`quadlet-nix` tries to put containers into full management under systemd. This means once a container crashes, it will be fully deleted and debugging mechanisms like `podman ps -a` or `podman logs` will not work.
+
+However, status and logs are still accessible through systemd, namely, `systemctl status <service name>` and `journalctl -u <service name>`, where `<service name>` is container name, `<network name>-network`, `<pod name>-pod`, or similar. These names are the names as appeared in `virtualisation.quadlet.containers.<container name>`, rather than podman container name, in case it's different.
+
+</details>
+
+<details>
+<summary>The option I need is not available</summary>
+
+Check if that option is supported by Podman Quadlet here: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html.
+
+If it exists, please create an issue or send a PR to add.
+
+Otherwise, please use `PodmanArgs` and `GlobalArgs` to insert additional command line arguments as `quadlet-nix` does not intend to support options beyond what Quadlet offers.
+
+</details>
