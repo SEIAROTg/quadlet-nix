@@ -1,4 +1,4 @@
-{ quadletUtils }:
+{ quadletUtils, quadletOptions }:
 {
   config,
   name,
@@ -6,10 +6,10 @@
   ...
 }:
 let
-  inherit (lib) types mkOption;
+  inherit (lib) types;
 
   containerOpts = {
-    addCapabilities = quadletUtils.mkOption {
+    addCapabilities = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "NET_ADMIN" ];
@@ -18,7 +18,7 @@ let
       encoding = "quoted_unescaped";
     };
 
-    addHosts = quadletUtils.mkOption {
+    addHosts = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = ["hostname:192.168.10.11"];
@@ -26,7 +26,7 @@ let
       property = "AddHost";
     };
 
-    devices = quadletUtils.mkOption {
+    devices = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "/dev/foo" ];
@@ -35,7 +35,7 @@ let
       encoding = "quoted_unescaped";
     };
 
-    annotations = quadletUtils.mkOption {
+    annotations = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "XYZ" ];
@@ -44,7 +44,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    autoUpdate = quadletUtils.mkOption {
+    autoUpdate = quadletOptions.mkOption {
       type = types.nullOr (
         types.enum [
           "registry"
@@ -57,7 +57,7 @@ let
       property = "AutoUpdate";
     };
 
-    cgroupsMode = quadletUtils.mkOption {
+    cgroupsMode = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "no-conmon";
@@ -65,7 +65,7 @@ let
       property = "CgroupsMode";
     };
 
-    name = quadletUtils.mkOption {
+    name = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "name";
@@ -73,7 +73,7 @@ let
       property = "ContainerName";
     };
 
-    modules = quadletUtils.mkOption {
+    modules = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "/etc/nvd.conf" ];
@@ -81,7 +81,7 @@ let
       property = "ContainersConfModule";
     };
 
-    dns = quadletUtils.mkOption {
+    dns = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.1" ];
@@ -89,7 +89,7 @@ let
       property = "DNS";
     };
 
-    dnsSearch = quadletUtils.mkOption {
+    dnsSearch = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "foo.com" ];
@@ -97,7 +97,7 @@ let
       property = "DNSSearch";
     };
 
-    dnsOption = quadletUtils.mkOption {
+    dnsOption = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "ndots:1" ];
@@ -105,7 +105,7 @@ let
       property = "DNSOption";
     };
 
-    dropCapabilities = quadletUtils.mkOption {
+    dropCapabilities = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "NET_ADMIN" ];
@@ -114,7 +114,7 @@ let
       encoding = "quoted_unescaped";
     };
 
-    entrypoint = quadletUtils.mkOption {
+    entrypoint = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "/foo.sh";
@@ -122,7 +122,7 @@ let
       property = "Entrypoint";
     };
 
-    environments = quadletUtils.mkOption {
+    environments = quadletOptions.mkOption {
       type = types.attrsOf types.str;
       default = { };
       example = {
@@ -133,7 +133,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    environmentFiles = quadletUtils.mkOption {
+    environmentFiles = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "/tmp/env" ];
@@ -142,14 +142,14 @@ let
       encoding = "quoted_escaped";
     };
 
-    environmentHost = quadletUtils.mkOption {
+    environmentHost = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--env-host";
       property = "EnvironmentHost";
     };
 
-    exec = quadletUtils.mkOption {
+    exec = quadletOptions.mkOption {
       type = types.nullOr (types.oneOf [ types.str (types.listOf types.str) ]);
       default = null;
       example = "/usr/bin/command";
@@ -159,7 +159,7 @@ let
       encoding = "quoted_escaped_singleline";
     };
 
-    exposePorts = quadletUtils.mkOption {
+    exposePorts = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "50-59" ];
@@ -167,7 +167,7 @@ let
       property = "ExposeHostPort";
     };
 
-    gidMaps = quadletUtils.mkOption {
+    gidMaps = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [  ];
       example = [ "0:10000:10" ];
@@ -176,7 +176,7 @@ let
       encoding = "quoted_unescaped";
     };
 
-    globalArgs = quadletUtils.mkOption {
+    globalArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [  ];
       example = [ "--log-level=debug" ];
@@ -185,7 +185,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    group = quadletUtils.mkOption {
+    group = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "1234";
@@ -193,7 +193,7 @@ let
       property = "Group";
     };
 
-    addGroups = quadletUtils.mkOption {
+    addGroups = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "keep-groups" ];
@@ -201,7 +201,7 @@ let
       property = "GroupAdd";
     };
 
-    healthCmd = quadletUtils.mkOption {
+    healthCmd = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "/usr/bin/command";
@@ -209,7 +209,7 @@ let
       property = "HealthCmd";
     };
 
-    healthInterval = quadletUtils.mkOption {
+    healthInterval = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "2m";
@@ -217,7 +217,7 @@ let
       property = "HealthInterval";
     };
 
-    healthLogDestination = quadletUtils.mkOption {
+    healthLogDestination = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "/foo/log";
@@ -225,7 +225,7 @@ let
       property = "HealthLogDestination";
     };
 
-    healthMaxLogCount = quadletUtils.mkOption {
+    healthMaxLogCount = quadletOptions.mkOption {
       type = types.nullOr types.int;
       default = null;
       example = 5;
@@ -233,7 +233,7 @@ let
       property = "HealthMaxLogCount";
     };
 
-    healthMaxLogSize = quadletUtils.mkOption {
+    healthMaxLogSize = quadletOptions.mkOption {
       type = types.nullOr types.int;
       default = null;
       example = 500;
@@ -241,7 +241,7 @@ let
       property = "HealthMaxLogSize";
     };
 
-    healthOnFailure = quadletUtils.mkOption {
+    healthOnFailure = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "kill";
@@ -249,7 +249,7 @@ let
       property = "HealthOnFailure";
     };
 
-    healthRetries = quadletUtils.mkOption {
+    healthRetries = quadletOptions.mkOption {
       type = types.nullOr types.int;
       default = null;
       example = 5;
@@ -257,7 +257,7 @@ let
       property = "HealthRetries";
     };
 
-    healthStartPeriod = quadletUtils.mkOption {
+    healthStartPeriod = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "1m";
@@ -265,7 +265,7 @@ let
       property = "HealthStartPeriod";
     };
 
-    healthStartupCmd = quadletUtils.mkOption {
+    healthStartupCmd = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "/usr/bin/command";
@@ -273,7 +273,7 @@ let
       property = "HealthStartupCmd";
     };
 
-    healthStartupInterval = quadletUtils.mkOption {
+    healthStartupInterval = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "1m";
@@ -281,7 +281,7 @@ let
       property = "HealthStartupInterval";
     };
 
-    healthStartupRetries = quadletUtils.mkOption {
+    healthStartupRetries = quadletOptions.mkOption {
       type = types.nullOr types.int;
       default = null;
       example = 8;
@@ -289,7 +289,7 @@ let
       property = "HealthStartupRetries";
     };
 
-    healthStartupSuccess = quadletUtils.mkOption {
+    healthStartupSuccess = quadletOptions.mkOption {
       type = types.nullOr types.int;
       default = null;
       example = 2;
@@ -297,7 +297,7 @@ let
       property = "HealthStartupSuccess";
     };
 
-    healthStartupTimeout = quadletUtils.mkOption {
+    healthStartupTimeout = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "1m33s";
@@ -305,7 +305,7 @@ let
       property = "HealthStartupTimeout";
     };
 
-    healthTimeout = quadletUtils.mkOption {
+    healthTimeout = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "20s";
@@ -313,7 +313,7 @@ let
       property = "HealthTimeout";
     };
 
-    hostname = quadletUtils.mkOption {
+    hostname = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "new-host-name";
@@ -321,7 +321,7 @@ let
       property = "HostName";
     };
 
-    image = quadletUtils.mkOption {
+    image = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "docker.io/library/nginx:latest";
@@ -329,7 +329,7 @@ let
       property = "Image";
     };
 
-    ip = quadletUtils.mkOption {
+    ip = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "192.5.0.1";
@@ -337,7 +337,7 @@ let
       property = "IP";
     };
 
-    ip6 = quadletUtils.mkOption {
+    ip6 = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "fd46:db93:aa76:ac37::10";
@@ -345,7 +345,7 @@ let
       property = "IP6";
     };
 
-    labels = quadletUtils.mkOption {
+    labels = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "XYZ" ];
@@ -354,7 +354,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    logDriver = quadletUtils.mkOption {
+    logDriver = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "journald";
@@ -362,7 +362,7 @@ let
       property = "LogDriver";
     };
 
-    logOptions = quadletUtils.mkOption {
+    logOptions = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "path=/var/log/mykube.json" ];
@@ -371,7 +371,7 @@ let
       encoding = "quoted_unescaped";
     };
 
-    mask = quadletUtils.mkOption {
+    mask = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "/proc/sys/foo:/proc/sys/bar";
@@ -380,7 +380,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    mounts = quadletUtils.mkOption {
+    mounts = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "type=..." ];
@@ -389,7 +389,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    networks = quadletUtils.mkOption {
+    networks = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "host" ];
@@ -397,7 +397,7 @@ let
       property = "Network";
     };
 
-    networkAliases = quadletUtils.mkOption {
+    networkAliases = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "name" ];
@@ -405,21 +405,21 @@ let
       property = "NetworkAlias";
     };
 
-    noNewPrivileges = quadletUtils.mkOption {
+    noNewPrivileges = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--security-opt no-new-privileges";
       property = "NoNewPrivileges";
     };
 
-    notify = quadletUtils.mkOption {
+    notify = quadletOptions.mkOption {
       type = types.enum [ null true false "healthy" ];
       default = null;
       description = "--sdnotify container";
       property = "Notify";
     };
 
-    pidsLimit = quadletUtils.mkOption {
+    pidsLimit = quadletOptions.mkOption {
       type = types.nullOr types.int;
       default = null;
       example = 10000;
@@ -427,14 +427,14 @@ let
       property = "PidsLimit";
     };
 
-    pod = quadletUtils.mkOption {
+    pod = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       description = "The full name of the pod to link to.";
       property = "Pod";
     };
 
-    podmanArgs = quadletUtils.mkOption {
+    podmanArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "--add-host foobar" ];
@@ -443,7 +443,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    publishPorts = quadletUtils.mkOption {
+    publishPorts = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "50-59" ];
@@ -451,7 +451,7 @@ let
       property = "PublishPort";
     };
 
-    pull = quadletUtils.mkOption {
+    pull = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "never";
@@ -459,21 +459,21 @@ let
       property = "Pull";
     };
 
-    readOnly = quadletUtils.mkOption {
+    readOnly = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--read-only";
       property = "ReadOnly";
     };
 
-    readOnlyTmpfs = quadletUtils.mkOption {
+    readOnlyTmpfs = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--read-only-tmpfs";
       property = "ReadOnlyTmpfs";
     };
 
-    rootfs = quadletUtils.mkOption {
+    rootfs = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "/var/lib/rootfs";
@@ -481,14 +481,14 @@ let
       property = "Rootfs";
     };
 
-    runInit = quadletUtils.mkOption {
+    runInit = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--init";
       property = "RunInit";
     };
 
-    seccompProfile = quadletUtils.mkOption {
+    seccompProfile = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "/tmp/s.json";
@@ -496,7 +496,7 @@ let
       property = "SeccompProfile";
     };
 
-    secrets = quadletUtils.mkOption {
+    secrets = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "secret[,opt=opt …]" ];
@@ -505,14 +505,14 @@ let
       encoding = "quoted_escaped";
     };
 
-    securityLabelDisable = quadletUtils.mkOption {
+    securityLabelDisable = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--security-opt label=disable";
       property = "SecurityLabelDisable";
     };
 
-    securityLabelFileType = quadletUtils.mkOption {
+    securityLabelFileType = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "usr_t";
@@ -520,7 +520,7 @@ let
       property = "SecurityLabelFileType";
     };
 
-    securityLabelLevel = quadletUtils.mkOption {
+    securityLabelLevel = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "s0:c1,c2";
@@ -528,14 +528,14 @@ let
       property = "SecurityLabelLevel";
     };
 
-    securityLabelNested = quadletUtils.mkOption {
+    securityLabelNested = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--security-opt label=nested";
       property = "SecurityLabelNested";
     };
 
-    securityLabelType = quadletUtils.mkOption {
+    securityLabelType = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "spc_t";
@@ -543,7 +543,7 @@ let
       property = "SecurityLabelType";
     };
 
-    shmSize = quadletUtils.mkOption {
+    shmSize = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "100m";
@@ -551,14 +551,14 @@ let
       property = "ShmSize";
     };
 
-    startWithPod = quadletUtils.mkOption {
+    startWithPod = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "If pod is defined, container is started by pod";
       property = "StartWithPod";
     };
 
-    stopSignal = quadletUtils.mkOption {
+    stopSignal = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "SIGINT";
@@ -566,7 +566,7 @@ let
       property = "StopSignal";
     };
 
-    stopTimeout = quadletUtils.mkOption {
+    stopTimeout = quadletOptions.mkOption {
       type = types.nullOr types.int;
       default = null;
       example = 20;
@@ -574,7 +574,7 @@ let
       property = "StopTimeout";
     };
 
-    subGIDMap = quadletUtils.mkOption {
+    subGIDMap = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "gtest";
@@ -582,7 +582,7 @@ let
       property = "SubGIDMap";
     };
 
-    subUIDMap = quadletUtils.mkOption {
+    subUIDMap = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "utest";
@@ -590,7 +590,7 @@ let
       property = "SubUIDMap";
     };
 
-    sysctl = quadletUtils.mkOption {
+    sysctl = quadletOptions.mkOption {
       type = types.attrsOf types.str;
       default = { };
       example = {
@@ -601,7 +601,7 @@ let
       encoding = "quoted_unescaped";
     };
 
-    timezone = quadletUtils.mkOption {
+    timezone = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "local";
@@ -609,7 +609,7 @@ let
       property = "TimeZone";
     };
 
-    tmpfses = quadletUtils.mkOption {
+    tmpfses = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "/work" ];
@@ -617,7 +617,7 @@ let
       property = "Tmpfs";
     };
 
-    uidMaps = quadletUtils.mkOption {
+    uidMaps = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "0:10000:10" ];
@@ -626,7 +626,7 @@ let
       encoding = "quoted_unescaped";
     };
 
-    ulimits = quadletUtils.mkOption {
+    ulimits = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "nofile=1000:10000" ];
@@ -634,7 +634,7 @@ let
       property = "Ulimit";
     };
 
-    unmask = quadletUtils.mkOption {
+    unmask = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "ALL";
@@ -643,7 +643,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    user = quadletUtils.mkOption {
+    user = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "bin";
@@ -651,7 +651,7 @@ let
       property = "User";
     };
 
-    userns = quadletUtils.mkOption {
+    userns = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "keep-id:uid=200,gid=210";
@@ -659,7 +659,7 @@ let
       property = "UserNS";
     };
 
-    volumes = quadletUtils.mkOption {
+    volumes = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "/source:/dest" ];
@@ -667,7 +667,7 @@ let
       property = "Volume";
     };
 
-    workdir = quadletUtils.mkOption {
+    workdir = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "$HOME";
@@ -682,38 +682,8 @@ let
   };
 in
 {
-  options = {
-    autoStart = mkOption {
-      type = types.bool;
-      default = true;
-      example = true;
-      description = "When enabled, the container is automatically started on boot.";
-    };
-
-    quadletConfig = quadletUtils.quadletOpts;
-
+  options = quadletOptions.mkObjectOptions "container" {
     containerConfig = containerOpts;
-
-    unitConfig = mkOption {
-      type = types.attrsOf quadletUtils.unitOption;
-      default = { };
-    };
-
-    serviceConfig = mkOption {
-      type = types.attrsOf quadletUtils.unitOption;
-      default = { };
-    };
-
-    rawConfig = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-    };
-
-    _serviceName = mkOption { internal = true; };
-    _configText = mkOption { internal = true; };
-    _autoStart = mkOption { internal = true; };
-    _autoEscapeRequired = mkOption { internal = true; };
-    ref = mkOption { readOnly = true; };
   };
 
   config =

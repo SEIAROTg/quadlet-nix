@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) types lists strings mkOption attrNames attrValues mergeAttrsList mkIf getExe;
+  inherit (lib) types mkOption mergeAttrsList mkIf getExe;
 
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
@@ -15,19 +15,16 @@ let
     podmanPackage = osConfig.virtualisation.podman.package or pkgs.podman;
     autoEscape = config.virtualisation.quadlet.autoEscape;
   };
-  buildOpts = types.submodule (import ./build.nix { inherit quadletUtils; });
-  containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
-  networkOpts = types.submodule (import ./network.nix { inherit quadletUtils; });
-  podOpts = types.submodule (import ./pod.nix { inherit quadletUtils; });
-  volumeOpts = types.submodule (import ./volume.nix { inherit quadletUtils; });
-
+  quadletOptions = import ./common-options.nix {
+    inherit lib quadletUtils;
+  };
   activationScript = lib.hm.dag.entryBefore [ "reloadSystemd" ] ''
     mkdir -p '${config.xdg.configHome}/quadlet-nix/'
     ln -sf "''${XDG_RUNTIME_DIR:-/run/user/$UID}/systemd/generator/" '${config.xdg.configHome}/quadlet-nix/out'
   '';
 in
 {
-  options.virtualisation.quadlet = {
+  options.virtualisation.quadlet = quadletOptions.mkTopLevelOptions {
     autoUpdate = {
       enable = mkOption {
         type = types.bool;
@@ -38,72 +35,14 @@ in
         default = "*-*-* 00:00:00";
       };
     };
-    builds = mkOption {
-      type = types.attrsOf buildOpts;
-      default = { };
-    };
-    containers = mkOption {
-      type = types.attrsOf containerOpts;
-      default = { };
-    };
-    networks = mkOption {
-      type = types.attrsOf networkOpts;
-      default = { };
-    };
-    pods = mkOption {
-      type = types.attrsOf podOpts;
-      default = { };
-    };
-    volumes = mkOption {
-      type = types.attrsOf volumeOpts;
-      default = { };
-    };
-    autoEscape = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Enables appropriate quoting / escaping.
-
-        Not enabled by default to avoid breaking existing configurations. In the future this will be required.
-      '';
-    };
   };
   config =
     let
-      allObjects = builtins.concatLists (map attrValues [
-        cfg.builds
-        cfg.containers
-        cfg.networks
-        cfg.pods
-        cfg.volumes
-      ]);
+      allObjects = quadletOptions.getAllObjects cfg;
     in
     {
-      assertions =
-        let
-          containerPodConflicts = lists.intersectLists (attrNames cfg.containers) (attrNames cfg.pods);
-        in
-        [
-          {
-            assertion = containerPodConflicts == [ ];
-            message = ''
-              The container/pod names should be unique!
-              See: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#podname
-              The following names are not unique: ${strings.concatStringsSep " " containerPodConflicts}
-            '';
-          }
-        ];
-      warnings =
-        quadletUtils.assertionsToWarnings [
-          {
-            assertion = !(builtins.any (p: p._autoEscapeRequired) allObjects);
-            message = ''
-              `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
-
-              This will become a hard error in the future. If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
-            '';
-          }
-        ];
+      assertions = quadletOptions.mkAssertions [ ] cfg;
+      warnings = quadletOptions.mkWarnings [ ] cfg;
 
       home.activation.quadletNix = mkIf (lib.length allObjects > 0) activationScript;
 
@@ -144,7 +83,7 @@ in
           # sd-switch only starts new services with those symlinks.
           ${p._serviceName} = {
             Unit.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
-            Install.WantedBy = if p._autoStart then [ "default.target" ] else [];
+            Install.WantedBy = if p._autoStart then [ "default.target" ] else [ ];
           };
         }) allObjects
       ) // {

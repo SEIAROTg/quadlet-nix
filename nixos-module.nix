@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) types lists strings mkOption attrNames attrValues mergeAttrsList;
+  inherit (lib) mergeAttrsList;
 
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
@@ -14,90 +14,22 @@ let
     podmanPackage = config.virtualisation.podman.package;
     autoEscape = config.virtualisation.quadlet.autoEscape;
   };
-
-  buildOpts = types.submodule (import ./build.nix { inherit quadletUtils; });
-  containerOpts = types.submodule (import ./container.nix { inherit quadletUtils; });
-  networkOpts = types.submodule (import ./network.nix { inherit quadletUtils; });
-  podOpts = types.submodule (import ./pod.nix { inherit quadletUtils; });
-  volumeOpts = types.submodule (import ./volume.nix { inherit quadletUtils; });
+  quadletOptions = import ./options.nix {
+    inherit lib quadletUtils;
+  };
 in
 {
-  options = {
-    virtualisation.quadlet = {
-      builds = mkOption {
-        type = types.attrsOf buildOpts;
-        default = { };
-      };
-
-      containers = mkOption {
-        type = types.attrsOf containerOpts;
-        default = { };
-      };
-
-      networks = mkOption {
-        type = types.attrsOf networkOpts;
-        default = { };
-      };
-
-      pods = mkOption {
-        type = types.attrsOf podOpts;
-        default = { };
-      };
-
-      volumes = mkOption {
-        type = types.attrsOf volumeOpts;
-        default = { };
-      };
-
-      autoEscape = mkOption {
-        type = types.bool;
-        default = false;
-        description = ''
-          Enables appropriate quoting / escaping.
-
-          Not enabled by default to avoid breaking existing configurations. In the future this will be required.
-        '';
-      };
-    };
-  };
+  options.virtualisation.quadlet = quadletOptions.mkTopLevelOptions { };
 
   config =
     let
-      allObjects = builtins.concatLists (map attrValues [
-        cfg.builds
-        cfg.containers
-        cfg.networks
-        cfg.pods
-        cfg.volumes
-      ]);
+      allObjects = quadletOptions.getAllObjects cfg;
     in
     {
-      virtualisation.podman.enable = true;
-      assertions =
-        let
-          containerPodConflicts = lists.intersectLists (attrNames cfg.containers) (attrNames cfg.pods);
-        in
-        [
-          {
-            assertion = containerPodConflicts == [ ];
-            message = ''
-              The container/pod names should be unique!
-              See: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#podname
-              The following names are not unique: ${strings.concatStringsSep " " containerPodConflicts}
-            '';
-          }
-        ];
-      warnings =
-        quadletUtils.assertionsToWarnings [
-          {
-            assertion = !(builtins.any (p: p._autoEscapeRequired) allObjects);
-            message = ''
-              `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
+      assertions = quadletOptions.mkAssertions [ ] cfg;
+      warnings = quadletOptions.mkWarnings [ ] cfg;
 
-              This will become a hard error in the future. If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
-            '';
-          }
-        ];
+      virtualisation.podman.enable = true;
       environment.etc = mergeAttrsList (
         map (p: {
           "containers/systemd/${p.ref}" = {

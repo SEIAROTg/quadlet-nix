@@ -1,4 +1,4 @@
-{ quadletUtils }:
+{ quadletUtils, quadletOptions }:
 {
   config,
   name,
@@ -6,10 +6,10 @@
   ...
 }:
 let
-  inherit (lib) types mkOption;
+  inherit (lib) types;
 
   volumeOpts = {
-    name = quadletUtils.mkOption {
+    name = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "foo";
@@ -17,14 +17,14 @@ let
       property = "VolumeName";
     };
 
-    copy = quadletUtils.mkOption {
+    copy = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--opt copy";
       property = "Copy";
     };
 
-    device = quadletUtils.mkOption {
+    device = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "tmpfs";
@@ -32,7 +32,7 @@ let
       property = "Device";
     };
 
-    driver = quadletUtils.mkOption {
+    driver = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "image";
@@ -40,7 +40,7 @@ let
       property = "Driver";
     };
 
-    globalArgs = quadletUtils.mkOption {
+    globalArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [  ];
       example = [ "--log-level=debug" ];
@@ -49,7 +49,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    group = quadletUtils.mkOption {
+    group = quadletOptions.mkOption {
       type = types.nullOr (types.oneOf [ types.int types.str ]);
       default = null;
       example = 192;
@@ -57,7 +57,7 @@ let
       property = "Group";
     };
 
-    image = quadletUtils.mkOption {
+    image = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "quay.io/centos/centos:latest";
@@ -65,7 +65,7 @@ let
       property = "Image";
     };
 
-    labels = quadletUtils.mkOption {
+    labels = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "foo=bar" ];
@@ -74,7 +74,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    modules = quadletUtils.mkOption {
+    modules = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "/etc/nvd.conf" ];
@@ -82,14 +82,14 @@ let
       property = "ContainersConfModule";
     };
 
-    options = quadletUtils.mkOption {
+    options = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       description = "--opt o=...";
       property = "Options";
     };
 
-    podmanArgs = quadletUtils.mkOption {
+    podmanArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "--driver=image" ];
@@ -98,14 +98,14 @@ let
       encoding = "quoted_escaped";
     };
 
-    type = quadletUtils.mkOption {
+    type = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       description = "Filesystem type of Device";
       property = "Type";
     };
 
-    user = quadletUtils.mkOption {
+    user = quadletOptions.mkOption {
       type = types.nullOr (types.oneOf [ types.int types.str ]);
       default = null;
       example = 123;
@@ -115,38 +115,8 @@ let
   };
 in
 {
-  options = {
+  options = quadletOptions.mkObjectOptions "volume" {
     volumeConfig = volumeOpts;
-
-    quadletConfig = quadletUtils.quadletOpts;
-
-    autoStart = mkOption {
-      type = types.bool;
-      default = true;
-      example = true;
-      description = "When enabled, the volume is automatically started on boot.";
-    };
-
-    unitConfig = mkOption {
-      type = types.attrsOf quadletUtils.unitOption;
-      default = { };
-    };
-
-    serviceConfig = mkOption {
-      type = types.attrsOf quadletUtils.unitOption;
-      default = { };
-    };
-
-    rawConfig = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-    };
-
-    _serviceName = mkOption { internal = true; };
-    _configText = mkOption { internal = true; };
-    _autoStart = mkOption { internal = true; };
-    _autoEscapeRequired = mkOption { internal = true; };
-    ref = mkOption { readOnly = true; };
   };
 
   config =

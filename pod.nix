@@ -1,4 +1,4 @@
-{ quadletUtils }:
+{ quadletUtils, quadletOptions }:
 {
   config,
   name,
@@ -6,10 +6,10 @@
   ...
 }:
 let
-  inherit (lib) types mkOption;
+  inherit (lib) types;
 
   podOpts = {
-    name = quadletUtils.mkOption {
+    name = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "name";
@@ -17,7 +17,7 @@ let
       property = "PodName";
     };
 
-    addHosts = quadletUtils.mkOption {
+    addHosts = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "hostname:192.168.10.11" ];
@@ -25,7 +25,7 @@ let
       property = "AddHost";
     };
 
-    modules = quadletUtils.mkOption {
+    modules = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "/etc/nvd.conf" ];
@@ -33,7 +33,7 @@ let
       property = "ContainersConfModule";
     };
 
-    dns = quadletUtils.mkOption {
+    dns = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.1" ];
@@ -41,7 +41,7 @@ let
       property = "DNS";
     };
 
-    dnsOptions = quadletUtils.mkOption {
+    dnsOptions = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "ndots:1" ];
@@ -49,7 +49,7 @@ let
       property = "DNSOption";
     };
 
-    dnsSearches = quadletUtils.mkOption {
+    dnsSearches = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "foo.com" ];
@@ -57,7 +57,7 @@ let
       property = "DNSSearch";
     };
 
-    gidMaps = quadletUtils.mkOption {
+    gidMaps = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "0:10000:10" ];
@@ -66,7 +66,7 @@ let
       encoding = "quoted_unescaped";
     };
 
-    globalArgs = quadletUtils.mkOption {
+    globalArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [  ];
       example = [ "--log-level=debug" ];
@@ -75,7 +75,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    ip = quadletUtils.mkOption {
+    ip = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "192.5.0.1";
@@ -83,7 +83,7 @@ let
       property = "IP";
     };
 
-    ip6 = quadletUtils.mkOption {
+    ip6 = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "2001:db8::1";
@@ -91,7 +91,7 @@ let
       property = "IP6";
     };
 
-    networks = quadletUtils.mkOption {
+    networks = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "host" ];
@@ -99,7 +99,7 @@ let
       property = "Network";
     };
 
-    networkAliases = quadletUtils.mkOption {
+    networkAliases = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "name" ];
@@ -107,7 +107,7 @@ let
       property = "NetworkAlias";
     };
 
-    podmanArgs = quadletUtils.mkOption {
+    podmanArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "--cpus=2" ];
@@ -116,7 +116,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    publishPorts = quadletUtils.mkOption {
+    publishPorts = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "50-59" ];
@@ -124,7 +124,7 @@ let
       property = "PublishPort";
     };
 
-    serviceName = quadletUtils.mkOption {
+    serviceName = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "service-name";
@@ -132,7 +132,7 @@ let
       property = "ServiceName";
     };
 
-    subGIDMap = quadletUtils.mkOption {
+    subGIDMap = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "gtest";
@@ -140,7 +140,7 @@ let
       property = "SubGIDMap";
     };
 
-    subUIDMap = quadletUtils.mkOption {
+    subUIDMap = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "utest";
@@ -148,7 +148,7 @@ let
       property = "SubUIDMap";
     };
 
-    uidMaps = quadletUtils.mkOption {
+    uidMaps = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "0:10000:10" ];
@@ -157,7 +157,7 @@ let
       encoding = "quoted_unescaped";
     };
 
-    userns = quadletUtils.mkOption {
+    userns = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "keep-id:uid=200,gid=210";
@@ -165,7 +165,7 @@ let
       property = "UserNS";
     };
 
-    volumes = quadletUtils.mkOption {
+    volumes = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "/source:/dest" ];
@@ -175,38 +175,8 @@ let
   };
 in
 {
-  options = {
+  options = quadletOptions.mkObjectOptions "pod" {
     podConfig = podOpts;
-
-    quadletConfig = quadletUtils.quadletOpts;
-
-    autoStart = mkOption {
-      type = types.bool;
-      default = true;
-      example = true;
-      description = "When enabled, the pod is automatically started on boot.";
-    };
-
-    unitConfig = mkOption {
-      type = types.attrsOf quadletUtils.unitOption;
-      default = { };
-    };
-
-    serviceConfig = mkOption {
-      type = types.attrsOf quadletUtils.unitOption;
-      default = { };
-    };
-
-    rawConfig = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-    };
-
-    _serviceName = mkOption { internal = true; };
-    _configText = mkOption { internal = true; };
-    _autoStart = mkOption { internal = true; };
-    _autoEscapeRequired = mkOption { internal = true; };
-    ref = mkOption { readOnly = true; };
   };
 
   config =

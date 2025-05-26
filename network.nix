@@ -1,6 +1,4 @@
-{
-  quadletUtils,
-}:
+{ quadletUtils, quadletOptions }:
 {
   config,
   name,
@@ -8,10 +6,10 @@
   ...
 }:
 let
-  inherit (lib) types mkOption getExe;
+  inherit (lib) types getExe;
 
   networkOpts = {
-    modules = quadletUtils.mkOption {
+    modules = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "/etc/nvd.conf" ];
@@ -19,14 +17,14 @@ let
       property = "ContainersConfModule";
     };
 
-    disableDns = quadletUtils.mkOption {
+    disableDns = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--disable-dns";
       property = "DisableDNS";
     };
 
-    dns = quadletUtils.mkOption {
+    dns = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.1" ];
@@ -34,7 +32,7 @@ let
       property = "DNS";
     };
 
-    driver = quadletUtils.mkOption {
+    driver = quadletOptions.mkOption {
       type = types.nullOr (
         types.enum [
           "bridge"
@@ -48,7 +46,7 @@ let
       property = "Driver";
     };
 
-    gateways = quadletUtils.mkOption {
+    gateways = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.3" ];
@@ -56,7 +54,7 @@ let
       property = "Gateway";
     };
 
-    globalArgs = quadletUtils.mkOption {
+    globalArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [  ];
       example = [ "--log-level=debug" ];
@@ -65,14 +63,14 @@ let
       encoding = "quoted_escaped";
     };
 
-    internal = quadletUtils.mkOption {
+    internal = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--internal";
       property = "Internal";
     };
 
-    ipamDriver = quadletUtils.mkOption {
+    ipamDriver = quadletOptions.mkOption {
       type = types.nullOr (
         types.enum [
           "host-local"
@@ -86,7 +84,7 @@ let
       property = "IPAMDriver";
     };
 
-    ipRanges = quadletUtils.mkOption {
+    ipRanges = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.128/25" ];
@@ -94,14 +92,14 @@ let
       property = "IPRange";
     };
 
-    ipv6 = quadletUtils.mkOption {
+    ipv6 = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = "--ipv6";
       property = "IPv6";
     };
 
-    labels = quadletUtils.mkOption {
+    labels = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "XYZ" ];
@@ -110,7 +108,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    name = quadletUtils.mkOption {
+    name = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "foo";
@@ -118,7 +116,7 @@ let
       property = "NetworkName";
     };
 
-    options = quadletUtils.mkOption {
+    options = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
       example = "isolate";
@@ -127,7 +125,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    podmanArgs = quadletUtils.mkOption {
+    podmanArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "--dns=192.168.55.1" ];
@@ -136,7 +134,7 @@ let
       encoding = "quoted_escaped";
     };
 
-    subnets = quadletUtils.mkOption {
+    subnets = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.5.0.0/16" ];
@@ -146,38 +144,8 @@ let
   };
 in
 {
-  options = {
-    autoStart = mkOption {
-      type = types.bool;
-      default = true;
-      example = true;
-      description = "When enabled, the network is automatically started on boot.";
-    };
-
+  options = quadletOptions.mkObjectOptions "network" {
     networkConfig = networkOpts;
-
-    quadletConfig = quadletUtils.quadletOpts;
-
-    unitConfig = mkOption {
-      type = types.attrsOf quadletUtils.unitOption;
-      default = { };
-    };
-
-    serviceConfig = mkOption {
-      type = types.attrsOf quadletUtils.unitOption;
-      default = { };
-    };
-
-    rawConfig = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-    };
-
-    _serviceName = mkOption { internal = true; };
-    _configText = mkOption { internal = true; };
-    _autoStart = mkOption { internal = true; };
-    _autoEscapeRequired = mkOption { internal = true; };
-    ref = mkOption { readOnly = true; };
   };
 
   config =
