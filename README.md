@@ -17,7 +17,7 @@ Compared to alternatives like [`virtualisation.oci-containers`](https://github.c
 
 ## How
 
-See [`build.nix`](./build.nix), [`container.nix`](./container.nix), [`network.nix`](./network.nix), [`pod.nix`](./pod.nix), and [`volume.nix`](./volume.nix) for all options.
+See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for all options.
 
 ### Example (rootful)
 

@@ -13,7 +13,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "name";
-      description = "--name";
+      cli = "--name";
       property = "PodName";
     };
 
@@ -21,7 +21,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "hostname:192.168.10.11" ];
-      description = "--add-host";
+      cli = "--add-host";
       property = "AddHost";
     };
 
@@ -29,7 +29,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/etc/nvd.conf" ];
-      description = "--module";
+      cli = "--module";
       property = "ContainersConfModule";
     };
 
@@ -37,7 +37,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.1" ];
-      description = "--dns";
+      cli = "--dns";
       property = "DNS";
     };
 
@@ -45,7 +45,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "ndots:1" ];
-      description = "--dns-option";
+      cli = "--dns-option";
       property = "DNSOption";
     };
 
@@ -53,7 +53,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "foo.com" ];
-      description = "--dns-search";
+      cli = "--dns-search";
       property = "DNSSearch";
     };
 
@@ -61,7 +61,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "0:10000:10" ];
-      description = "--gidmap";
+      cli = "--gidmap";
       property = "GIDMap";
       encoding = "quoted_unescaped";
     };
@@ -70,7 +70,7 @@ let
       type = types.listOf types.str;
       default = [  ];
       example = [ "--log-level=debug" ];
-      description = "global args";
+      description = "Additional command line arguments to insert between `podman` and `pod create`";
       property = "GlobalArgs";
       encoding = "quoted_escaped";
     };
@@ -79,7 +79,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "192.5.0.1";
-      description = "--ip";
+      cli = "--ip";
       property = "IP";
     };
 
@@ -87,7 +87,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "2001:db8::1";
-      description = "--ip6";
+      cli = "--ip6";
       property = "IP6";
     };
 
@@ -95,7 +95,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "host" ];
-      description = "--network";
+      cli = "--network";
       property = "Network";
     };
 
@@ -103,7 +103,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "name" ];
-      description = "--network-alias";
+      cli = "--network-alias";
       property = "NetworkAlias";
     };
 
@@ -111,7 +111,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "--cpus=2" ];
-      description = "Additional podman arguments";
+      description = "Additional command line arguments to insert after `podman pod create`";
       property = "PodmanArgs";
       encoding = "quoted_escaped";
     };
@@ -120,7 +120,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "50-59" ];
-      description = "--publish";
+      cli = "--publish";
       property = "PublishPort";
     };
 
@@ -136,7 +136,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "gtest";
-      description = "--subgidname";
+      cli = "--subgidname";
       property = "SubGIDMap";
     };
 
@@ -144,7 +144,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "utest";
-      description = "--subuidname";
+      cli = "--subuidname";
       property = "SubUIDMap";
     };
 
@@ -152,7 +152,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "0:10000:10" ];
-      description = "--uidmap";
+      cli = "--uidmap";
       property = "UIDMap";
       encoding = "quoted_unescaped";
     };
@@ -161,7 +161,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "keep-id:uid=200,gid=210";
-      description = "--userns";
+      cli = "--userns";
       property = "UserNS";
     };
 
@@ -169,7 +169,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/source:/dest" ];
-      description = "--volume";
+      cli = "--volume";
       property = "Volume";
     };
   };

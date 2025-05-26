@@ -1,12 +1,16 @@
 { lib, quadletUtils }:
 let
   mkOption =
-    { property, encoding ? null, ... }@attrs:
-    (lib.mkOption (lib.filterAttrs (name: _: !(builtins.elem name [ "property" "encoding" ])) attrs))
-    // {
-      inherit property;
-      inherit encoding;
-    };
+    { property, cli ? null, description ? null, encoding ? null, ... }@attrs: let
+      descForDesc = if description == null then "" else description + "\n\n";
+      descForCli = if cli == null then "" else "and command line argument `${cli}`";
+    in
+      (lib.mkOption (lib.filterAttrs (name: _: !(builtins.elem name [ "property" "cli" "encoding" ])) attrs))
+      // {
+        inherit property;
+        inherit encoding;
+        description = "${descForDesc}Maps to quadlet option `${property}`${descForCli}.";
+      };
 
   quadletOpts = {
     defaultDependencies = mkOption {
@@ -29,23 +33,58 @@ let
     unitConfig = lib.mkOption {
       type = lib.types.attrsOf quadletUtils.unitOption;
       default = { };
+      description = "systemd unit config passed through to [Unit] section.";
     };
 
     serviceConfig = lib.mkOption {
       type = lib.types.attrsOf quadletUtils.unitOption;
       default = { };
+      description = "systemd service config passed through to [Service] section.";
     };
 
     rawConfig = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
+      description = ''
+        Raw quadlet config text. Using this will cause all other options
+        contributing to quadlet files to be ignored. autoStart is not affected.
+      '';
     };
 
-    _serviceName = lib.mkOption { internal = true; };
-    _configText = lib.mkOption { internal = true; };
-    _autoStart = lib.mkOption { internal = true; };
-    _autoEscapeRequired = lib.mkOption { internal = true; };
-    ref = lib.mkOption { readOnly = true; };
+    _serviceName = lib.mkOption {
+      internal = true;
+      description = "Name of the systemd service unit, without the .service suffix.";
+    };
+
+    _configText = lib.mkOption {
+      internal = true;
+      description = "Generated quadlet config text";
+    };
+
+    _autoStart = lib.mkOption {
+      internal = true;
+      description = "Whether the service is automatically started on boot.";
+    };
+
+    _autoEscapeRequired = lib.mkOption {
+      internal = true;
+      description = ''
+        Whether `autoEscape` needs to be switched on for correct encoding.
+        This is false if already on.
+      '';
+    };
+
+    ref = lib.mkOption {
+      readOnly = true;
+      description = ''
+        Reference to this ${objectType} from other quadlets.
+
+        Quadlet resolves this to object (e.g. container) names and sets up appropriate systemd dependencies.
+
+        This is recognized for most quadlet native options, but not by Podman command line.
+        Using this inside `podmanArgs` will therefore unlikely to work.
+      '';
+    };
   };
 
   commonTopLevelOptions = let
@@ -54,22 +93,27 @@ let
     builds = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule (import ./build.nix submoduleArgs));
       default = { };
+      description = "Image builds";
     };
     containers = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule (import ./container.nix submoduleArgs));
       default = { };
+      description = "Containers";
     };
     networks = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule (import ./network.nix submoduleArgs));
       default = { };
+      description = "Networks";
     };
     pods = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule (import ./pod.nix submoduleArgs));
       default = { };
+      description = "Pods";
     };
     volumes = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule (import ./volume.nix submoduleArgs));
       default = { };
+      description = "Volumes";
     };
     autoEscape = lib.mkOption {
       type = lib.types.bool;

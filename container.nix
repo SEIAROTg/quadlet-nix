@@ -13,7 +13,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "NET_ADMIN" ];
-      description = "--cap-add";
+      cli = "--cap-add";
       property = "AddCapability";
       encoding = "quoted_unescaped";
     };
@@ -22,7 +22,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = ["hostname:192.168.10.11"];
-      description = "--add-host";
+      cli = "--add-host";
       property = "AddHost";
     };
 
@@ -30,7 +30,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/dev/foo" ];
-      description = "--device";
+      cli = "--device";
       property = "AddDevice";
       encoding = "quoted_unescaped";
     };
@@ -39,7 +39,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "XYZ" ];
-      description = "--annotation";
+      cli = "--annotation";
       property = "Annotation";
       encoding = "quoted_escaped";
     };
@@ -53,7 +53,7 @@ let
       );
       default = null;
       example = "registry";
-      description = "--label \"io.containers.autoupdate=...\"";
+      cli = "--label \"io.containers.autoupdate=...\"";
       property = "AutoUpdate";
     };
 
@@ -61,7 +61,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "no-conmon";
-      description = "--cgroups";
+      cli = "--cgroups";
       property = "CgroupsMode";
     };
 
@@ -69,7 +69,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "name";
-      description = "--name";
+      cli = "--name";
       property = "ContainerName";
     };
 
@@ -77,7 +77,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/etc/nvd.conf" ];
-      description = "--module";
+      cli = "--module";
       property = "ContainersConfModule";
     };
 
@@ -85,7 +85,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.1" ];
-      description = "--dns";
+      cli = "--dns";
       property = "DNS";
     };
 
@@ -93,7 +93,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "foo.com" ];
-      description = "--dns-search";
+      cli = "--dns-search";
       property = "DNSSearch";
     };
 
@@ -101,7 +101,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "ndots:1" ];
-      description = "--dns-option";
+      cli = "--dns-option";
       property = "DNSOption";
     };
 
@@ -109,7 +109,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "NET_ADMIN" ];
-      description = "--cap-drop";
+      cli = "--cap-drop";
       property = "DropCapability";
       encoding = "quoted_unescaped";
     };
@@ -118,7 +118,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "/foo.sh";
-      description = "--entrypoint";
+      cli = "--entrypoint";
       property = "Entrypoint";
     };
 
@@ -128,7 +128,7 @@ let
       example = {
         foo = "bar";
       };
-      description = "--env";
+      cli = "--env";
       property = "Environment";
       encoding = "quoted_escaped";
     };
@@ -137,7 +137,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/tmp/env" ];
-      description = "--env-file";
+      cli = "--env-file";
       property = "EnvironmentFile";
       encoding = "quoted_escaped";
     };
@@ -145,7 +145,7 @@ let
     environmentHost = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--env-host";
+      cli = "--env-host";
       property = "EnvironmentHost";
     };
 
@@ -163,7 +163,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "50-59" ];
-      description = "--expose";
+      cli = "--expose";
       property = "ExposeHostPort";
     };
 
@@ -171,7 +171,7 @@ let
       type = types.listOf types.str;
       default = [  ];
       example = [ "0:10000:10" ];
-      description = "--gidmap";
+      cli = "--gidmap";
       property = "GIDMap";
       encoding = "quoted_unescaped";
     };
@@ -180,7 +180,7 @@ let
       type = types.listOf types.str;
       default = [  ];
       example = [ "--log-level=debug" ];
-      description = "global args";
+      description = "Additional command line arguments to insert between `podman` and `run`";
       property = "GlobalArgs";
       encoding = "quoted_escaped";
     };
@@ -189,7 +189,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "1234";
-      description = "--user UID:...";
+      cli = "--user UID:...";
       property = "Group";
     };
 
@@ -197,7 +197,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "keep-groups" ];
-      description = "--group-add";
+      cli = "--group-add";
       property = "GroupAdd";
     };
 
@@ -205,7 +205,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "/usr/bin/command";
-      description = "--health-cmd";
+      cli = "--health-cmd";
       property = "HealthCmd";
     };
 
@@ -213,7 +213,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "2m";
-      description = "--health-interval";
+      cli = "--health-interval";
       property = "HealthInterval";
     };
 
@@ -221,7 +221,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "/foo/log";
-      description = "--health-log-destination";
+      cli = "--health-log-destination";
       property = "HealthLogDestination";
     };
 
@@ -229,7 +229,7 @@ let
       type = types.nullOr types.int;
       default = null;
       example = 5;
-      description = "--health-max-log-count";
+      cli = "--health-max-log-count";
       property = "HealthMaxLogCount";
     };
 
@@ -237,7 +237,7 @@ let
       type = types.nullOr types.int;
       default = null;
       example = 500;
-      description = "	--health-max-log-size";
+      cli = "--health-max-log-size";
       property = "HealthMaxLogSize";
     };
 
@@ -245,7 +245,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "kill";
-      description = "--health-on-failure";
+      cli = "--health-on-failure";
       property = "HealthOnFailure";
     };
 
@@ -253,7 +253,7 @@ let
       type = types.nullOr types.int;
       default = null;
       example = 5;
-      description = "--health-retries";
+      cli = "--health-retries";
       property = "HealthRetries";
     };
 
@@ -261,7 +261,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "1m";
-      description = "--health-start-period";
+      cli = "--health-start-period";
       property = "HealthStartPeriod";
     };
 
@@ -269,7 +269,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "/usr/bin/command";
-      description = "--health-startup-cmd";
+      cli = "--health-startup-cmd";
       property = "HealthStartupCmd";
     };
 
@@ -277,7 +277,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "1m";
-      description = "--health-startup-interval";
+      cli = "--health-startup-interval";
       property = "HealthStartupInterval";
     };
 
@@ -285,7 +285,7 @@ let
       type = types.nullOr types.int;
       default = null;
       example = 8;
-      description = "--health-startup-retries";
+      cli = "--health-startup-retries";
       property = "HealthStartupRetries";
     };
 
@@ -293,7 +293,7 @@ let
       type = types.nullOr types.int;
       default = null;
       example = 2;
-      description = "--health-startup-success";
+      cli = "--health-startup-success";
       property = "HealthStartupSuccess";
     };
 
@@ -301,7 +301,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "1m33s";
-      description = "--health-startup-timeout";
+      cli = "--health-startup-timeout";
       property = "HealthStartupTimeout";
     };
 
@@ -309,7 +309,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "20s";
-      description = "--health-timeout";
+      cli = "--health-timeout";
       property = "HealthTimeout";
     };
 
@@ -317,7 +317,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "new-host-name";
-      description = "--hostname";
+      cli = "--hostname";
       property = "HostName";
     };
 
@@ -333,7 +333,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "192.5.0.1";
-      description = "--ip";
+      cli = "--ip";
       property = "IP";
     };
 
@@ -341,7 +341,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "fd46:db93:aa76:ac37::10";
-      description = "--ip6";
+      cli = "--ip6";
       property = "IP6";
     };
 
@@ -349,7 +349,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "XYZ" ];
-      description = "--label";
+      cli = "--label";
       property = "Label";
       encoding = "quoted_escaped";
     };
@@ -358,7 +358,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "journald";
-      description = "--log-driver";
+      cli = "--log-driver";
       property = "LogDriver";
     };
 
@@ -366,7 +366,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "path=/var/log/mykube.json" ];
-      description = "--log-opt";
+      cli = "--log-opt";
       property = "LogOpt";
       encoding = "quoted_unescaped";
     };
@@ -375,7 +375,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "/proc/sys/foo:/proc/sys/bar";
-      description = "--security-opt mask=...";
+      cli = "--security-opt mask=...";
       property = "Mask";
       encoding = "quoted_escaped";
     };
@@ -384,7 +384,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "type=..." ];
-      description = "--mount";
+      cli = "--mount";
       property = "Mount";
       encoding = "quoted_escaped";
     };
@@ -393,7 +393,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "host" ];
-      description = "--net";
+      cli = "--net";
       property = "Network";
     };
 
@@ -401,21 +401,21 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "name" ];
-      description = "--network-alias";
+      cli = "--network-alias";
       property = "NetworkAlias";
     };
 
     noNewPrivileges = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--security-opt no-new-privileges";
+      cli = "--security-opt no-new-privileges";
       property = "NoNewPrivileges";
     };
 
     notify = quadletOptions.mkOption {
       type = types.enum [ null true false "healthy" ];
       default = null;
-      description = "--sdnotify container";
+      cli = "--sdnotify container";
       property = "Notify";
     };
 
@@ -423,14 +423,14 @@ let
       type = types.nullOr types.int;
       default = null;
       example = 10000;
-      description = "--pids-limit";
+      cli = "--pids-limit";
       property = "PidsLimit";
     };
 
     pod = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
-      description = "The full name of the pod to link to.";
+      cli = "--pod";
       property = "Pod";
     };
 
@@ -438,7 +438,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "--add-host foobar" ];
-      description = "Additional podman arguments";
+      description = "Additional command line arguments to insert after `podman run`";
       property = "PodmanArgs";
       encoding = "quoted_escaped";
     };
@@ -447,7 +447,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "50-59" ];
-      description = "--publish";
+      cli = "--publish";
       property = "PublishPort";
     };
 
@@ -455,21 +455,21 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "never";
-      description = "--pull";
+      cli = "--pull";
       property = "Pull";
     };
 
     readOnly = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--read-only";
+      cli = "--read-only";
       property = "ReadOnly";
     };
 
     readOnlyTmpfs = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--read-only-tmpfs";
+      cli = "--read-only-tmpfs";
       property = "ReadOnlyTmpfs";
     };
 
@@ -477,14 +477,14 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "/var/lib/rootfs";
-      description = "--rootfs";
+      cli = "--rootfs";
       property = "Rootfs";
     };
 
     runInit = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--init";
+      cli = "--init";
       property = "RunInit";
     };
 
@@ -492,7 +492,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "/tmp/s.json";
-      description = "--security-opt seccomp=...";
+      cli = "--security-opt seccomp=...";
       property = "SeccompProfile";
     };
 
@@ -500,7 +500,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "secret[,opt=opt …]" ];
-      description = "--secret";
+      cli = "--secret";
       property = "Secret";
       encoding = "quoted_escaped";
     };
@@ -508,7 +508,7 @@ let
     securityLabelDisable = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--security-opt label=disable";
+      cli = "--security-opt label=disable";
       property = "SecurityLabelDisable";
     };
 
@@ -516,7 +516,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "usr_t";
-      description = "--security-opt label=filetype:...";
+      cli = "--security-opt label=filetype:...";
       property = "SecurityLabelFileType";
     };
 
@@ -524,14 +524,14 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "s0:c1,c2";
-      description = "--security-opt label=level:s0:c1,c2";
+      cli = "--security-opt label=level:s0:c1,c2";
       property = "SecurityLabelLevel";
     };
 
     securityLabelNested = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--security-opt label=nested";
+      cli = "--security-opt label=nested";
       property = "SecurityLabelNested";
     };
 
@@ -539,7 +539,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "spc_t";
-      description = "--security-opt label=type:...";
+      cli = "--security-opt label=type:...";
       property = "SecurityLabelType";
     };
 
@@ -547,7 +547,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "100m";
-      description = "--shm-size";
+      cli = "--shm-size";
       property = "ShmSize";
     };
 
@@ -562,7 +562,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "SIGINT";
-      description = "--stop-signal";
+      cli = "--stop-signal";
       property = "StopSignal";
     };
 
@@ -570,7 +570,7 @@ let
       type = types.nullOr types.int;
       default = null;
       example = 20;
-      description = "--stop-timeout";
+      cli = "--stop-timeout";
       property = "StopTimeout";
     };
 
@@ -578,7 +578,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "gtest";
-      description = "--subgidname";
+      cli = "--subgidname";
       property = "SubGIDMap";
     };
 
@@ -586,7 +586,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "utest";
-      description = "--subuidname";
+      cli = "--subuidname";
       property = "SubUIDMap";
     };
 
@@ -596,7 +596,7 @@ let
       example = {
         name = "value";
       };
-      description = "--sysctl";
+      cli = "--sysctl";
       property = "Sysctl";
       encoding = "quoted_unescaped";
     };
@@ -605,7 +605,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "local";
-      description = "--tz";
+      cli = "--tz";
       property = "TimeZone";
     };
 
@@ -613,7 +613,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/work" ];
-      description = "--tmpfs";
+      cli = "--tmpfs";
       property = "Tmpfs";
     };
 
@@ -621,7 +621,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "0:10000:10" ];
-      description = "--uidmap";
+      cli = "--uidmap";
       property = "UIDMap";
       encoding = "quoted_unescaped";
     };
@@ -630,7 +630,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "nofile=1000:10000" ];
-      description = "--ulimit";
+      cli = "--ulimit";
       property = "Ulimit";
     };
 
@@ -638,7 +638,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "ALL";
-      description = "--security-opt unmask=...";
+      cli = "--security-opt unmask=...";
       property = "Unmask";
       encoding = "quoted_escaped";
     };
@@ -647,7 +647,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "bin";
-      description = "--user";
+      cli = "--user";
       property = "User";
     };
 
@@ -655,7 +655,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "keep-id:uid=200,gid=210";
-      description = "--userns";
+      cli = "--userns";
       property = "UserNS";
     };
 
@@ -663,7 +663,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/source:/dest" ];
-      description = "--volume";
+      cli = "--volume";
       property = "Volume";
     };
 
@@ -671,7 +671,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "$HOME";
-      description = "--workdir";
+      cli = "--workdir";
       property = "WorkingDir";
     };
   };

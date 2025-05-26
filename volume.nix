@@ -13,14 +13,14 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "foo";
-      description = "podman volume create foo";
+      description = "Volume name as in `podman volume create foo`";
       property = "VolumeName";
     };
 
     copy = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--opt copy";
+      cli = "--opt copy";
       property = "Copy";
     };
 
@@ -28,7 +28,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "tmpfs";
-      description = "--opt device=...";
+      cli = "--opt device=...";
       property = "Device";
     };
 
@@ -36,7 +36,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "image";
-      description = "--driver";
+      cli = "--driver";
       property = "Driver";
     };
 
@@ -45,7 +45,7 @@ let
       default = [  ];
       example = [ "--log-level=debug" ];
       description = "global args";
-      property = "GlobalArgs";
+      property = "Additional command line arguments to insert between `podman` and `volume create`";
       encoding = "quoted_escaped";
     };
 
@@ -53,7 +53,7 @@ let
       type = types.nullOr (types.oneOf [ types.int types.str ]);
       default = null;
       example = 192;
-      description = "--opt group=...";
+      cli = "--opt group=...";
       property = "Group";
     };
 
@@ -61,7 +61,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "quay.io/centos/centos:latest";
-      description = "--opt image=...";
+      cli = "--opt image=...";
       property = "Image";
     };
 
@@ -69,7 +69,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "foo=bar" ];
-      description = "--label";
+      cli = "--label";
       property = "Label";
       encoding = "quoted_escaped";
     };
@@ -78,14 +78,14 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/etc/nvd.conf" ];
-      description = "--module";
+      cli = "--module";
       property = "ContainersConfModule";
     };
 
     options = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
-      description = "--opt o=...";
+      cli = "--opt o=...";
       property = "Options";
     };
 
@@ -93,7 +93,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "--driver=image" ];
-      description = "Additional podman arguments";
+      description = "Additional command line arguments to insert after `podman volume create`";
       property = "PodmanArgs";
       encoding = "quoted_escaped";
     };
@@ -101,7 +101,8 @@ let
     type = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
-      description = "Filesystem type of Device";
+      cli = "--opt type=...";
+      description = "Filesystem type of `device`";
       property = "Type";
     };
 
@@ -109,7 +110,7 @@ let
       type = types.nullOr (types.oneOf [ types.int types.str ]);
       default = null;
       example = 123;
-      description = "--opt uid=...";
+      cli = "--opt uid=...";
       property = "User";
     };
   };

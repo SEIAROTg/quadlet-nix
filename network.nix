@@ -13,14 +13,14 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/etc/nvd.conf" ];
-      description = "--module";
+      cli = "--module";
       property = "ContainersConfModule";
     };
 
     disableDns = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--disable-dns";
+      cli = "--disable-dns";
       property = "DisableDNS";
     };
 
@@ -28,7 +28,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.1" ];
-      description = "--dns";
+      cli = "--dns";
       property = "DNS";
     };
 
@@ -42,7 +42,7 @@ let
       );
       default = null;
       example = "bridge";
-      description = "--driver";
+      cli = "--driver";
       property = "Driver";
     };
 
@@ -50,7 +50,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.3" ];
-      description = "--gateway";
+      cli = "--gateway";
       property = "Gateway";
     };
 
@@ -59,14 +59,14 @@ let
       default = [  ];
       example = [ "--log-level=debug" ];
       description = "global args";
-      property = "GlobalArgs";
+      property = "Additional command line arguments to insert between `podman` and `network create`";
       encoding = "quoted_escaped";
     };
 
     internal = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--internal";
+      cli = "--internal";
       property = "Internal";
     };
 
@@ -80,7 +80,7 @@ let
       );
       default = null;
       example = "dhcp";
-      description = "--ipam-driver";
+      cli = "--ipam-driver";
       property = "IPAMDriver";
     };
 
@@ -88,14 +88,14 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.128/25" ];
-      description = "--ip-range";
+      cli = "--ip-range";
       property = "IPRange";
     };
 
     ipv6 = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--ipv6";
+      cli = "--ipv6";
       property = "IPv6";
     };
 
@@ -103,7 +103,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "XYZ" ];
-      description = "--label";
+      cli = "--label";
       property = "Label";
       encoding = "quoted_escaped";
     };
@@ -112,7 +112,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "foo";
-      description = "podman network create foo";
+      description = "Network name as in `podman network create foo`";
       property = "NetworkName";
     };
 
@@ -120,7 +120,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "isolate";
-      description = "--opt";
+      cli = "--opt";
       property = "Options";
       encoding = "quoted_escaped";
     };
@@ -129,7 +129,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "--dns=192.168.55.1" ];
-      description = "extra arguments to podman";
+      description = "Additional command line arguments to insert after `podman network create`";
       property = "PodmanArgs";
       encoding = "quoted_escaped";
     };
@@ -138,7 +138,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.5.0.0/16" ];
-      description = "--subnet";
+      cli = "--subnet";
       property = "Subnet";
     };
   };

@@ -29,10 +29,12 @@ in
       enable = mkOption {
         type = types.bool;
         default = false;
+        description = "Enables podman auto update.";
       };
       calendar = mkOption {
         type = types.str;
         default = "*-*-* 00:00:00";
+        description = "Schedule for podman auto update. See `systemd.time(7)` for details.";
       };
     };
   };

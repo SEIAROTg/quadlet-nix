@@ -13,7 +13,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "XYZ" ];
-      description = "--annotation";
+      cli = "--annotation";
       property = "Annotation";
       encoding = "quoted_escaped";
     };
@@ -22,7 +22,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "aarch64";
-      description = "--arch";
+      cli = "--arch";
       property = "Arch";
     };
 
@@ -30,7 +30,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "/etc/registry/auth.json";
-      description = "--authfile";
+      cli = "--authfile";
       property = "AuthFile";
     };
 
@@ -38,7 +38,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/etc/nvd.conf" ];
-      description = "--module";
+      cli = "--module";
       property = "ContainersConfModule";
     };
 
@@ -46,7 +46,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "192.168.55.1" ];
-      description = "--dns";
+      cli = "--dns";
       property = "DNS";
     };
 
@@ -54,7 +54,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "foo.com" ];
-      description = "--dns-search";
+      cli = "--dns-search";
       property = "DNSSearch";
     };
 
@@ -62,7 +62,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "ndots:1" ];
-      description = "--dns-option";
+      cli = "--dns-option";
       property = "DNSOption";
     };
 
@@ -72,7 +72,7 @@ let
       example = {
         foo = "bar";
       };
-      description = "--env";
+      cli = "--env";
       property = "Environment";
       encoding = "quoted_escaped";
     };
@@ -81,14 +81,14 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "/path/to/Containerfile";
-      description = "--file";
+      cli = "--file";
       property = "File";
     };
 
     forceRm = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--force-rm";
+      cli = "--force-rm";
       property = "ForceRM";
     };
 
@@ -96,7 +96,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "--log-level=debug" ];
-      description = "global args";
+      description = "Additional command line arguments to insert between `podman` and `build`";
       property = "GlobalArgs";
       encoding = "quoted_escaped";
     };
@@ -105,7 +105,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "keep-groups" ];
-      description = "--group-add";
+      cli = "--group-add";
       property = "GroupAdd";
     };
 
@@ -113,7 +113,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "localhost/imagename";
-      description = "--tag";
+      cli = "--tag";
       property = "ImageTag";
     };
 
@@ -121,7 +121,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "XYZ" ];
-      description = "--label";
+      cli = "--label";
       property = "Label";
       encoding = "quoted_escaped";
     };
@@ -130,7 +130,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "host" ];
-      description = "--net";
+      cli = "--net";
       property = "Network";
     };
 
@@ -138,7 +138,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "--add-host foobar" ];
-      description = "Additional podman arguments";
+      description = "Additional command line arguments to insert after `podman build`";
       property = "PodmanArgs";
       encoding = "quoted_escaped";
     };
@@ -147,7 +147,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "never";
-      description = "--pull";
+      cli = "--pull";
       property = "Pull";
     };
 
@@ -155,7 +155,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "secret[,opt=opt …]" ];
-      description = "--secret";
+      cli = "--secret";
       property = "Secret";
       encoding = "quoted_escaped";
     };
@@ -164,7 +164,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "file";
-      description = "Set WorkingDirectory of systemd unit file";
+      description = "Sets WorkingDirectory of systemd unit file";
       property = "SetWorkingDirectory";
     };
 
@@ -172,14 +172,14 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "my-app";
-      description = "--target";
+      cli = "--target";
       property = "Target";
     };
 
     tlsVerify = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;
-      description = "--tls-verify";
+      cli = "--tls-verify";
       property = "TLSVerify";
     };
 
@@ -187,7 +187,7 @@ let
       type = types.nullOr types.str;
       default = null;
       example = "arm/v7";
-      description = "--variant";
+      cli = "--variant";
       property = "Variant";
     };
 
@@ -195,7 +195,7 @@ let
       type = types.listOf types.str;
       default = [ ];
       example = [ "/source:/dest" ];
-      description = "--volume";
+      cli = "--volume";
       property = "Volume";
     };
   };
