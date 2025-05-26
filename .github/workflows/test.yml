@@ -16,8 +16,8 @@ jobs:
         # TODO: re-enable aarch64-linux once github native runner supports nested virtualization.
         system: [x86_64-linux]
         version:
-        - nixpkgs: nixos-24.11
-          home-manager: release-24.11
+        - nixpkgs: nixos-25.05
+          home-manager: release-25.05
         - nixpkgs: nixos-unstable
           home-manager: master
 

@@ -67,6 +67,7 @@ in
             };
           }) allObjects
         ) // {
+          # TODO: remove once most people are on 25.05.
           # the stock service uses `sh` instead of `/bin/sh`.
           # systemd only looks for command binary in a few static location.
           # See: https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#Command%20lines
