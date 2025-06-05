@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) mergeAttrsList;
+  inherit (lib) mergeAttrsList mkIf;
 
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
@@ -61,5 +61,11 @@ in
           };
         }) allObjects
       );
+
+      systemd.timers.podman-auto-update = mkIf cfg.autoUpdate.enable {
+        timerConfig.OnCalendar = [ "" cfg.autoUpdate.calendar ];
+        wantedBy = [ "timers.target" ];
+        overrideStrategy = "asDropin";
+      };
     };
 }

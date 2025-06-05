@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) types mkOption mergeAttrsList mkIf getExe;
+  inherit (lib) mergeAttrsList mkIf getExe;
 
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
@@ -24,20 +24,7 @@ let
   '';
 in
 {
-  options.virtualisation.quadlet = quadletOptions.mkTopLevelOptions {
-    autoUpdate = {
-      enable = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Enables podman auto update.";
-      };
-      calendar = mkOption {
-        type = types.str;
-        default = "*-*-* 00:00:00";
-        description = "Schedule for podman auto update. See `systemd.time(7)` for details.";
-      };
-    };
-  };
+  options.virtualisation.quadlet = quadletOptions.mkTopLevelOptions { };
   config =
     let
       allObjects = quadletOptions.getAllObjects cfg;

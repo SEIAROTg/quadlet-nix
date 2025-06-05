@@ -124,6 +124,18 @@ let
         Not enabled by default to avoid breaking existing configurations. In the future this will be required.
       '';
     };
+    autoUpdate = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enables podman auto update.";
+      };
+      calendar = lib.mkOption {
+        type = lib.types.str;
+        default = "*-*-* 00:00:00";
+        description = "Schedule for podman auto update. See `systemd.time(7)` for details.";
+      };
+    };
   };
 
   getAllObjects = config: builtins.concatLists (map lib.attrValues [
