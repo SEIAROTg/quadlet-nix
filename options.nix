@@ -115,6 +115,15 @@ let
       default = { };
       description = "Volumes";
     };
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Enable quadlet-nix, a NixOS module to manage Podman containers and networks via Quadlet.
+
+        Enabled by default to avoid breaking exising configurations. In the future this may be enabled by default.
+      '';
+    };
     autoEscape = lib.mkOption {
       type = lib.types.bool;
       default = false;
