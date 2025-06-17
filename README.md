@@ -117,6 +117,7 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
     virtualisation.quadlet = let
         inherit (config.virtualisation.quadlet) networks pods;
     in {
+        enable = true;
         containers = {
             nginx.containerConfig.image = "docker.io/library/nginx:latest";
             nginx.containerConfig.networks = [ "podman" networks.internal.ref ];
@@ -154,7 +155,6 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
             modules = [
                 ./configuration.nix
                 home-manager.nixosModules.home-manager
-                # to enable podman & podman systemd generator
                 quadlet-nix.nixosModules.quadlet
             ];
         };
@@ -180,6 +180,7 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
         # This is crucial to ensure the systemd services are (re)started on config change
         systemd.user.startServices = "sd-switch";
         virtualisation.quadlet.containers = {
+            enable = true;
             echo-server = {
                 autoStart = true;
                 serviceConfig = {
@@ -210,6 +211,7 @@ If you wish to write raw Quadlet files instead of using the Nix options, you may
     virtualisation.quadlet = let
         inherit (config.virtualisation.quadlet) networks pods;
     in {
+        enable = true;
         containers = {
             nginx.rawConfig = ''
                 [Container]

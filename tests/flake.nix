@@ -53,6 +53,7 @@
             quadlet-nix.nixosModules.quadlet
             testConfig
           ];
+          virtualisation.quadlet.enable = true;
           environment.systemPackages = [ pkgs.curl ];
           specialisation = builtins.mapAttrs (name: value: { configuration = value; }) (specialisation attrs);
         };
@@ -67,6 +68,7 @@
             quadlet-nix.nixosModules.quadlet
             home-manager.nixosModules.home-manager
           ];
+          virtualisation.quadlet.enable = true;
           environment.systemPackages = [ pkgs.curl ];
 
           # brings up network-online.target
@@ -88,6 +90,7 @@
               quadlet-nix.homeManagerModules.quadlet
               testConfig
             ];
+            virtualisation.quadlet.enable = true;
             systemd.user.startServices = "sd-switch";
             home.stateVersion = config.system.nixos.release;
           });
@@ -100,6 +103,7 @@
                   testConfig
                   value
                 ];
+                virtualisation.quadlet.enable = true;
                 systemd.user.startServices = "sd-switch";
                 home.stateVersion = config.system.nixos.release;
               });
