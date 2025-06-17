@@ -67,6 +67,7 @@
             quadlet-nix.nixosModules.quadlet
             home-manager.nixosModules.home-manager
           ];
+          virtualisation.quadlet.enable = true;
           environment.systemPackages = [ pkgs.curl ];
 
           # brings up network-online.target

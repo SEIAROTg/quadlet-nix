@@ -115,6 +115,11 @@ let
       default = { };
       description = "Volumes";
     };
+    enable = lib.mkOption {
+      type = lib.types.nullOr lib.types.bool;
+      default = null;
+      description = "Enables quadlet-nix";
+    };
     autoEscape = lib.mkOption {
       type = lib.types.bool;
       default = false;

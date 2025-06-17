@@ -24,8 +24,11 @@ in
   config =
     let
       allObjects = quadletOptions.getAllObjects cfg;
+      # TODO: switch to `cfg.enable == true || (cfg.enable == null && allObjects != [])`
+      # when home-manager users set `enable` explicitly.
+      enable = cfg.enable == true || cfg.enable == null;
     in
-    {
+    mkIf enable {
       assertions = quadletOptions.mkAssertions [ ] cfg;
       warnings = quadletOptions.mkWarnings [ ] cfg;
 

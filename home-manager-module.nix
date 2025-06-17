@@ -28,10 +28,19 @@ in
   config =
     let
       allObjects = quadletOptions.getAllObjects cfg;
+      enable = cfg.enable == true || (cfg.enable == null && allObjects != []);
     in
-    {
+    mkIf enable {
       assertions = quadletOptions.mkAssertions [ ] cfg;
-      warnings = quadletOptions.mkWarnings [ ] cfg;
+      warnings = (quadletUtils.assertionsToWarnings [
+        {
+          assertion = enable -> (osConfig.virtualisation.quadlet.enable or true == true);
+          message = ''
+            The `virtualisation.quadlet.enable` in **NixOS config** is not set to true.
+            The NixOS module is required to set up Podman and explicit enablement will be required in the future.
+          '';
+        }
+      ]) ++ (quadletOptions.mkWarnings [ ] cfg);
 
       home.activation.quadletNix = mkIf (lib.length allObjects > 0) activationScript;
 

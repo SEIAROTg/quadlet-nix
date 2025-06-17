@@ -167,6 +167,8 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
 ```nix
 {
     # ...
+    # to enable podman & podman systemd generator
+    virtualisation.quadlet.enable = true;
     users.users.alice = {
         # ...
         # required for auto start before user login
