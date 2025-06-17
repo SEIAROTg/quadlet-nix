@@ -29,7 +29,7 @@ in
     let
       allObjects = quadletOptions.getAllObjects cfg;
     in
-    {
+    mkIf cfg.enable {
       assertions = quadletOptions.mkAssertions [ ] cfg;
       warnings = quadletOptions.mkWarnings [ ] cfg;
 
