@@ -256,6 +256,35 @@ See: https://docs.podman.io/en/v5.5.0/markdown/podman-run.1.html#image
 </details>
 
 <details>
+<summary>Dependencies</summary>
+
+Obvious dependencies such as those between containers and their networks are automatically set up by Quadlet, and thus no additional configuration is needed.
+
+Extra dependencies can be set up in systemd unit config. Note that `.ref` syntax is only valid in quadlet and does not work from regular systemd units.
+
+```nix
+{ config, ... }: {
+    # ...
+    virtualisation.quadlet = let
+        inherit (config.virtualisation.quadlet) containers;
+    in {
+        containers = {
+            database = {
+                # ...
+            };
+            server = {
+               # ...
+               unitConfig.Requires = [ containers.database.ref "network-online.target" ];
+               unitConfig.After = [ containers.database.ref "network-online.target" ];
+            };
+        };
+    };
+}
+```
+
+</details>
+
+<details>
 <summary>Debug & log access</summary>
 
 `quadlet-nix` tries to put containers into full management under systemd. This means once a container crashes, it will be fully deleted and debugging mechanisms like `podman ps -a` or `podman logs` will not work.
