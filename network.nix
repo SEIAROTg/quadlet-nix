@@ -124,9 +124,9 @@ let
     };
 
     options = quadletOptions.mkOption {
-      type = types.nullOr types.str;
-      default = null;
-      example = "isolate";
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "isolate" ];
       cli = "--opt";
       property = "Options";
       encoding = "quoted_escaped";
