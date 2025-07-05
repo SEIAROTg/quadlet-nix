@@ -125,9 +125,10 @@ let
     };
 
     options = quadletOptions.mkOption {
-      type = types.nullOr types.str;
-      default = null;
-      example = "isolate";
+      # TODO: drop string support and remove warning.
+      type = types.oneOf [ types.str (types.listOf types.str) ];
+      default = [ ];
+      example = [ "isolate=true" ];
       cli = "--opt";
       property = "Options";
       encoders.scalar = encoders.scalar.quotedEscaped;
