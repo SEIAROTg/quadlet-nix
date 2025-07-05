@@ -126,7 +126,7 @@ let
     options = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
-      example = [ "isolate" ];
+      example = [ "isolate=true" ];
       cli = "--opt";
       property = "Options";
       encoding = "quoted_escaped";
