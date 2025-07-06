@@ -171,18 +171,16 @@ let
           The following names are not unique: ${lib.concatStringsSep " " containerPodConflicts}
         '';
       }
+      {
+        assertion = !(builtins.any (p: p._autoEscapeRequired) (getAllObjects config));
+        message = ''
+          `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
+
+          If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
+        '';
+      }
     ] ++ extraAssertions;
 
-    mkWarnings = extraWarnings: config:
-      (quadletUtils.assertionsToWarnings [
-        {
-          assertion = !(builtins.any (p: p._autoEscapeRequired) (getAllObjects config));
-          message = ''
-            `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
-
-            This will become a hard error in the future. If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
-          '';
-        }
-      ]) ++ extraWarnings;
+    mkWarnings = extraWarnings: config: extraWarnings;
   };
   in self
