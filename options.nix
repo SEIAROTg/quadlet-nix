@@ -1,14 +1,14 @@
 { lib, quadletUtils }:
 let
   mkOption =
-    { property, cli ? null, description ? null, encoding ? null, ... }@attrs: let
+    { property, cli ? null, description ? null, encoders ? null, ... }@attrs: let
       descForDesc = if description == null then "" else description + "\n\n";
       descForCli = if cli == null then "" else "and command line argument `${cli}`";
     in
-      (lib.mkOption (lib.filterAttrs (name: _: !(builtins.elem name [ "property" "cli" "encoding" ])) attrs))
+      (lib.mkOption (lib.filterAttrs (name: _: !(builtins.elem name [ "property" "cli" "encoders" ])) attrs))
       // {
         inherit property;
-        inherit encoding;
+        inherit encoders;
         description = "${descForDesc}Maps to quadlet option `${property}`${descForCli}.";
       };
 
@@ -171,18 +171,16 @@ let
           The following names are not unique: ${lib.concatStringsSep " " containerPodConflicts}
         '';
       }
+      {
+        assertion = !(builtins.any (p: p._autoEscapeRequired) (getAllObjects config));
+        message = ''
+          `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
+
+          If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
+        '';
+      }
     ] ++ extraAssertions;
 
-    mkWarnings = extraWarnings: config:
-      (quadletUtils.assertionsToWarnings [
-        {
-          assertion = !(builtins.any (p: p._autoEscapeRequired) (getAllObjects config));
-          message = ''
-            `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
-
-            This will become a hard error in the future. If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
-          '';
-        }
-      ]) ++ extraWarnings;
+    mkWarnings = extraWarnings: config: extraWarnings;
   };
   in self

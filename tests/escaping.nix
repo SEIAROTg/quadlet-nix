@@ -5,16 +5,16 @@
       containers.write1 = {
         containerConfig = {
           image = "docker-archive:${pkgs.dockerTools.examples.bash}";
-          # quoted_unescaped
+          # quotedUnescaped
           addCapabilities = [ "SYS_NICE" ];
           entrypoint = "bash";
-          # quoted_escaped
+          # quotedEscaped
           environments = {
             FOO = "aaa bbb $ccc \"ddd\n\n ";
             bar = "\"aaa\"";
             ONLY_SPACES = "aaa bbb";
           };
-          # quoted_escaped_singleline
+          # raw
           exec = "-c 'echo -n \"$FOO\" > /tmp/foo.txt; echo -n \"$bar\" > /tmp/bar.txt; echo -n \"$ONLY_SPACES\" > /tmp/only_spaces.txt'";
           volumes = [
             "/tmp:/tmp"
@@ -31,10 +31,26 @@
             BAZ = "aaa";
           };
           entrypoint = "bash";
-          # quoted_escaped_singleline
+          # oneLine
           exec = [ "-c" "echo $@ $0 $BAZ > /tmp/baz.txt" "bbb" "ccc" ];
           volumes = [
             "/tmp:/tmp"
+          ];
+        };
+        serviceConfig = {
+          RemainAfterExit = true;
+        };
+      };
+      containers.write3 = let
+        scriptName = "aaa bbb \n $ccc";
+        scriptDir = toString (pkgs.writeTextDir scriptName "echo 8439b333258ba90e > /tmp/write3.txt");
+      in {
+        containerConfig = {
+          image = "docker-archive:${pkgs.dockerTools.examples.bash}";
+          entrypoint = [ "bash" "/test/${scriptName}" ];
+          volumes = [
+            "/tmp:/tmp"
+            "${scriptDir}:/test/"
           ];
         };
         serviceConfig = {
@@ -49,6 +65,7 @@
 
     machine.wait_for_unit("write1.service", user=user, timeout=30)
     machine.wait_for_unit("write2.service", user=user, timeout=30)
+    machine.wait_for_unit("write3.service", user=user, timeout=30)
 
     machine.wait_for_file("/tmp/foo.txt", timeout=10)
     assert machine.succeed("cat /tmp/foo.txt") == 'aaa bbb $ccc "ddd\n\n '
@@ -61,6 +78,9 @@
 
     machine.wait_for_file("/tmp/only_spaces.txt", timeout=10)
     assert machine.succeed("cat /tmp/only_spaces.txt") == 'aaa bbb'
+
+    machine.wait_for_file("/tmp/write3.txt", timeout=10)
+    assert machine.succeed("cat /tmp/write3.txt") == '8439b333258ba90e\n'
   '';
 
 }

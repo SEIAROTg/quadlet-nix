@@ -7,6 +7,7 @@
 }:
 let
   inherit (lib) types;
+  inherit (quadletUtils) encoders;
 
   podOpts = {
     name = quadletOptions.mkOption {
@@ -63,7 +64,7 @@ let
       example = [ "0:10000:10" ];
       cli = "--gidmap";
       property = "GIDMap";
-      encoding = "quoted_unescaped";
+      encoders.scalar = encoders.scalar.quotedUnescaped;
     };
 
     globalArgs = quadletOptions.mkOption {
@@ -72,7 +73,7 @@ let
       example = [ "--log-level=debug" ];
       description = "Additional command line arguments to insert between `podman` and `pod create`";
       property = "GlobalArgs";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     hostname = quadletOptions.mkOption {
@@ -105,7 +106,7 @@ let
       example = [ "XYZ" ];
       cli = "--label";
       property = "Label";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     networks = quadletOptions.mkOption {
@@ -130,7 +131,7 @@ let
       example = [ "--cpus=2" ];
       description = "Additional command line arguments to insert after `podman pod create`";
       property = "PodmanArgs";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     publishPorts = quadletOptions.mkOption {
@@ -173,7 +174,7 @@ let
       example = [ "0:10000:10" ];
       cli = "--uidmap";
       property = "UIDMap";
-      encoding = "quoted_unescaped";
+      encoders.scalar = encoders.scalar.quotedUnescaped;
     };
 
     userns = quadletOptions.mkOption {

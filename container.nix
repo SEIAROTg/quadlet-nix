@@ -7,6 +7,7 @@
 }:
 let
   inherit (lib) types;
+  inherit (quadletUtils) encoders;
 
   containerOpts = {
     addCapabilities = quadletOptions.mkOption {
@@ -15,7 +16,7 @@ let
       example = [ "NET_ADMIN" ];
       cli = "--cap-add";
       property = "AddCapability";
-      encoding = "quoted_unescaped";
+      encoders.scalar = encoders.scalar.quotedUnescaped;
     };
 
     addHosts = quadletOptions.mkOption {
@@ -32,7 +33,7 @@ let
       example = [ "/dev/foo" ];
       cli = "--device";
       property = "AddDevice";
-      encoding = "quoted_unescaped";
+      encoders.scalar = encoders.scalar.quotedUnescaped;
     };
 
     annotations = quadletOptions.mkOption {
@@ -41,7 +42,7 @@ let
       example = [ "XYZ" ];
       cli = "--annotation";
       property = "Annotation";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     autoUpdate = quadletOptions.mkOption {
@@ -111,15 +112,17 @@ let
       example = [ "NET_ADMIN" ];
       cli = "--cap-drop";
       property = "DropCapability";
-      encoding = "quoted_unescaped";
+      encoders.scalar = encoders.scalar.quotedUnescaped;
     };
 
     entrypoint = quadletOptions.mkOption {
-      type = types.nullOr types.str;
+      type = types.nullOr (types.oneOf [ types.str (types.listOf types.str) ]);
       default = null;
       example = "/foo.sh";
       cli = "--entrypoint";
       property = "Entrypoint";
+      encoders.raw = encoders.scalar.raw;
+      encoders.list = encoders.list.json;
     };
 
     environments = quadletOptions.mkOption {
@@ -130,7 +133,7 @@ let
       };
       cli = "--env";
       property = "Environment";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     environmentFiles = quadletOptions.mkOption {
@@ -139,7 +142,7 @@ let
       example = [ "/tmp/env" ];
       cli = "--env-file";
       property = "EnvironmentFile";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     environmentHost = quadletOptions.mkOption {
@@ -156,7 +159,8 @@ let
       description = "Command after image specification";
       property = "Exec";
       # CAVEAT: doesn't prevent systemd environment variable substitution, but probably a quadlet problem?
-      encoding = "quoted_escaped_singleline";
+      encoders.scalar = encoders.scalar.raw;
+      encoders.list = encoders.list.oneLine encoders.scalar.quotedEscaped;
     };
 
     exposePorts = quadletOptions.mkOption {
@@ -173,7 +177,7 @@ let
       example = [ "0:10000:10" ];
       cli = "--gidmap";
       property = "GIDMap";
-      encoding = "quoted_unescaped";
+      encoders.scalar = encoders.scalar.quotedUnescaped;
     };
 
     globalArgs = quadletOptions.mkOption {
@@ -182,7 +186,7 @@ let
       example = [ "--log-level=debug" ];
       description = "Additional command line arguments to insert between `podman` and `run`";
       property = "GlobalArgs";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     group = quadletOptions.mkOption {
@@ -351,7 +355,7 @@ let
       example = [ "XYZ" ];
       cli = "--label";
       property = "Label";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     logDriver = quadletOptions.mkOption {
@@ -368,7 +372,7 @@ let
       example = [ "path=/var/log/mykube.json" ];
       cli = "--log-opt";
       property = "LogOpt";
-      encoding = "quoted_unescaped";
+      encoders.scalar = encoders.scalar.quotedUnescaped;
     };
 
     mask = quadletOptions.mkOption {
@@ -377,7 +381,7 @@ let
       example = "/proc/sys/foo:/proc/sys/bar";
       cli = "--security-opt mask=...";
       property = "Mask";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     memory = quadletOptions.mkOption {
@@ -394,7 +398,7 @@ let
       example = [ "type=..." ];
       cli = "--mount";
       property = "Mount";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     networks = quadletOptions.mkOption {
@@ -448,7 +452,7 @@ let
       example = [ "--add-host foobar" ];
       description = "Additional command line arguments to insert after `podman run`";
       property = "PodmanArgs";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     publishPorts = quadletOptions.mkOption {
@@ -487,7 +491,8 @@ let
       description = "Adds ExecReload and run exec with the value";
       example = "/usr/bin/command";
       property = "ReloadCmd";
-      encoding = "quoted_escaped_singleline";
+      encoders.scalar = encoders.scalar.raw;
+      encoders.list = encoders.list.oneLine encoders.scalar.quotedEscaped;
     };
 
     reloadSignal = quadletOptions.mkOption {
@@ -543,7 +548,7 @@ let
       example = [ "secret[,opt=opt …]" ];
       cli = "--secret";
       property = "Secret";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     securityLabelDisable = quadletOptions.mkOption {
@@ -639,7 +644,7 @@ let
       };
       cli = "--sysctl";
       property = "Sysctl";
-      encoding = "quoted_unescaped";
+      encoders.scalar = encoders.scalar.quotedUnescaped;
     };
 
     timezone = quadletOptions.mkOption {
@@ -664,7 +669,7 @@ let
       example = [ "0:10000:10" ];
       cli = "--uidmap";
       property = "UIDMap";
-      encoding = "quoted_unescaped";
+      encoders.scalar = encoders.scalar.quotedUnescaped;
     };
 
     ulimits = quadletOptions.mkOption {
@@ -681,7 +686,7 @@ let
       example = "ALL";
       cli = "--security-opt unmask=...";
       property = "Unmask";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     user = quadletOptions.mkOption {

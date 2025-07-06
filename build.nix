@@ -7,6 +7,7 @@
 }:
 let
   inherit (lib) types;
+  inherit (quadletUtils) encoders;
 
   buildOpts = {
     annotations = quadletOptions.mkOption {
@@ -15,7 +16,7 @@ let
       example = [ "XYZ" ];
       cli = "--annotation";
       property = "Annotation";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     arch = quadletOptions.mkOption {
@@ -74,7 +75,7 @@ let
       };
       cli = "--env";
       property = "Environment";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     file = quadletOptions.mkOption {
@@ -98,7 +99,7 @@ let
       example = [ "--log-level=debug" ];
       description = "Additional command line arguments to insert between `podman` and `build`";
       property = "GlobalArgs";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     addGroups = quadletOptions.mkOption {
@@ -123,7 +124,7 @@ let
       example = [ "XYZ" ];
       cli = "--label";
       property = "Label";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     networks = quadletOptions.mkOption {
@@ -140,7 +141,7 @@ let
       example = [ "--add-host foobar" ];
       description = "Additional command line arguments to insert after `podman build`";
       property = "PodmanArgs";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     pull = quadletOptions.mkOption {
@@ -173,7 +174,7 @@ let
       example = [ "secret[,opt=opt …]" ];
       cli = "--secret";
       property = "Secret";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     workdir = quadletOptions.mkOption {

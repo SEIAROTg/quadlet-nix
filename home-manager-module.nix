@@ -63,10 +63,7 @@ in
             };
           }) allObjects
         ) // {
-          # TODO: remove once most people are on 25.05.
-          # the stock service uses `sh` instead of `/bin/sh`.
-          # systemd only looks for command binary in a few static location.
-          # See: https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#Command%20lines
+          # `systemctl`, `sleep`, etc. not found
           "systemd/user/podman-user-wait-network-online.service.d/override.conf" = {
             text = quadletUtils.unitConfigToText {
               Service.ExecSearchPath = [ "/run/current-system/sw/bin/" ];
