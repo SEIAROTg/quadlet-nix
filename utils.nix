@@ -24,12 +24,12 @@ let
 
     # LookupAllArgs, LookupAllKeyVal
     # same as systemdUtils.lib.serviceToUnit
-    scalar.quotedEscaped = makePassive lib.strings.toJSON;
+    scalar.quotedEscaped = makePassive builtins.toJSON;
 
     # LookupAllStrv
     scalar.quotedUnescaped = makePassive (x:
       let
-        escaped = lib.strings.toJSON x;
+        escaped = builtins.toJSON x;
         unescaped = "\"${systemdUtils.lib.toOption x}\"";
       in
         if escaped == unescaped then unescaped
@@ -40,6 +40,8 @@ let
 
     # LookupLastArgs
     list.oneLine = fScalar: x: builtins.concatStringsSep " " (map fScalar x);
+
+    list.json = builtins.toJSON;
 
     attrs.default = fScalar: x: lib.mapAttrsToList (k: v: "${k}=${fScalar v}") x;
   };

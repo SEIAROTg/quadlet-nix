@@ -116,11 +116,13 @@ let
     };
 
     entrypoint = quadletOptions.mkOption {
-      type = types.nullOr types.str;
+      type = types.nullOr (types.oneOf [ types.str (types.listOf types.str) ]);
       default = null;
       example = "/foo.sh";
       cli = "--entrypoint";
       property = "Entrypoint";
+      encoders.raw = encoders.scalar.raw;
+      encoders.list = encoders.list.json;
     };
 
     environments = quadletOptions.mkOption {

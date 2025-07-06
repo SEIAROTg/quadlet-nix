@@ -41,6 +41,22 @@
           RemainAfterExit = true;
         };
       };
+      containers.write3 = let
+        scriptName = "aaa bbb \n $ccc";
+        scriptDir = toString (pkgs.writeTextDir scriptName "echo 8439b333258ba90e > /tmp/write3.txt");
+      in {
+        containerConfig = {
+          image = "docker-archive:${pkgs.dockerTools.examples.bash}";
+          entrypoint = [ "bash" "/test/${scriptName}" ];
+          volumes = [
+            "/tmp:/tmp"
+            "${scriptDir}:/test/"
+          ];
+        };
+        serviceConfig = {
+          RemainAfterExit = true;
+        };
+      };
     };
   };
   testScript = ''
@@ -49,6 +65,7 @@
 
     machine.wait_for_unit("write1.service", user=user, timeout=30)
     machine.wait_for_unit("write2.service", user=user, timeout=30)
+    machine.wait_for_unit("write3.service", user=user, timeout=30)
 
     machine.wait_for_file("/tmp/foo.txt", timeout=10)
     assert machine.succeed("cat /tmp/foo.txt") == 'aaa bbb $ccc "ddd\n\n '
@@ -61,6 +78,9 @@
 
     machine.wait_for_file("/tmp/only_spaces.txt", timeout=10)
     assert machine.succeed("cat /tmp/only_spaces.txt") == 'aaa bbb'
+
+    machine.wait_for_file("/tmp/write3.txt", timeout=10)
+    assert machine.succeed("cat /tmp/write3.txt") == '8439b333258ba90e\n'
   '';
 
 }
