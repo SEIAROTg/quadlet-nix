@@ -7,6 +7,7 @@
 }:
 let
   inherit (lib) types;
+  inherit (quadletUtils) encoders;
 
   volumeOpts = {
     name = quadletOptions.mkOption {
@@ -46,7 +47,7 @@ let
       example = [ "--log-level=debug" ];
       description = "Additional command line arguments to insert between `podman` and `volume create`";
       property = "GlobalArgs";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     group = quadletOptions.mkOption {
@@ -71,7 +72,7 @@ let
       example = [ "foo=bar" ];
       cli = "--label";
       property = "Label";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     modules = quadletOptions.mkOption {
@@ -95,7 +96,7 @@ let
       example = [ "--driver=image" ];
       description = "Additional command line arguments to insert after `podman volume create`";
       property = "PodmanArgs";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     type = quadletOptions.mkOption {

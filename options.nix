@@ -1,14 +1,14 @@
 { lib, quadletUtils }:
 let
   mkOption =
-    { property, cli ? null, description ? null, encoding ? null, ... }@attrs: let
+    { property, cli ? null, description ? null, encoders ? null, ... }@attrs: let
       descForDesc = if description == null then "" else description + "\n\n";
       descForCli = if cli == null then "" else "and command line argument `${cli}`";
     in
-      (lib.mkOption (lib.filterAttrs (name: _: !(builtins.elem name [ "property" "cli" "encoding" ])) attrs))
+      (lib.mkOption (lib.filterAttrs (name: _: !(builtins.elem name [ "property" "cli" "encoders" ])) attrs))
       // {
         inherit property;
-        inherit encoding;
+        inherit encoders;
         description = "${descForDesc}Maps to quadlet option `${property}`${descForCli}.";
       };
 

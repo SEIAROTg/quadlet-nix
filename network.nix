@@ -7,6 +7,7 @@
 }:
 let
   inherit (lib) types getExe;
+  inherit (quadletUtils) encoders;
 
   networkOpts = {
     modules = quadletOptions.mkOption {
@@ -60,7 +61,7 @@ let
       example = [ "--log-level=debug" ];
       description = "Additional command line arguments to insert between `podman` and `network create`";
       property = "GlobalArgs";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     internal = quadletOptions.mkOption {
@@ -105,7 +106,7 @@ let
       example = [ "XYZ" ];
       cli = "--label";
       property = "Label";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     name = quadletOptions.mkOption {
@@ -129,7 +130,7 @@ let
       example = "isolate";
       cli = "--opt";
       property = "Options";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     podmanArgs = quadletOptions.mkOption {
@@ -138,7 +139,7 @@ let
       example = [ "--dns=192.168.55.1" ];
       description = "Additional command line arguments to insert after `podman network create`";
       property = "PodmanArgs";
-      encoding = "quoted_escaped";
+      encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
     subnets = quadletOptions.mkOption {

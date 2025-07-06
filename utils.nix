@@ -3,55 +3,72 @@
 let
   # encodes value based on how podman parses them
   # see: https://github.com/containers/podman/blob/main/pkg/systemd/quadlet/quadlet.go
-  encodeValue = encoding: value:
-    # Lookup, LookupAll, LookupLast, LookupAllRaw, LookupLastRaw
-    if encoding == null then
-      systemdUtils.lib.toOption value
-    # LookupAllArgs, LookupAllKeyVal
-    else if encoding == "quoted_escaped" then
-      lib.strings.toJSON value  # same as systemdUtils.lib.serviceToUnit
-    # LookupAllStrv
-    else if encoding == "quoted_unescaped" then
-      "\"${value}\""
-    # LookupLastArgs
-    else if encoding == "quoted_escaped_singleline" then
-      if builtins.isString value then
-        value
-      else
-        builtins.concatStringsSep " " (map (lib.strings.toJSON) value)
-    else
-      throw "quadlet-nix internal error: unknown encoding ${encoding}";
-
-  encodeValueIfNeeded = encoding: value:
-    let
-      raw = encodeValue null value;
-      encoded = encodeValue encoding value;
+  encoders = let
+    # wraps a scalar encoder so it tries not escaping if possible
+    makePassive = f: x: let
+      raw = systemdUtils.lib.toOption x;
+      encoded = f x;
+      canSkip = encoded == raw || (builtins.match ".*[ \t\n\r].*" raw == null && "\"${raw}\"" == encoded);
     in
-      if encoding == null then
-        raw
-      # https://github.com/systemd/systemd/blob/f0d76134661e62622c6030cb4d05d4669b41e25a/src/basic/string-util.h#L14
-      else if (builtins.match ".*[ \t\n\r].*" raw) != null then
-        encoded
-      else if "\"${raw}\"" == encoded then
-        raw
-      else
-        encoded;
+      if canSkip then raw else encoded;
 
-  encodeValuesIfNeeded = encoding: values:
-    if builtins.isAttrs values then
-      lib.mapAttrsToList (name: value: encodeValueIfNeeded encoding "${name}=${value}") values
-    else if builtins.isList values && encoding != "quoted_escaped_singleline" then
-      map (encodeValueIfNeeded encoding) values
+  in {
+    scalar.legacy = systemdUtils.lib.toOption;
+
+    # Lookup, LookupAll, LookupLast, LookupAllRaw, LookupLastRaw
+    scalar.raw = x:
+      let ret = systemdUtils.lib.toOption x;
+    in
+      if builtins.match ".*[\r\n].*" ret == null then ret
+      else throw "quadlet-nix internal error: unsafe value for scalar.raw option: ${ret}";
+
+    # LookupAllArgs, LookupAllKeyVal
+    # same as systemdUtils.lib.serviceToUnit
+    scalar.quotedEscaped = makePassive lib.strings.toJSON;
+
+    # LookupAllStrv
+    scalar.quotedUnescaped = makePassive (x:
+      let
+        escaped = lib.strings.toJSON x;
+        unescaped = "\"${systemdUtils.lib.toOption x}\"";
+      in
+        if escaped == unescaped then unescaped
+        else throw "quadlet-nix internal error: unsafe value for scalar.quotedUnescaped option: ${escaped}"
+    );
+
+    list.default = fScalar: x: map fScalar x;
+
+    # LookupLastArgs
+    list.oneLine = fScalar: x: builtins.concatStringsSep " " (map fScalar x);
+
+    attrs.default = fScalar: x: lib.mapAttrsToList (k: v: "${k}=${fScalar v}") x;
+  };
+
+  encode = encoders: value:
+    if builtins.isString value || builtins.isInt value || builtins.isBool value then
+      encoders.scalar value
+    else if builtins.isList value then
+      encoders.list value
+    else if builtins.isAttrs value then
+      encoders.attrs value
     else
-      encodeValueIfNeeded encoding values;
+      throw "quadlet-nix internal error: unexpected type for encoder";
+
+  finalizeEncoders = autoEscape: optionEncoders:
+    let
+      effEncoders = if autoEscape then optionEncoders else { scalar = encoders.scalar.legacy; };
+      scalar = effEncoders.scalar or encoders.scalar.raw;
+      list = effEncoders.list or (encoders.list.default scalar);
+      attrs = effEncoders.attrs or (encoders.attrs.default scalar);
+    in
+      { inherit scalar list attrs; };
 
   configToProperties = autoEscape: config: options:
     let
       nonNullConfig = lib.filterAttrs (_: value: value != null) config;
-      encode = if autoEscape then encodeValuesIfNeeded else _: encodeValuesIfNeeded null;
       encodeEntry = name: value:
         lib.nameValuePair options.${name}.property
-        (encode options.${name}.encoding value);
+        (encode (finalizeEncoders autoEscape options.${name}.encoders) value);
     in lib.mapAttrs' encodeEntry nonNullConfig;
 
 in
@@ -69,5 +86,5 @@ in
     map (x: x.message) (builtins.filter (x: !x.assertion) asssertions);
 
   inherit (systemdUtils.unitOptions) unitOption;
-  inherit podmanPackage;
+  inherit podmanPackage encoders;
 }

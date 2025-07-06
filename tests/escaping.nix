@@ -5,16 +5,16 @@
       containers.write1 = {
         containerConfig = {
           image = "docker-archive:${pkgs.dockerTools.examples.bash}";
-          # quoted_unescaped
+          # quotedUnescaped
           addCapabilities = [ "SYS_NICE" ];
           entrypoint = "bash";
-          # quoted_escaped
+          # quotedEscaped
           environments = {
             FOO = "aaa bbb $ccc \"ddd\n\n ";
             bar = "\"aaa\"";
             ONLY_SPACES = "aaa bbb";
           };
-          # quoted_escaped_singleline
+          # raw
           exec = "-c 'echo -n \"$FOO\" > /tmp/foo.txt; echo -n \"$bar\" > /tmp/bar.txt; echo -n \"$ONLY_SPACES\" > /tmp/only_spaces.txt'";
           volumes = [
             "/tmp:/tmp"
@@ -31,7 +31,7 @@
             BAZ = "aaa";
           };
           entrypoint = "bash";
-          # quoted_escaped_singleline
+          # oneLine
           exec = [ "-c" "echo $@ $0 $BAZ > /tmp/baz.txt" "bbb" "ccc" ];
           volumes = [
             "/tmp:/tmp"
