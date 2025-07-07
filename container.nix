@@ -37,9 +37,11 @@ let
     };
 
     annotations = quadletOptions.mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      example = [ "XYZ" ];
+      type = types.oneOf [ (types.listOf types.str) (types.attrsOf types.str) ];
+      default = { };
+      example = {
+        annotation = "value";
+      };
       cli = "--annotation";
       property = "Annotation";
       encoders.scalar = encoders.scalar.quotedEscaped;
@@ -350,9 +352,11 @@ let
     };
 
     labels = quadletOptions.mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      example = [ "XYZ" ];
+      type = types.oneOf [ (types.listOf types.str) (types.attrsOf types.str) ];
+      default = { };
+      example = {
+        foo = "bar";
+      };
       cli = "--label";
       property = "Label";
       encoders.scalar = encoders.scalar.quotedEscaped;

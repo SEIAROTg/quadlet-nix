@@ -8,7 +8,9 @@
         publishPorts = [ "8080:80" ];
         networks = [ networks.foo.ref networks.bar.ref ];
       };
-      networks.foo = { };
+      networks.foo = {
+        networkConfig.options.isolate = "true";
+      };
       networks.bar = { };
     };
   };
@@ -23,6 +25,7 @@
     networks = get_networks(user=user)
     assert networks.keys() == {"foo", "bar", "podman"}
     assert set(containers["nginx"]["Networks"]) == {"foo", "bar"}
+    assert networks["foo"]["options"]["isolate"] == "true"
     if user is not None:
       assert not get_containers(user=None)
       assert get_networks(user=None).keys() == {"podman"}

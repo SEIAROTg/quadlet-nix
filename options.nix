@@ -185,7 +185,7 @@ let
       {
         # TODO: drop string support and remove.
         assertion = !(builtins.any (p: builtins.isString p.networkConfig.options) (builtins.attrValues config.networks));
-        message = "String value in `virtualisation.quadlet.networks.*.networkConfig.options` is deprecated. Make it a list instead.";
+        message = "String value in `virtualisation.quadlet.networks.*.networkConfig.options` is deprecated. Make it a list or attrset instead.";
       }
     ]) ++ extraWarnings;
   };

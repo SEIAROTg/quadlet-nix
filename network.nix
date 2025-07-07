@@ -101,9 +101,11 @@ let
     };
 
     labels = quadletOptions.mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      example = [ "XYZ" ];
+      type = types.oneOf [ (types.listOf types.str) (types.attrsOf types.str) ];
+      default = { };
+      example = {
+        foo = "bar";
+      };
       cli = "--label";
       property = "Label";
       encoders.scalar = encoders.scalar.quotedEscaped;
@@ -126,9 +128,11 @@ let
 
     options = quadletOptions.mkOption {
       # TODO: drop string support and remove warning.
-      type = types.oneOf [ types.str (types.listOf types.str) ];
-      default = [ ];
-      example = [ "isolate=true" ];
+      type = types.oneOf [ types.str (types.listOf types.str) (types.attrsOf types.str) ];
+      default = { };
+      example = {
+        isolate = "true";
+      };
       cli = "--opt";
       property = "Options";
       encoders.scalar = encoders.scalar.quotedEscaped;

@@ -67,9 +67,11 @@ let
     };
 
     labels = quadletOptions.mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      example = [ "foo=bar" ];
+      type = types.oneOf [ (types.listOf types.str) (types.attrsOf types.str) ];
+      default = { };
+      example = {
+        foo = "bar";
+      };
       cli = "--label";
       property = "Label";
       encoders.scalar = encoders.scalar.quotedEscaped;
