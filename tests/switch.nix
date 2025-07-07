@@ -24,12 +24,11 @@ in {
   testScript = ''
     def check(expected_networks: set[str]) -> None:
       assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
-      containers = list_containers(user=user)
-      assert len(containers) == 1
-      networks = list_networks(user=user)
-      network_names = {n["name"] for n in networks}
-      assert network_names == expected_networks | {"podman"}
-      assert set(containers[0]["Networks"]) == expected_networks
+      containers = get_containers(user=user)
+      assert containers.keys() == {"nginx"}
+      networks = get_networks(user=user)
+      assert networks.keys() == expected_networks | {"podman"}
+      assert set(containers["nginx"]["Networks"]) == expected_networks
 
     machine.wait_for_unit("default.target")
     machine.wait_for_unit("default.target", user=user)

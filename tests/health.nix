@@ -27,16 +27,9 @@
     machine.wait_for_unit("bad.service", user=user, timeout=30)
     machine.sleep(2)  # wait for health command cycles
 
-    containers = list_containers(user=user)
-    assert len(containers) == 2
-    containers_by_name = {
-      name: c
-      for c in containers
-      for name in c["Names"]
-    }
-
-    assert len(containers_by_name) == 2
-    assert "(healthy)" in containers_by_name["good"]["Status"]
-    assert "(unhealthy)" in containers_by_name["bad"]["Status"]
+    containers = get_containers(user=user)
+    assert containers.keys() == {"good", "bad"}
+    assert "(healthy)" in containers["good"]["Status"]
+    assert "(unhealthy)" in containers["bad"]["Status"]
   '';
 }

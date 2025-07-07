@@ -29,14 +29,17 @@
             command = f"sudo -u {user} -- {command}"
           return machine.succeed(command)
 
-        def list_containers(*, user: Optional[str]) -> list[dict[str, Any]]:
-          return json.loads(_run_as_user("podman ps --format=json", user=user))
+        def get_containers(*, user: Optional[str]) -> dict[str, dict[str, Any]]:
+          containers = json.loads(_run_as_user("podman ps --format=json", user=user))
+          return {name: container for container in containers for name in container["Names"]}
 
-        def list_networks(*, user: Optional[str]) -> list[dict[str, Any]]:
-          return json.loads(_run_as_user("podman network ls --format=json", user=user))
+        def get_networks(*, user: Optional[str]) -> dict[str, dict[str, Any]]:
+          networks = json.loads(_run_as_user("podman network ls --format=json", user=user))
+          return {network["name"]: network for network in networks}
 
-        def list_pods(*, user: Optional[str]) -> list[dict[str, Any]]:
-          return json.loads(_run_as_user("podman pod ls --format=json", user=user))
+        def get_pods(*, user: Optional[str]) -> dict[str, dict[str, Any]]:
+          pods = json.loads(_run_as_user("podman pod ls --format=json", user=user))
+          return {pod["Name"]: pod for pod in pods}
 
         def switch_to_specialisation(specialisation: str) -> str:
           return machine.succeed(f"${nodes.machine.system.build.toplevel}/specialisation/{specialisation}/bin/switch-to-configuration test")

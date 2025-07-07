@@ -23,30 +23,30 @@
     machine.wait_for_unit("redis.service", user=user, timeout=30)
     assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
 
-    containers = list_containers(user=user)
+    containers = get_containers(user=user)
     assert len(containers) == 3
-    pods = list_pods(user=user)
-    assert len(pods) == 1
-    assert set(c["Id"] for c in pods[0]["Containers"]) == {c["Id"] for c in containers}
+    assert containers.keys() >= {"nginx", "redis"}
+    pods = get_pods(user=user)
+    assert pods.keys() == {"foo"}
+    assert set(c["Id"] for c in pods["foo"]["Containers"]) == {c["Id"] for c in containers.values()}
     if user is not None:
-      assert not list_containers(user=None)
-      assert not list_pods(user=None)
+      assert not get_containers(user=None)
+      assert not get_pods(user=None)
 
     machine.stop_job("foo-pod", user=user)
     machine.fail("curl http://127.0.0.1:8080")
-    containers = list_containers(user=user)
-    assert len(containers) == 0
-    pods = list_pods(user=user)
-    assert len(pods) == 0
+    assert not get_containers(user=user)
+    assert not get_pods(user=user)
 
     machine.start_job("nginx", user=user)
     assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
     machine.wait_for_unit("foo-pod.service", user=user, timeout=30)
     machine.wait_for_unit("nginx.service", user=user, timeout=30)
     machine.wait_for_unit("redis.service", user=user, timeout=30)
-    containers = list_containers(user=user)
+    containers = get_containers(user=user)
     assert len(containers) == 3
-    pods = list_pods(user=user)
-    assert len(pods) == 1
+    assert containers.keys() >= {"nginx", "redis"}
+    pods = get_pods(user=user)
+    assert pods.keys() == {"foo"}
   '';
 }
