@@ -92,7 +92,6 @@
               quadlet-nix.homeManagerModules.quadlet
               testConfig
             ];
-            systemd.user.startServices = "sd-switch";
             home.stateVersion = config.system.nixos.release;
           });
 
@@ -104,7 +103,6 @@
                   testConfig
                   value
                 ];
-                systemd.user.startServices = "sd-switch";
                 home.stateVersion = config.system.nixos.release;
               });
             };

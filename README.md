@@ -179,8 +179,6 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
     home-manager.users.alice = { pkgs, config, ... }: {
         # ...
         imports = [ inputs.quadlet-nix.homeManagerModules.quadlet ];
-        # This is crucial to ensure the systemd services are (re)started on config change
-        systemd.user.startServices = "sd-switch";
         virtualisation.quadlet.containers = {
             echo-server = {
                 autoStart = true;
