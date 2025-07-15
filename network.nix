@@ -168,7 +168,7 @@ in
       networkConfig = config.networkConfig // {
         name = networkName;
       };
-      quadlet = quadletUtils.configToProperties config.quadletConfig quadletUtils.quadletOpts;
+      quadlet = quadletUtils.configToProperties config.quadletConfig quadletOptions.quadletOpts;
       unitConfig = {
         Unit = {
           Description = "Podman network ${name}";

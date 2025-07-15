@@ -236,7 +236,7 @@ in
       buildConfig = config.buildConfig // {
         tag = buildTag;
       };
-      quadlet = quadletUtils.configToProperties config.quadletConfig quadletUtils.quadletOpts;
+      quadlet = quadletUtils.configToProperties config.quadletConfig quadletOptions.quadletOpts;
       unitConfig = {
         Unit = {
           Description = "Podman build ${name}";

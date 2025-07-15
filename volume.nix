@@ -129,7 +129,7 @@ in
       volumeConfig = config.volumeConfig // {
         name = volumeName;
       };
-      quadlet = quadletUtils.configToProperties config.quadletConfig quadletUtils.quadletOpts;
+      quadlet = quadletUtils.configToProperties config.quadletConfig quadletOptions.quadletOpts;
       unitConfig = {
         Unit = {
           Description = "Podman volume ${name}";

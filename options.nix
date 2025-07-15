@@ -152,7 +152,7 @@ let
   ]);
 
   self = {
-    inherit mkOption;
+    inherit mkOption quadletOpts;
 
     mkObjectOptions = objectType: extraOptions: lib.attrsets.unionOfDisjoint (mkCommonObjectOptions objectType) extraOptions;
 
