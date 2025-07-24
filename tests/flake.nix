@@ -65,10 +65,18 @@
         name = name + "-rootless";
         testScript = makeTestScript { user = "\"alice\""; inherit testScript; };
 
-        nodes.machine = { lib, pkgs, config, ... }@attrs: {
+        nodes.machine = { lib, pkgs, ... }@attrs: let
+          hmReleaseInfo = lib.importJSON "${home-manager}/release.json";
+          # https://github.com/nix-community/home-manager/pull/4976#issuecomment-3105495362
+          hm4976Patch =
+            if lib.versionAtLeast hmReleaseInfo.release "25.11"
+            then { home-manager.enableLegacyProfileManagement = true; }
+            else { };
+        in {
           imports = [
             quadlet-nix.nixosModules.quadlet
             home-manager.nixosModules.home-manager
+            hm4976Patch
           ];
           virtualisation.quadlet.enable = true;
           environment.systemPackages = [ pkgs.curl ];
@@ -87,23 +95,23 @@
           };
           users.groups.alice = {};
 
-          home-manager.users.alice = lib.mkDefault ({ ... }: {
+          home-manager.users.alice = lib.mkDefault ({ config, ... }: {
             imports = [
               quadlet-nix.homeManagerModules.quadlet
               testConfig
             ];
-            home.stateVersion = config.system.nixos.release;
+            home.stateVersion = config.home.version.release;
           });
 
           specialisation = builtins.mapAttrs (name: value: {
             configuration = {
-              home-manager.users.alice = ({ ... }: {
+              home-manager.users.alice = ({ config, ... }: {
                 imports = [
                   quadlet-nix.homeManagerModules.quadlet
                   testConfig
                   value
                 ];
-                home.stateVersion = config.system.nixos.release;
+                home.stateVersion = config.home.version.release;
               });
             };
           }) (specialisation attrs);
