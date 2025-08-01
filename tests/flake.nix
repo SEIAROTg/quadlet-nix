@@ -65,18 +65,10 @@
         name = name + "-rootless";
         testScript = makeTestScript { user = "\"alice\""; inherit testScript; };
 
-        nodes.machine = { lib, pkgs, ... }@attrs: let
-          hmReleaseInfo = lib.importJSON "${home-manager}/release.json";
-          # https://github.com/nix-community/home-manager/pull/4976#issuecomment-3105495362
-          hm4976Patch =
-            if lib.versionAtLeast hmReleaseInfo.release "25.11"
-            then { home-manager.enableLegacyProfileManagement = true; }
-            else { };
-        in {
+        nodes.machine = { lib, pkgs, ... }@attrs: {
           imports = [
             quadlet-nix.nixosModules.quadlet
             home-manager.nixosModules.home-manager
-            hm4976Patch
           ];
           virtualisation.quadlet.enable = true;
           environment.systemPackages = [ pkgs.curl ];
