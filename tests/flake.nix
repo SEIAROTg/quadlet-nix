@@ -132,6 +132,8 @@
           (genRootlessTest ./build.nix)
           (genRootfulTest ./container.nix)
           (genRootlessTest ./container.nix)
+          (genRootfulTest ./image.nix)
+          (genRootlessTest ./image.nix)
           (genRootfulTest ./network.nix)
           (genRootlessTest ./network.nix)
           (genRootfulTest ./pod.nix)

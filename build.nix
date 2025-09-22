@@ -226,7 +226,7 @@ let
   };
 in
 {
-  options = quadletOptions.mkObjectOptions "container" {
+  options = quadletOptions.mkObjectOptions "build" {
     buildConfig = buildOpts;
   };
 

@@ -100,6 +100,11 @@ let
       default = { };
       description = "Containers";
     };
+    images = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule (import ./image.nix submoduleArgs));
+      default = { };
+      description = "Image pulls";
+    };
     networks = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule (import ./network.nix submoduleArgs));
       default = { };
@@ -146,6 +151,7 @@ let
   getAllObjects = config: builtins.concatLists (map lib.attrValues [
     config.builds
     config.containers
+    config.images
     config.networks
     config.pods
     config.volumes
