@@ -158,10 +158,7 @@ in
 
   config =
     let
-      imageTag = if config.imageConfig.tag != null then config.imageConfig.tag else "localhost/${name}";
-      imageConfig = config.imageConfig // {
-        tag = imageTag;
-      };
+      imageConfig = config.imageConfig;
       quadlet = quadletUtils.configToProperties config.quadletConfig quadletOptions.quadletOpts;
       unitConfig = {
         Unit = {

@@ -168,6 +168,9 @@ let
 
     mkAssertions = extraAssertions: config: let
       containerPodConflicts = lib.lists.intersectLists (lib.attrNames config.containers) (lib.attrNames config.pods);
+      nullImageArchiveTags = lib.attrNames (lib.filterAttrs
+        (_: image: lib.strings.hasPrefix "docker-archive:" image.imageConfig.image && image.imageConfig.tag == null)
+        config.images);
     in [
       {
         assertion = containerPodConflicts == [ ];
@@ -183,6 +186,12 @@ let
           `virtualisation.quadlet.autoEscape = true` is required because this configuration contains characters that require quoting or escaping.
 
           If you have manual quoting or escaping in place, please undo those and enable `autoEscape`.
+        '';
+      }
+      {
+        assertion = nullImageArchiveTags == [];
+        message = ''
+          The following images using `docker-archive:` must have the fully qualified name (FQDN) specified as a tag: ${lib.concatStringsSep " " nullImageArchiveTags}
         '';
       }
     ] ++ extraAssertions;
