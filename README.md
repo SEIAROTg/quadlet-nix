@@ -200,6 +200,99 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
 </details>
 
 <details>
+<summary>Volumes</summary>
+
+```nix
+{ config, ... }: {
+    # ...
+    virtualisation.quadlet = let
+        inherit (config.virtualisation.quadlet) volumes;
+    in {
+        containers.nginx.containerConfig.image = "docker.io/library/nginx:latest";
+        containers.nginx.containerConfig.volumes = [
+            "${volumes.nginx-config.ref}:/etc/nginx"
+        ];
+        volumes.nginx-config.volumeConfig = {
+            type = "bind";
+            device = "/path/to/host/directory";
+        };
+    };
+}
+```
+
+</details>
+
+<details>
+<summary>Build (inlined <code>Containerfile</code>)</summary>
+
+```nix
+{ pkgs, config, ... }: {
+    # ...
+    virtualisation.quadlet = let
+        inherit (config.virtualisation.quadlet) builds;
+        containerfile = pkgs.writeText "Containerfile" ''
+          FROM docker.io/library/nginx:latest
+          # ...
+        '';
+    in {
+        containers.nginx.containerConfig.image = builds.nginx.ref;
+        builds.nginx.buildConfig.file = containerfile.outPath;
+    };
+}
+```
+
+</details>
+
+<details>
+<summary>Build (git repository)</summary>
+
+```nix
+{ config, ... }: {
+    # ...
+    virtualisation.quadlet = let
+        inherit (config.virtualisation.quadlet) builds;
+        src = builtins.fetchGit {
+          url = "https://github.com/alpinelinux/docker-alpine.git";
+          rev = "4dc13cbc7caffe03c98aa99f28e27c2fb6f7e74d";
+        };
+    in {
+        containers.example.containerConfig = {
+          image = builds.alpine.ref;
+          entrypoint = "/bin/sh";
+          exec = "-c 'echo 123'";
+        };
+        containers.example.serviceConfig.RemainAfterExit = true;
+        builds.alpine.buildConfig = {
+          tag = "alpine:3.22";
+          workdir = "${src}/x86_64";
+        };
+    };
+}
+```
+
+Alternatively, git integration of Podman can be used through `workdir = "https://github.com/nginx/docker-nginx.git"`. However, it will be users' responsibility to make binaries such as `git` available to the build service via `PATH`.
+
+</details>
+
+<details>
+<summary>Image</summary>
+
+```nix
+{ config, ... }: {
+    # ...
+    virtualisation.quadlet = let
+        inherit (config.virtualisation.quadlet) images;
+    in {
+        containers.nginx.containerConfig.image = images.nginx.ref;
+        images.nginx.imageConfig.image = "docker-archive:/path/to/local/image";
+        images.nginx.imageConfig.tag = "docker.com/library/nginx:latest";
+    };
+}
+```
+
+</details>
+
+<details>
 <summary>Install raw Quadlet files</summary>
 
 If you wish to write raw Quadlet files instead of using the Nix options, you may do so with `rawConfig`. Using this will cause all other options (except `autoStart`) to be ignored though.
