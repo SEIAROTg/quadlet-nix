@@ -1,7 +1,6 @@
 {
   testConfig = { pkgs, ... }: {
     virtualisation.quadlet = {
-      autoEscape = true;
       containers.write1 = {
         containerConfig = {
           image = "docker-archive:${pkgs.dockerTools.examples.bash}";

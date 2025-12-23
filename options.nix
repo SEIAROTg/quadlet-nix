@@ -127,11 +127,9 @@ let
     };
     autoEscape = lib.mkOption {
       type = lib.types.bool;
-      default = false;
+      default = true;
       description = ''
         Enables appropriate quoting / escaping.
-
-        Not enabled by default to avoid breaking existing configurations. In the future this will be required.
       '';
     };
     autoUpdate = {

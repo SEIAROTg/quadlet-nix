@@ -3,8 +3,6 @@
     virtualisation.quadlet = let
       inherit (config.virtualisation.quadlet) images;
     in {
-      autoEscape = true;
-
       images.hello =
         let
           test-bash-image = pkgs.dockerTools.buildImage {
