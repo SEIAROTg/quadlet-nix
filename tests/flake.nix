@@ -51,6 +51,7 @@
         name = name + "-rootful";
         testScript = makeTestScript { user = "None"; inherit testScript; };
 
+        node.specialArgs.testType = "rootful";
         nodes.machine = { pkgs, ... }@attrs: {
           imports = [
             quadlet-nix.nixosModules.quadlet
@@ -87,6 +88,7 @@
           };
           users.groups.alice = {};
 
+          home-manager.extraSpecialArgs.testType = "rootless";
           home-manager.users.alice = lib.mkDefault ({ config, ... }: {
             imports = [
               quadlet-nix.homeManagerModules.quadlet
@@ -148,6 +150,8 @@
           (genRootlessTest ./health.nix)
           (genRootfulTest ./escaping.nix)
           (genRootlessTest ./escaping.nix)
+          (genRootfulTest ./overriding.nix)
+          (genRootlessTest ./overriding.nix)
         ];
       in {
         "${system}" = tests;

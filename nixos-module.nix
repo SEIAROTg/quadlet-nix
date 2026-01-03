@@ -51,13 +51,11 @@ in
         ))
       ];
       # Inject X-RestartIfChanged=${hash} for NixOS to detect changes.
-      systemd.units = mergeAttrsList (
+      systemd.services = mergeAttrsList (
         map (p: {
-          "${p._serviceName}.service" = {
+          ${p._serviceName} = {
             overrideStrategy = "asDropin";
-            text = quadletUtils.unitConfigToText {
-              Unit.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
-            };
+            unitConfig.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
             # systemd recommends multi-user.target over default.target.
             # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#default.target
             wantedBy = if p._autoStart then [ "multi-user.target" ] else [];
