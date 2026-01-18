@@ -47,7 +47,17 @@
         ${testScript}
       '';
 
-      runRootfulTest = { name, testConfig, testScript, specialisation, pkgs }: pkgs.testers.runNixOSTest ({ ... }: {
+      makeTestCase = template: args: if builtins.isFunction template then template args else template;
+
+      runRootfulTest = { name, template, pkgs }: let
+        testCase = makeTestCase template {
+          isHomeManager = false;
+          home = "/root";
+        };
+        testConfig = testCase.testConfig;
+        testScript = testCase.testScript;
+        specialisation = testCase.specialisation or (_: { });
+      in {
         name = name + "-rootful";
         testScript = makeTestScript { user = "None"; inherit testScript; };
 
@@ -60,10 +70,18 @@
           environment.systemPackages = [ pkgs.curl ];
           specialisation = builtins.mapAttrs (name: value: { configuration = value; }) (specialisation attrs);
         };
-      });
+      };
 
-      runRootlessTest = { name, testConfig, testScript, specialisation, pkgs }: pkgs.testers.runNixOSTest ({ ... }: {
-        name = name + "-rootless";
+      runHomeManagerTest = { name, template, pkgs }: let
+        testCase = makeTestCase template {
+          isHomeManager = true;
+          home = "/home/alice";
+        };
+        testConfig = testCase.testConfig;
+        testScript = testCase.testScript;
+        specialisation = testCase.specialisation or (_: { });
+      in {
+        name = name + "-home-manager";
         testScript = makeTestScript { user = "\"alice\""; inherit testScript; };
 
         nodes.machine = { lib, pkgs, ... }@attrs: {
@@ -88,7 +106,7 @@
           };
           users.groups.alice = {};
 
-          home-manager.extraSpecialArgs.testType = "rootless";
+          home-manager.extraSpecialArgs.testType = "home-manager";
           home-manager.users.alice = lib.mkDefault ({ config, ... }: {
             imports = [
               quadlet-nix.homeManagerModules.quadlet
@@ -110,49 +128,43 @@
             };
           }) (specialisation attrs);
         };
-      });
+      };
 
-      genTest = pkgs: runTest: file: let
-        name = pkgs.lib.removeSuffix ".nix" (builtins.baseNameOf file);
-        value = ({ testConfig, testScript, specialisation ? _: { } }: runTest {
-          inherit name pkgs testConfig testScript specialisation;
-        }) (import file);
+      genTest = pkgs: runTest: template: let
+        name = pkgs.lib.removeSuffix ".nix" (builtins.baseNameOf template);
+        test = pkgs.testers.runNixOSTest (runTest {
+          template = import template;
+          inherit name pkgs;
+        });
       in {
-        name = value.config.name;
-        inherit value;
+        name = test.config.name;
+        value = test;
       };
 
     in {
       checks = let
         pkgs = import nixpkgs { inherit system; };
-        genRootfulTest = genTest pkgs runRootfulTest;
-        genRootlessTest = genTest pkgs runRootlessTest;
-        tests = builtins.listToAttrs [
-          (genRootfulTest ./basic.nix)
-          (genRootlessTest ./basic.nix)
-          (genRootfulTest ./build.nix)
-          (genRootlessTest ./build.nix)
-          (genRootfulTest ./container.nix)
-          (genRootlessTest ./container.nix)
-          (genRootfulTest ./image.nix)
-          (genRootlessTest ./image.nix)
-          (genRootfulTest ./network.nix)
-          (genRootlessTest ./network.nix)
-          (genRootfulTest ./pod.nix)
-          (genRootlessTest ./pod.nix)
-          (genRootfulTest ./volume.nix)
-          (genRootlessTest ./volume.nix)
-          (genRootfulTest ./switch.nix)
-          (genRootlessTest ./switch.nix)
-          (genRootfulTest ./raw.nix)
-          (genRootlessTest ./raw.nix)
-          (genRootfulTest ./health.nix)
-          (genRootlessTest ./health.nix)
-          (genRootfulTest ./escaping.nix)
-          (genRootlessTest ./escaping.nix)
-          (genRootfulTest ./overriding.nix)
-          (genRootlessTest ./overriding.nix)
-        ];
+        lib = pkgs.lib;
+        tests = builtins.listToAttrs (map ({ runner, template }: genTest pkgs runner template) (lib.cartesianProduct {
+          template = [
+            ./basic.nix
+            ./build.nix
+            ./container.nix
+            ./image.nix
+            ./network.nix
+            ./pod.nix
+            ./volume.nix
+            ./switch.nix
+            ./raw.nix
+            ./health.nix
+            ./escaping.nix
+            ./overriding.nix
+          ];
+          runner = [
+            runRootfulTest
+            runHomeManagerTest
+          ];
+        }));
       in {
         "${system}" = tests;
       };

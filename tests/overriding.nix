@@ -1,5 +1,5 @@
-{
-  testConfig = { pkgs, lib, testType, ... }: let
+{ isHomeManager, ... }: {
+  testConfig = { pkgs, lib, ... }: let
     execStartPre = "${pkgs.bash}/bin/bash -c 'echo ef1e835e0ae5 > /tmp/foo.txt'";
     nixosOverrides = {
       systemd.services.nginx.serviceConfig.ExecStartPre = execStartPre;
@@ -7,10 +7,7 @@
     homeManagerOverrides = {
       systemd.user.services.nginx.Service.ExecStartPre = execStartPre;
     };
-    overrides =
-      if testType == "rootful" then nixosOverrides
-      else if testType == "rootless" then homeManagerOverrides
-      else throw "bad testType";
+    overrides = if isHomeManager then homeManagerOverrides else nixosOverrides;
   in {
     virtualisation.quadlet = {
       containers.nginx = {
