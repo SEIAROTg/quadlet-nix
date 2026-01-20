@@ -27,9 +27,11 @@ jobs:
       with:
         fetch-depth: 0
 
-    - uses: cachix/install-nix-action@v30
+    - uses: DeterminateSystems/determinate-nix-action@v3
       with:
-        nix_path: nixpkgs=channel:${{ matrix.version.nixpkgs }}
+        extra-conf: |
+          lazy-trees = true
+          eval-cores = 0
 
     - uses: cachix/cachix-action@v16
       env:
