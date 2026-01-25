@@ -1,13 +1,15 @@
-let
+{ extraConfig, ... }: let
   makeQuadletConfig = pkgs: networks: {
-    containers.nginx.containerConfig = {
-      image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
-      publishPorts = [ "8080:80" ];
-      networks = map (x: "${x}.network") networks;
-    };
+    containers.nginx = {
+      containerConfig = {
+        image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
+        publishPorts = [ "8080:80" ];
+        networks = map (x: "${x}.network") networks;
+      };
+    } // extraConfig;
     networks = builtins.listToAttrs (map (x: {
       name = x;
-      value = { networkConfig.name = x; };
+      value = { networkConfig.name = x; } // extraConfig;
     }) networks);
   };
 in {
@@ -24,14 +26,11 @@ in {
   testScript = ''
     def check(expected_networks: set[str]) -> None:
       assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
-      containers = get_containers(user=user)
+      containers = get_containers()
       assert containers.keys() == {"nginx"}
-      networks = get_networks(user=user)
+      networks = get_networks()
       assert networks.keys() == expected_networks | {"podman"}
       assert set(containers["nginx"]["Networks"]) == expected_networks
-
-    machine.wait_for_unit("default.target")
-    machine.wait_for_unit("default.target", user=user)
 
     check({"foo"})
 

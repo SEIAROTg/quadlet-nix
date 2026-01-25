@@ -751,7 +751,7 @@ in
         Service = serviceConfigDefault // config.serviceConfig;
       } // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    {
+    lib.pipe {
       _serviceName = name;
       _configText = if config.rawConfig != null
         then config.rawConfig
@@ -759,5 +759,10 @@ in
       _autoStart = config.autoStart;
       _autoEscapeRequired = quadletUtils.autoEscapeRequired containerConfig containerOpts;
       ref = "${name}.container";
-    };
+
+      # quadlet default is "split" which does not work rootless under system systemd.
+      containerConfig.cgroupsMode = lib.mkIf config._rootless (lib.mkDefault "enabled");
+    } [
+      (quadletOptions.applyRootlessConfig config)
+    ];
 }

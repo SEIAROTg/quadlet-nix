@@ -245,7 +245,7 @@ in
         Service = serviceConfigDefault // config.serviceConfig;
       } // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    {
+    lib.pipe {
       _serviceName = "${name}-build";
       _configText = if config.rawConfig != null
         then config.rawConfig
@@ -253,5 +253,7 @@ in
       _autoStart = config.autoStart;
       _autoEscapeRequired = quadletUtils.autoEscapeRequired buildConfig buildOpts;
       ref = "${name}.build";
-    };
+    } [
+      (quadletOptions.applyRootlessConfig config)
+    ];
 }

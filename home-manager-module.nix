@@ -16,6 +16,7 @@ let
     autoEscape = config.virtualisation.quadlet.autoEscape;
   };
   quadletOptions = import ./options.nix {
+    supportRootless = false;
     inherit lib quadletUtils;
   };
   activationScript = lib.hm.dag.entryBefore [ "reloadSystemd" ] ''

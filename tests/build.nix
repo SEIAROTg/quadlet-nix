@@ -1,4 +1,4 @@
-{
+{ extraConfig, ... }: {
   testConfig = { pkgs, config, ... }: {
     virtualisation.quadlet = let
       inherit (config.virtualisation.quadlet) builds;
@@ -10,7 +10,7 @@
             CMD bash -c 'echo "Success" > /output/result.txt'
           ''}";
         };
-      };
+      } // extraConfig;
 
       containers.hello = {
         containerConfig = {
@@ -20,14 +20,12 @@
         serviceConfig = {
           RemainAfterExit = true;
         };
-      };
+      } // extraConfig;
     };
   };
 
   testScript = ''
-    machine.wait_for_unit("default.target")
-    machine.wait_for_unit("default.target", user=user)
-    machine.wait_for_unit("hello.service", user=user, timeout=30)
+    machine.wait_for_unit("hello.service", user=systemd_user, timeout=30)
 
     assert machine.succeed("cat /tmp/result.txt").strip() == 'Success'
   '';

@@ -138,7 +138,7 @@ in
         Service = config.serviceConfig;
       } // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    {
+    lib.pipe {
       _serviceName = "${name}-volume";
       _configText = if config.rawConfig != null
         then config.rawConfig
@@ -146,5 +146,7 @@ in
       _autoStart = config.autoStart;
       _autoEscapeRequired = quadletUtils.autoEscapeRequired volumeConfig volumeOpts;
       ref = "${name}.volume";
-    };
+    } [
+      (quadletOptions.applyRootlessConfig config)
+    ];
 }

@@ -168,7 +168,7 @@ in
         Service = serviceConfigDefault // config.serviceConfig;
       } // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    {
+    lib.pipe {
       _serviceName = "${name}-image";
       _configText = if config.rawConfig != null
         then config.rawConfig
@@ -176,5 +176,7 @@ in
       _autoStart = config.autoStart;
       _autoEscapeRequired = quadletUtils.autoEscapeRequired imageConfig imageOpts;
       ref = "${name}.image";
-    };
+    } [
+      (quadletOptions.applyRootlessConfig config)
+    ];
 }

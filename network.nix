@@ -180,7 +180,7 @@ in
         } // config.serviceConfig;
       } // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    {
+    lib.pipe {
       _serviceName = "${name}-network";
       _configText = if config.rawConfig != null
         then config.rawConfig
@@ -188,5 +188,7 @@ in
       _autoStart = config.autoStart;
       _autoEscapeRequired = quadletUtils.autoEscapeRequired networkConfig networkOpts;
       ref = "${name}.network";
-    };
+    } [
+      (quadletOptions.applyRootlessConfig config)
+    ];
 }
