@@ -39,7 +39,8 @@ in
             text = p._configText;
             mode = "0600";
           };
-        }) allObjects);
+        }) allObjects
+      );
       # The symlinks are not necessary for the services to be honored by systemd,
       # but necessary for NixOS activation process to pick them up for updates.
       systemd.packages = [
@@ -58,13 +59,16 @@ in
             unitConfig.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
             # systemd recommends multi-user.target over default.target.
             # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#default.target
-            wantedBy = if p._autoStart then [ "multi-user.target" ] else [];
+            wantedBy = if p._autoStart then [ "multi-user.target" ] else [ ];
           };
         }) allObjects
       );
 
       systemd.timers.podman-auto-update = mkIf cfg.autoUpdate.enable {
-        timerConfig.OnCalendar = [ "" cfg.autoUpdate.calendar ];
+        timerConfig.OnCalendar = [
+          ""
+          cfg.autoUpdate.calendar
+        ];
         wantedBy = [ "timers.target" ];
         overrideStrategy = "asDropin";
       };

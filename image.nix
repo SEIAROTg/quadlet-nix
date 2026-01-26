@@ -163,16 +163,17 @@ in
       unitConfig = {
         Unit = {
           Description = "Podman image ${name}";
-        } // config.unitConfig;
+        }
+        // config.unitConfig;
         Image = quadletUtils.configToProperties imageConfig imageOpts;
         Service = serviceConfigDefault // config.serviceConfig;
-      } // (if quadlet == { } then { } else { Quadlet = quadlet; });
+      }
+      // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
     {
       _serviceName = "${name}-image";
-      _configText = if config.rawConfig != null
-        then config.rawConfig
-        else quadletUtils.unitConfigToText unitConfig;
+      _configText =
+        if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
       _autoStart = config.autoStart;
       _autoEscapeRequired = quadletUtils.autoEscapeRequired imageConfig imageOpts;
       ref = "${name}.image";

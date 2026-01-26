@@ -1,13 +1,15 @@
 {
-  testConfig = { pkgs, ... }: {
-    virtualisation.quadlet = {
-      containers.nginx = {
-        containerConfig.image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
-        containerConfig.publishPorts = [ "8080:80" ];
-        serviceConfig.TimeoutStartSec = "60";
+  testConfig =
+    { pkgs, ... }:
+    {
+      virtualisation.quadlet = {
+        containers.nginx = {
+          containerConfig.image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
+          containerConfig.publishPorts = [ "8080:80" ];
+          serviceConfig.TimeoutStartSec = "60";
+        };
       };
     };
-  };
   testScript = ''
     machine.wait_for_unit("default.target")
     machine.wait_for_unit("default.target", user=user)

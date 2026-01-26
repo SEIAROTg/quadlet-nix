@@ -1,24 +1,26 @@
 {
-  testConfig = { pkgs, ... }: {
-    virtualisation.quadlet = {
-      containers.good = {
-        containerConfig = {
-          image = "docker-archive:${pkgs.dockerTools.examples.redis}";
-          healthCmd = "redis-cli ping || exit 1";
-          healthRetries = 1;
+  testConfig =
+    { pkgs, ... }:
+    {
+      virtualisation.quadlet = {
+        containers.good = {
+          containerConfig = {
+            image = "docker-archive:${pkgs.dockerTools.examples.redis}";
+            healthCmd = "redis-cli ping || exit 1";
+            healthRetries = 1;
+          };
+          serviceConfig.TimeoutStartSec = 60;
         };
-        serviceConfig.TimeoutStartSec = 60;
-      };
-      containers.bad = {
-        containerConfig = {
-          image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
-          healthCmd = "exit 1";
-          healthRetries = 1;
+        containers.bad = {
+          containerConfig = {
+            image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
+            healthCmd = "exit 1";
+            healthRetries = 1;
+          };
+          serviceConfig.TimeoutStartSec = 60;
         };
-        serviceConfig.TimeoutStartSec = 60;
       };
     };
-  };
 
   testScript = ''
     machine.wait_for_unit("default.target")

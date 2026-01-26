@@ -43,7 +43,7 @@ let
 
     globalArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
-      default = [  ];
+      default = [ ];
       example = [ "--log-level=debug" ];
       description = "Additional command line arguments to insert between `podman` and `volume create`";
       property = "GlobalArgs";
@@ -51,7 +51,12 @@ let
     };
 
     group = quadletOptions.mkOption {
-      type = types.nullOr (types.oneOf [ types.int types.str ]);
+      type = types.nullOr (
+        types.oneOf [
+          types.int
+          types.str
+        ]
+      );
       default = null;
       example = 192;
       cli = "--opt group=...";
@@ -67,7 +72,10 @@ let
     };
 
     labels = quadletOptions.mkOption {
-      type = types.oneOf [ (types.listOf types.str) (types.attrsOf types.str) ];
+      type = types.oneOf [
+        (types.listOf types.str)
+        (types.attrsOf types.str)
+      ];
       default = { };
       example = {
         foo = "bar";
@@ -110,7 +118,12 @@ let
     };
 
     user = quadletOptions.mkOption {
-      type = types.nullOr (types.oneOf [ types.int types.str ]);
+      type = types.nullOr (
+        types.oneOf [
+          types.int
+          types.str
+        ]
+      );
       default = null;
       example = 123;
       cli = "--opt uid=...";
@@ -133,16 +146,17 @@ in
       unitConfig = {
         Unit = {
           Description = "Podman volume ${name}";
-        } // config.unitConfig;
+        }
+        // config.unitConfig;
         Volume = quadletUtils.configToProperties volumeConfig volumeOpts;
         Service = config.serviceConfig;
-      } // (if quadlet == { } then { } else { Quadlet = quadlet; });
+      }
+      // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
     {
       _serviceName = "${name}-volume";
-      _configText = if config.rawConfig != null
-        then config.rawConfig
-        else quadletUtils.unitConfigToText unitConfig;
+      _configText =
+        if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
       _autoStart = config.autoStart;
       _autoEscapeRequired = quadletUtils.autoEscapeRequired volumeConfig volumeOpts;
       ref = "${name}.volume";

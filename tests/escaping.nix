@@ -1,63 +1,75 @@
 {
-  testConfig = { pkgs, ... }: {
-    virtualisation.quadlet = {
-      containers.write1 = {
-        containerConfig = {
-          image = "docker-archive:${pkgs.dockerTools.examples.bash}";
-          # quotedUnescaped
-          addCapabilities = [ "SYS_NICE" ];
-          entrypoint = "bash";
-          # quotedEscaped
-          environments = {
-            FOO = "aaa bbb $ccc \"ddd\n\n ";
-            bar = "\"aaa\"";
-            ONLY_SPACES = "aaa bbb";
+  testConfig =
+    { pkgs, ... }:
+    {
+      virtualisation.quadlet = {
+        containers.write1 = {
+          containerConfig = {
+            image = "docker-archive:${pkgs.dockerTools.examples.bash}";
+            # quotedUnescaped
+            addCapabilities = [ "SYS_NICE" ];
+            entrypoint = "bash";
+            # quotedEscaped
+            environments = {
+              FOO = "aaa bbb $ccc \"ddd\n\n ";
+              bar = "\"aaa\"";
+              ONLY_SPACES = "aaa bbb";
+            };
+            # raw
+            exec = "-c 'echo -n \"$FOO\" > /tmp/foo.txt; echo -n \"$bar\" > /tmp/bar.txt; echo -n \"$ONLY_SPACES\" > /tmp/only_spaces.txt'";
+            volumes = [
+              "/tmp:/tmp"
+            ];
           };
-          # raw
-          exec = "-c 'echo -n \"$FOO\" > /tmp/foo.txt; echo -n \"$bar\" > /tmp/bar.txt; echo -n \"$ONLY_SPACES\" > /tmp/only_spaces.txt'";
-          volumes = [
-            "/tmp:/tmp"
-          ];
-        };
-        serviceConfig = {
-          RemainAfterExit = true;
-        };
-      };
-      containers.write2 = {
-        containerConfig = {
-          image = "docker-archive:${pkgs.dockerTools.examples.bash}";
-          environments = {
-            BAZ = "aaa";
+          serviceConfig = {
+            RemainAfterExit = true;
           };
-          entrypoint = "bash";
-          # oneLine
-          exec = [ "-c" "echo $@ $0 $BAZ > /tmp/baz.txt" "bbb" "ccc" ];
-          volumes = [
-            "/tmp:/tmp"
-          ];
         };
-        serviceConfig = {
-          RemainAfterExit = true;
+        containers.write2 = {
+          containerConfig = {
+            image = "docker-archive:${pkgs.dockerTools.examples.bash}";
+            environments = {
+              BAZ = "aaa";
+            };
+            entrypoint = "bash";
+            # oneLine
+            exec = [
+              "-c"
+              "echo $@ $0 $BAZ > /tmp/baz.txt"
+              "bbb"
+              "ccc"
+            ];
+            volumes = [
+              "/tmp:/tmp"
+            ];
+          };
+          serviceConfig = {
+            RemainAfterExit = true;
+          };
         };
-      };
-      containers.write3 = let
-        scriptName = "aaa bbb \n $ccc";
-        scriptDir = toString (pkgs.writeTextDir scriptName "echo 8439b333258ba90e > /tmp/write3.txt");
-      in {
-        containerConfig = {
-          image = "docker-archive:${pkgs.dockerTools.examples.bash}";
-          entrypoint = [ "bash" "/test/${scriptName}" ];
-          volumes = [
-            "/tmp:/tmp"
-            "${scriptDir}:/test/"
-          ];
-        };
-        serviceConfig = {
-          RemainAfterExit = true;
-        };
+        containers.write3 =
+          let
+            scriptName = "aaa bbb \n $ccc";
+            scriptDir = toString (pkgs.writeTextDir scriptName "echo 8439b333258ba90e > /tmp/write3.txt");
+          in
+          {
+            containerConfig = {
+              image = "docker-archive:${pkgs.dockerTools.examples.bash}";
+              entrypoint = [
+                "bash"
+                "/test/${scriptName}"
+              ];
+              volumes = [
+                "/tmp:/tmp"
+                "${scriptDir}:/test/"
+              ];
+            };
+            serviceConfig = {
+              RemainAfterExit = true;
+            };
+          };
       };
     };
-  };
   testScript = ''
     machine.wait_for_unit("default.target")
     machine.wait_for_unit("default.target", user=user)

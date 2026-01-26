@@ -1,19 +1,26 @@
 {
-  testConfig = { pkgs, config, ... }: {
-    virtualisation.quadlet = let
-     inherit (config.virtualisation.quadlet) networks;
-    in {
-      containers.nginx.containerConfig = {
-        image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
-        publishPorts = [ "8080:80" ];
-        networks = [ networks.foo.ref networks.bar.ref ];
-      };
-      networks.foo = {
-        networkConfig.options.isolate = "true";
-      };
-      networks.bar = { };
+  testConfig =
+    { pkgs, config, ... }:
+    {
+      virtualisation.quadlet =
+        let
+          inherit (config.virtualisation.quadlet) networks;
+        in
+        {
+          containers.nginx.containerConfig = {
+            image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
+            publishPorts = [ "8080:80" ];
+            networks = [
+              networks.foo.ref
+              networks.bar.ref
+            ];
+          };
+          networks.foo = {
+            networkConfig.options.isolate = "true";
+          };
+          networks.bar = { };
+        };
     };
-  };
   testScript = ''
     machine.wait_for_unit("default.target")
     machine.wait_for_unit("default.target", user=user)

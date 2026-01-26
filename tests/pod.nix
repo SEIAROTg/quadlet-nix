@@ -1,21 +1,25 @@
 {
-  testConfig = { pkgs, config, ... }: {
-    virtualisation.quadlet = let
-     inherit (config.virtualisation.quadlet) pods;
-    in {
-      containers.nginx.containerConfig = {
-        image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
-        pod = pods.foo.ref;
-      };
-      containers.redis.containerConfig = {
-        image = "docker-archive:${pkgs.dockerTools.examples.redis}";
-        pod = pods.foo.ref;
-      };
-      pods.foo.podConfig = {
-        publishPorts = [ "8080:80" ];
-      };
+  testConfig =
+    { pkgs, config, ... }:
+    {
+      virtualisation.quadlet =
+        let
+          inherit (config.virtualisation.quadlet) pods;
+        in
+        {
+          containers.nginx.containerConfig = {
+            image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
+            pod = pods.foo.ref;
+          };
+          containers.redis.containerConfig = {
+            image = "docker-archive:${pkgs.dockerTools.examples.redis}";
+            pod = pods.foo.ref;
+          };
+          pods.foo.podConfig = {
+            publishPorts = [ "8080:80" ];
+          };
+        };
     };
-  };
   testScript = ''
     machine.wait_for_unit("default.target")
     machine.wait_for_unit("default.target", user=user)

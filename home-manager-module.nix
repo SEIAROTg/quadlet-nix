@@ -28,28 +28,34 @@ in
   config =
     let
       allObjects = quadletOptions.getAllObjects cfg;
-      enable = cfg.enable == true || (cfg.enable == null && allObjects != []);
+      enable = cfg.enable == true || (cfg.enable == null && allObjects != [ ]);
     in
     mkIf enable {
       assertions = quadletOptions.mkAssertions [ ] cfg;
-      warnings = (quadletUtils.assertionsToWarnings [
-        {
-          assertion = enable -> (osConfig.virtualisation.quadlet.enable or true == true);
-          message = ''
-            The `virtualisation.quadlet.enable` in **NixOS config** is not set to true.
-            The NixOS module is required to set up Podman and explicit enablement will be required in the future.
-          '';
-        }
-      ]) ++ (quadletOptions.mkWarnings [ ] cfg);
+      warnings =
+        (quadletUtils.assertionsToWarnings [
+          {
+            assertion = enable -> (osConfig.virtualisation.quadlet.enable or true == true);
+            message = ''
+              The `virtualisation.quadlet.enable` in **NixOS config** is not set to true.
+              The NixOS module is required to set up Podman and explicit enablement will be required in the future.
+            '';
+          }
+        ])
+        ++ (quadletOptions.mkWarnings [ ] cfg);
 
       home.activation.quadletNix = mkIf (lib.length allObjects > 0) activationScript;
 
       xdg.configFile =
         let
-          configPathLink = (pkgs.linkFarm "quadlet-out-path" [{
-            name = "quadlet-nix";
-            path = "${config.xdg.configHome}/quadlet-nix";
-          }]) + "/quadlet-nix";
+          configPathLink =
+            (pkgs.linkFarm "quadlet-out-path" [
+              {
+                name = "quadlet-nix";
+                path = "${config.xdg.configHome}/quadlet-nix";
+              }
+            ])
+            + "/quadlet-nix";
         in
         mergeAttrsList (
           map (p: {
@@ -62,7 +68,8 @@ in
               source = "${configPathLink}/out/${p._serviceName}.service";
             };
           }) allObjects
-        ) // {
+        )
+        // {
           # `systemctl`, `sleep`, etc. not found
           "systemd/user/podman-user-wait-network-online.service.d/override.conf" = {
             text = quadletUtils.unitConfigToText {
@@ -71,34 +78,36 @@ in
           };
         };
 
-      systemd.user.services = mergeAttrsList (
-        map (p: {
-          # Inject hash for the activation process to detect changes.
-          # Must be in the main file as it's the only thing home-manager switch process looks at.
-          # WantedBy must be set through `systemd.user.services` which generates .targets.wants symlinks.
-          # sd-switch only starts new services with those symlinks.
-          ${p._serviceName} = {
-            Unit.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
-            Install.WantedBy = if p._autoStart then [ "default.target" ] else [ ];
-          };
-        }) allObjects
-      ) // {
-        # TODO: link from ${pkgs.podman}/share/systemd/user/podman-auto-update.service
-        # when https://github.com/containers/podman/issues/24637 is fixed.
-        podman-auto-update = mkIf cfg.autoUpdate.enable {
-          Unit = {
-            Description = "Podman auto-update service";
-            Documentation = "man:podman-auto-update(1)";
-          };
-          Service = {
-            Type = "oneshot";
-            ExecStart = "${getExe quadletUtils.podmanPackage} auto-update";
-            ExecStartPost = "${getExe quadletUtils.podmanPackage} image prune -f";
-            TimeoutStartSec = "900s";
-            TimeoutStopSec = "10s";
+      systemd.user.services =
+        mergeAttrsList (
+          map (p: {
+            # Inject hash for the activation process to detect changes.
+            # Must be in the main file as it's the only thing home-manager switch process looks at.
+            # WantedBy must be set through `systemd.user.services` which generates .targets.wants symlinks.
+            # sd-switch only starts new services with those symlinks.
+            ${p._serviceName} = {
+              Unit.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
+              Install.WantedBy = if p._autoStart then [ "default.target" ] else [ ];
+            };
+          }) allObjects
+        )
+        // {
+          # TODO: link from ${pkgs.podman}/share/systemd/user/podman-auto-update.service
+          # when https://github.com/containers/podman/issues/24637 is fixed.
+          podman-auto-update = mkIf cfg.autoUpdate.enable {
+            Unit = {
+              Description = "Podman auto-update service";
+              Documentation = "man:podman-auto-update(1)";
+            };
+            Service = {
+              Type = "oneshot";
+              ExecStart = "${getExe quadletUtils.podmanPackage} auto-update";
+              ExecStartPost = "${getExe quadletUtils.podmanPackage} image prune -f";
+              TimeoutStartSec = "900s";
+              TimeoutStopSec = "10s";
+            };
           };
         };
-      };
 
       systemd.user.timers.podman-auto-update = mkIf cfg.autoUpdate.enable {
         Unit = {

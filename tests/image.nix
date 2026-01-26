@@ -1,38 +1,43 @@
 {
-  testConfig = { pkgs, config, ... }: {
-    virtualisation.quadlet = let
-      inherit (config.virtualisation.quadlet) images;
-    in {
-      images.hello =
+  testConfig =
+    { pkgs, config, ... }:
+    {
+      virtualisation.quadlet =
         let
-          test-bash-image = pkgs.dockerTools.buildImage {
-            name = "whatever.com/test-bash";
-            tag = "latest";
-            fromImage = pkgs.dockerTools.examples.bash;
-          };
-        in {
-          imageConfig = {
-            image = "docker-archive:${test-bash-image}";
-            tag = "whatever.com/test-bash:latest";
-          };
-        };
+          inherit (config.virtualisation.quadlet) images;
+        in
+        {
+          images.hello =
+            let
+              test-bash-image = pkgs.dockerTools.buildImage {
+                name = "whatever.com/test-bash";
+                tag = "latest";
+                fromImage = pkgs.dockerTools.examples.bash;
+              };
+            in
+            {
+              imageConfig = {
+                image = "docker-archive:${test-bash-image}";
+                tag = "whatever.com/test-bash:latest";
+              };
+            };
 
-      containers.hello = {
-        containerConfig = {
-          image = images.hello.ref;
-          volumes = [ "/tmp:/output" ];
-          entrypoint = "bash";
-          exec = [
-            "-c"
-            "echo \"Success\" > /output/result.txt"
-          ];
+          containers.hello = {
+            containerConfig = {
+              image = images.hello.ref;
+              volumes = [ "/tmp:/output" ];
+              entrypoint = "bash";
+              exec = [
+                "-c"
+                "echo \"Success\" > /output/result.txt"
+              ];
+            };
+            serviceConfig = {
+              RemainAfterExit = true;
+            };
+          };
         };
-        serviceConfig = {
-          RemainAfterExit = true;
-        };
-      };
     };
-  };
 
   testScript = ''
     machine.wait_for_unit("default.target")

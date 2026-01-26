@@ -1,22 +1,27 @@
-{ isHomeManager, ... }: {
-  testConfig = { pkgs, lib, ... }: let
-    execStartPre = "${pkgs.bash}/bin/bash -c 'echo ef1e835e0ae5 > /tmp/foo.txt'";
-    nixosOverrides = {
-      systemd.services.nginx.serviceConfig.ExecStartPre = execStartPre;
-    };
-    homeManagerOverrides = {
-      systemd.user.services.nginx.Service.ExecStartPre = execStartPre;
-    };
-    overrides = if isHomeManager then homeManagerOverrides else nixosOverrides;
-  in {
-    virtualisation.quadlet = {
-      containers.nginx = {
-        containerConfig.image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
-        containerConfig.publishPorts = [ "8080:80" ];
-        serviceConfig.TimeoutStartSec = "60";
+{ isHomeManager, ... }:
+{
+  testConfig =
+    { pkgs, lib, ... }:
+    let
+      execStartPre = "${pkgs.bash}/bin/bash -c 'echo ef1e835e0ae5 > /tmp/foo.txt'";
+      nixosOverrides = {
+        systemd.services.nginx.serviceConfig.ExecStartPre = execStartPre;
       };
-    };
-  } // overrides;
+      homeManagerOverrides = {
+        systemd.user.services.nginx.Service.ExecStartPre = execStartPre;
+      };
+      overrides = if isHomeManager then homeManagerOverrides else nixosOverrides;
+    in
+    {
+      virtualisation.quadlet = {
+        containers.nginx = {
+          containerConfig.image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
+          containerConfig.publishPorts = [ "8080:80" ];
+          serviceConfig.TimeoutStartSec = "60";
+        };
+      };
+    }
+    // overrides;
   testScript = ''
     machine.wait_for_unit("default.target")
     machine.wait_for_unit("default.target", user=user)

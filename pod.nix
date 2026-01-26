@@ -69,7 +69,7 @@ let
 
     globalArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
-      default = [  ];
+      default = [ ];
       example = [ "--log-level=debug" ];
       description = "Additional command line arguments to insert between `podman` and `pod create`";
       property = "GlobalArgs";
@@ -101,7 +101,10 @@ let
     };
 
     labels = quadletOptions.mkOption {
-      type = types.oneOf [ (types.listOf types.str) (types.attrsOf types.str) ];
+      type = types.oneOf [
+        (types.listOf types.str)
+        (types.attrsOf types.str)
+      ];
       default = { };
       example = {
         foo = "bar";
@@ -215,16 +218,17 @@ in
       unitConfig = {
         Unit = {
           Description = "Podman pod ${name}";
-        } // config.unitConfig;
+        }
+        // config.unitConfig;
         Pod = quadletUtils.configToProperties podConfig podOpts;
         Service = serviceConfigDefault // config.serviceConfig;
-      } // (if quadlet == { } then { } else { Quadlet = quadlet; });
+      }
+      // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
     {
       _serviceName = "${name}-pod";
-      _configText = if config.rawConfig != null
-        then config.rawConfig
-        else quadletUtils.unitConfigToText unitConfig;
+      _configText =
+        if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
       _autoEscapeRequired = quadletUtils.autoEscapeRequired podConfig podOpts;
       _autoStart = config.autoStart;
       ref = "${name}.pod";
