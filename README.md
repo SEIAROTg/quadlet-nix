@@ -200,6 +200,29 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
 </details>
 
 <details>
+<summary>Rootless containers (in system systemd)</summary>
+
+⚠️ Use at your own risk. This is not officially supported by Podman.
+
+```nix
+{ config, ... }: {
+    users.users.alice = {
+        uid = 1234;
+        # required for auto start before user login
+        linger = true;
+        # required for rootless container with multiple users
+        autoSubUidGidRange = true;
+    };
+    virtualisation.quadlet.containers.nginx = {
+        rootlessConfig.uid = config.users.users.alice.uid;
+        containerConfig.image = "docker.io/library/nginx:latest";
+    };
+}
+```
+
+</details>
+
+<details>
 <summary>Volumes</summary>
 
 ```nix

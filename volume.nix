@@ -153,12 +153,16 @@ in
       }
       // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    {
-      _serviceName = "${name}-volume";
-      _configText =
-        if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
-      _autoStart = config.autoStart;
-      _autoEscapeRequired = quadletUtils.autoEscapeRequired volumeConfig volumeOpts;
-      ref = "${name}.volume";
-    };
+    lib.pipe
+      {
+        _serviceName = "${name}-volume";
+        _configText =
+          if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
+        _autoStart = config.autoStart;
+        _autoEscapeRequired = quadletUtils.autoEscapeRequired volumeConfig volumeOpts;
+        ref = "${name}.volume";
+      }
+      [
+        (quadletOptions.applyRootlessConfig config)
+      ];
 }

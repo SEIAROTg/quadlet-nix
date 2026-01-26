@@ -26,33 +26,42 @@
     let
       system = test-config.system;
       makeTestScript =
-        { user, testScript }:
+        {
+          podmanUser,
+          systemdUser,
+          testScript,
+        }:
         { nodes, ... }:
         ''
           import json
           from typing import Any, Optional
 
-          user = ${user}
+          podman_user = ${podmanUser}
+          systemd_user = ${systemdUser}
 
           def _run_as_user(command: str, *, user: Optional[str]) -> str:
             if user is not None:
               command = f"sudo -u {user} -- {command}"
             return machine.succeed(command)
 
-          def get_containers(*, user: Optional[str]) -> dict[str, dict[str, Any]]:
+          def get_containers(*, user: Optional[str] = podman_user) -> dict[str, dict[str, Any]]:
             containers = json.loads(_run_as_user("podman ps --format=json", user=user))
             return {name: container for container in containers for name in container["Names"]}
 
-          def get_networks(*, user: Optional[str]) -> dict[str, dict[str, Any]]:
+          def get_networks(*, user: Optional[str] = podman_user) -> dict[str, dict[str, Any]]:
             networks = json.loads(_run_as_user("podman network ls --format=json", user=user))
             return {network["name"]: network for network in networks}
 
-          def get_pods(*, user: Optional[str]) -> dict[str, dict[str, Any]]:
+          def get_pods(*, user: Optional[str] = podman_user) -> dict[str, dict[str, Any]]:
             pods = json.loads(_run_as_user("podman pod ls --format=json", user=user))
             return {pod["Name"]: pod for pod in pods}
 
           def switch_to_specialisation(specialisation: str) -> str:
             return machine.succeed(f"${nodes.machine.system.build.toplevel}/specialisation/{specialisation}/bin/switch-to-configuration test")
+
+          machine.wait_for_unit("default.target", user=None)
+          if systemd_user is not None:
+            machine.wait_for_unit("default.target", user=systemd_user)
 
           ${testScript}
         '';
@@ -67,6 +76,7 @@
         }:
         let
           testCase = makeTestCase template {
+            extraConfig = { };
             isHomeManager = false;
             home = "/root";
           };
@@ -77,7 +87,8 @@
         {
           name = name + "-rootful";
           testScript = makeTestScript {
-            user = "None";
+            systemdUser = "None";
+            podmanUser = "None";
             inherit testScript;
           };
 
@@ -94,6 +105,56 @@
             };
         };
 
+      runRootlessTest =
+        {
+          name,
+          template,
+          pkgs,
+        }:
+        let
+          testCase = makeTestCase template {
+            extraConfig = {
+              rootlessConfig.uid = 1357;
+            };
+            isHomeManager = false;
+            home = "/home/alice";
+          };
+          testConfig = testCase.testConfig;
+          testScript = testCase.testScript;
+          specialisation = testCase.specialisation or (_: { });
+        in
+        {
+          name = name + "-rootless";
+          testScript = makeTestScript {
+            systemdUser = "None";
+            podmanUser = "\"alice\"";
+            inherit testScript;
+          };
+
+          node.specialArgs.testType = "rootless";
+          nodes.machine =
+            { pkgs, ... }@attrs:
+            {
+              imports = [
+                quadlet-nix.nixosModules.quadlet
+                testConfig
+              ];
+              environment.systemPackages = [ pkgs.curl ];
+              specialisation = builtins.mapAttrs (name: value: { configuration = value; }) (specialisation attrs);
+
+              users.users.alice = {
+                uid = 1357;
+                group = "alice";
+                linger = true;
+                autoSubUidGidRange = true;
+                isNormalUser = true;
+              };
+              users.groups.alice = {
+                gid = 2468;
+              };
+            };
+        };
+
       runHomeManagerTest =
         {
           name,
@@ -102,6 +163,7 @@
         }:
         let
           testCase = makeTestCase template {
+            extraConfig = { };
             isHomeManager = true;
             home = "/home/alice";
           };
@@ -112,7 +174,8 @@
         {
           name = name + "-home-manager";
           testScript = makeTestScript {
-            user = "\"alice\"";
+            systemdUser = "\"alice\"";
+            podmanUser = "\"alice\"";
             inherit testScript;
           };
 
@@ -209,6 +272,7 @@
                 ];
                 runner = [
                   runRootfulTest
+                  runRootlessTest
                   runHomeManagerTest
                 ];
               }

@@ -15,6 +15,7 @@ let
     autoEscape = config.virtualisation.quadlet.autoEscape;
   };
   quadletOptions = import ./options.nix {
+    supportRootless = true;
     inherit lib quadletUtils;
   };
 in
@@ -60,7 +61,8 @@ in
             # systemd recommends multi-user.target over default.target.
             # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#default.target
             wantedBy = if p._autoStart then [ "multi-user.target" ] else [ ];
-          };
+          }
+          // p._overrides;
         }) allObjects
       );
 

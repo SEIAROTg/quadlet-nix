@@ -253,12 +253,16 @@ in
       }
       // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    {
-      _serviceName = "${name}-build";
-      _configText =
-        if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
-      _autoStart = config.autoStart;
-      _autoEscapeRequired = quadletUtils.autoEscapeRequired buildConfig buildOpts;
-      ref = "${name}.build";
-    };
+    lib.pipe
+      {
+        _serviceName = "${name}-build";
+        _configText =
+          if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
+        _autoStart = config.autoStart;
+        _autoEscapeRequired = quadletUtils.autoEscapeRequired buildConfig buildOpts;
+        ref = "${name}.build";
+      }
+      [
+        (quadletOptions.applyRootlessConfig config)
+      ];
 }

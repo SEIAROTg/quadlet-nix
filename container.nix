@@ -779,12 +779,19 @@ in
       }
       // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    {
-      _serviceName = name;
-      _configText =
-        if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
-      _autoStart = config.autoStart;
-      _autoEscapeRequired = quadletUtils.autoEscapeRequired containerConfig containerOpts;
-      ref = "${name}.container";
-    };
+    lib.pipe
+      {
+        _serviceName = name;
+        _configText =
+          if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
+        _autoStart = config.autoStart;
+        _autoEscapeRequired = quadletUtils.autoEscapeRequired containerConfig containerOpts;
+        ref = "${name}.container";
+
+        # quadlet default is "split" which does not work rootless under system systemd.
+        containerConfig.cgroupsMode = lib.mkIf config._rootless (lib.mkDefault "enabled");
+      }
+      [
+        (quadletOptions.applyRootlessConfig config)
+      ];
 }

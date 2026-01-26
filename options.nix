@@ -1,5 +1,33 @@
-{ lib, quadletUtils }:
+{
+  lib,
+  quadletUtils,
+  supportRootless,
+}:
 let
+  unionOfDisjointRecursive =
+    x: y:
+    let
+      intersectionY = builtins.intersectAttrs x y;
+      intersectionX = builtins.mapAttrs (n: _: x.${n}) intersectionY;
+      mergeFn =
+        name: values:
+        let
+          x = builtins.elemAt values 0;
+          y = builtins.elemAt values 1;
+        in
+        if builtins.isAttrs x && builtins.isAttrs y then
+          unionOfDisjointRecursive x y
+        else if x == y then
+          x
+        else
+          throw "unionOfDisjointRecursive: collision on ${name}";
+      merged = builtins.zipAttrsWith mergeFn [
+        intersectionX
+        intersectionY
+      ];
+    in
+    x // y // merged;
+
   mkOption =
     {
       property,
@@ -37,71 +65,103 @@ let
     };
   };
 
-  mkCommonObjectOptions = objectType: {
-    quadletConfig = quadletOpts;
+  mkCommonObjectOptions =
+    objectType:
+    {
+      quadletConfig = quadletOpts;
 
-    autoStart = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "When enabled, this ${objectType} is automatically started on boot.";
-    };
+      autoStart = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "When enabled, this ${objectType} is automatically started on boot.";
+      };
 
-    unitConfig = lib.mkOption {
-      type = lib.types.attrsOf quadletUtils.unitOption;
-      default = { };
-      description = "systemd unit config passed through to [Unit] section.";
-    };
+      unitConfig = lib.mkOption {
+        type = lib.types.attrsOf quadletUtils.unitOption;
+        default = { };
+        description = "systemd unit config passed through to [Unit] section.";
+      };
 
-    serviceConfig = lib.mkOption {
-      type = lib.types.attrsOf quadletUtils.unitOption;
-      default = { };
-      description = "systemd service config passed through to [Service] section.";
-    };
+      serviceConfig = lib.mkOption {
+        type = lib.types.attrsOf quadletUtils.unitOption;
+        default = { };
+        description = "systemd service config passed through to [Service] section.";
+      };
 
-    rawConfig = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = ''
-        Raw quadlet config text. Using this will cause all other options
-        contributing to quadlet files to be ignored. autoStart is not affected.
-      '';
-    };
+      rawConfig = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = ''
+          Raw quadlet config text. Using this will cause all other options
+          contributing to quadlet files to be ignored. autoStart is not affected.
+        '';
+      };
 
-    _serviceName = lib.mkOption {
-      internal = true;
-      description = "Name of the systemd service unit, without the .service suffix.";
-    };
+      _serviceName = lib.mkOption {
+        internal = true;
+        description = "Name of the systemd service unit, without the .service suffix.";
+      };
 
-    _configText = lib.mkOption {
-      internal = true;
-      description = "Generated quadlet config text";
-    };
+      _configText = lib.mkOption {
+        internal = true;
+        description = "Generated quadlet config text";
+      };
 
-    _autoStart = lib.mkOption {
-      internal = true;
-      description = "Whether the service is automatically started on boot.";
-    };
+      _autoStart = lib.mkOption {
+        internal = true;
+        description = "Whether the service is automatically started on boot.";
+      };
 
-    _autoEscapeRequired = lib.mkOption {
-      internal = true;
-      description = ''
-        Whether `autoEscape` needs to be switched on for correct encoding.
-        This is false if already on.
-      '';
-    };
+      _autoEscapeRequired = lib.mkOption {
+        internal = true;
+        description = ''
+          Whether `autoEscape` needs to be switched on for correct encoding.
+          This is false if already on.
+        '';
+      };
 
-    ref = lib.mkOption {
-      readOnly = true;
-      description = ''
-        Reference to this ${objectType} from other quadlets.
+      _rootless = lib.mkOption {
+        internal = true;
+        default = false;
+        description = ''
+          Whether to run rootless under system systemd.
+        '';
+      };
 
-        Quadlet resolves this to object (e.g. container) names and sets up appropriate systemd dependencies.
+      _overrides = lib.mkOption {
+        internal = true;
+        default = { };
+        description = ''
+          Overrides to apply on systemd.services.<name>. Not applicable to user systemd.
+        '';
+      };
 
-        This is recognized for most quadlet native options, but not by Podman command line.
-        Using this inside `podmanArgs` will therefore unlikely to work.
-      '';
-    };
-  };
+      ref = lib.mkOption {
+        readOnly = true;
+        description = ''
+          Reference to this ${objectType} from other quadlets.
+
+          Quadlet resolves this to object (e.g. container) names and sets up appropriate systemd dependencies.
+
+          This is recognized for most quadlet native options, but not by Podman command line.
+          Using this inside `podmanArgs` will therefore unlikely to work.
+        '';
+      };
+    }
+    // (
+      if !supportRootless then
+        { }
+      else
+        {
+          rootlessConfig = {
+            uid = lib.mkOption {
+              type = lib.types.nullOr lib.types.int;
+              default = null;
+              description = "User ID to run rootless podman as";
+            };
+          };
+        }
+    );
 
   commonTopLevelOptions =
     let
@@ -190,6 +250,26 @@ let
     mkTopLevelOptions = extraOptions: lib.attrsets.unionOfDisjoint commonTopLevelOptions extraOptions;
 
     inherit getAllObjects;
+
+    applyRootlessConfig =
+      prev: cfg:
+      let
+        isEnabled = supportRootless && prev.rootlessConfig.uid != null;
+        ifEnabled = lib.mkIf isEnabled;
+        userService = "user@${toString prev.rootlessConfig.uid}.service";
+      in
+      unionOfDisjointRecursive cfg {
+        _rootless = isEnabled;
+        serviceConfig.User = ifEnabled prev.rootlessConfig.uid;
+        unitConfig.Wants = ifEnabled (lib.mkAfter [ "linger-users.service" ]);
+        unitConfig.Requires = ifEnabled (lib.mkAfter [ userService ]);
+        unitConfig.After = ifEnabled (
+          lib.mkAfter [
+            "linger-users.service"
+            userService
+          ]
+        );
+      };
 
     mkAssertions =
       extraAssertions: config:

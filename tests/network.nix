@@ -1,3 +1,4 @@
+{ extraConfig, ... }:
 {
   testConfig =
     { pkgs, config, ... }:
@@ -7,47 +8,49 @@
           inherit (config.virtualisation.quadlet) networks;
         in
         {
-          containers.nginx.containerConfig = {
-            image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
-            publishPorts = [ "8080:80" ];
-            networks = [
-              networks.foo.ref
-              networks.bar.ref
-            ];
-          };
+          containers.nginx = {
+            containerConfig = {
+              image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
+              publishPorts = [ "8080:80" ];
+              networks = [
+                networks.foo.ref
+                networks.bar.ref
+              ];
+            };
+          }
+          // extraConfig;
           networks.foo = {
             networkConfig.options.isolate = "true";
-          };
-          networks.bar = { };
+          }
+          // extraConfig;
+          networks.bar = { } // extraConfig;
         };
     };
   testScript = ''
-    machine.wait_for_unit("default.target")
-    machine.wait_for_unit("default.target", user=user)
-    machine.wait_for_unit("nginx.service", user=user, timeout=30)
+    machine.wait_for_unit("nginx.service", user=systemd_user, timeout=30)
     assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
 
-    containers = get_containers(user=user)
+    containers = get_containers()
     assert containers.keys() == {"nginx"}
-    networks = get_networks(user=user)
+    networks = get_networks()
     assert networks.keys() == {"foo", "bar", "podman"}
     assert set(containers["nginx"]["Networks"]) == {"foo", "bar"}
     assert networks["foo"]["options"]["isolate"] == "true"
-    if user is not None:
+    if podman_user is not None:
       assert not get_containers(user=None)
       assert get_networks(user=None).keys() == {"podman"}
 
-    machine.stop_job("foo-network", user=user)
+    machine.stop_job("foo-network", user=systemd_user)
     machine.fail("curl http://127.0.0.1:8080")
-    assert not get_containers(user=user)
-    networks = get_networks(user=user)
+    assert not get_containers()
+    networks = get_networks()
     assert networks.keys() == {"bar", "podman"}
 
-    machine.start_job("nginx", user=user)
+    machine.start_job("nginx", user=systemd_user)
     assert "nginx" in machine.succeed("curl http://127.0.0.1:8080").lower()
-    containers = get_containers(user=user)
+    containers = get_containers()
     assert containers.keys() == {"nginx"}
-    networks = get_networks(user=user)
+    networks = get_networks()
     assert networks.keys() == {"foo", "bar", "podman"}
   '';
 }
