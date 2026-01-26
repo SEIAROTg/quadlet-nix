@@ -40,6 +40,20 @@ let
       property = "AuthFile";
     };
 
+    buildArgs = quadletOptions.mkOption {
+      type = types.oneOf [
+        (types.listOf types.str)
+        (types.attrsOf types.str)
+      ];
+      default = { };
+      example = {
+        foo = "bar";
+      };
+      cli = "--build-arg";
+      property = "BuildArg";
+      encoders.scalar = encoders.scalar.quotedEscaped;
+    };
+
     modules = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -113,6 +127,14 @@ let
       example = [ "keep-groups" ];
       cli = "--group-add";
       property = "GroupAdd";
+    };
+
+    ignoreFile = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "/path/to/.customignore";
+      cli = "--ignorefile";
+      property = "IgnoreFile";
     };
 
     tag = quadletOptions.mkOption {

@@ -64,6 +64,14 @@ let
       encoders.scalar = encoders.scalar.quotedEscaped;
     };
 
+    interfaceName = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "enp1";
+      cli = "--interface-name";
+      property = "InterfaceName";
+    };
+
     internal = quadletOptions.mkOption {
       type = types.nullOr types.bool;
       default = null;

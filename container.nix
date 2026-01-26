@@ -63,6 +63,14 @@ let
       property = "AutoUpdate";
     };
 
+    appArmor = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "alternate-profile";
+      cli = "--security-opt apparmor=...";
+      property = "AppArmor";
+    };
+
     cgroupsMode = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
@@ -338,6 +346,13 @@ let
       example = "new-host-name";
       cli = "--hostname";
       property = "HostName";
+    };
+
+    httpProxy = quadletOptions.mkOption {
+      type = types.nullOr types.bool;
+      default = null;
+      cli = "--http-proxy";
+      property = "HttpProxy";
     };
 
     image = quadletOptions.mkOption {

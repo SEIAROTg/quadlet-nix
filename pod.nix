@@ -58,6 +58,14 @@ let
       property = "DNSSearch";
     };
 
+    exitPolicy = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "stop";
+      cli = "--exit-policy";
+      property = "ExitPolicy";
+    };
+
     gidMaps = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -155,6 +163,14 @@ let
       example = "100m";
       cli = "--shm-size";
       property = "ShmSize";
+    };
+
+    stopTimeout = quadletOptions.mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      example = 20;
+      cli = "--time";
+      property = "StopTimeout";
     };
 
     subGIDMap = quadletOptions.mkOption {
