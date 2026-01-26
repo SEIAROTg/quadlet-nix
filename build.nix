@@ -11,7 +11,10 @@ let
 
   buildOpts = {
     annotations = quadletOptions.mkOption {
-      type = types.oneOf [ (types.listOf types.str) (types.attrsOf types.str) ];
+      type = types.oneOf [
+        (types.listOf types.str)
+        (types.attrsOf types.str)
+      ];
       default = { };
       example = {
         annotation = "value";
@@ -121,7 +124,10 @@ let
     };
 
     labels = quadletOptions.mkOption {
-      type = types.oneOf [ (types.listOf types.str) (types.attrsOf types.str) ];
+      type = types.oneOf [
+        (types.listOf types.str)
+        (types.attrsOf types.str)
+      ];
       default = { };
       example = {
         foo = "bar";
@@ -240,20 +246,23 @@ in
       unitConfig = {
         Unit = {
           Description = "Podman build ${name}";
-        } // config.unitConfig;
+        }
+        // config.unitConfig;
         Build = quadletUtils.configToProperties buildConfig buildOpts;
         Service = serviceConfigDefault // config.serviceConfig;
-      } // (if quadlet == { } then { } else { Quadlet = quadlet; });
+      }
+      // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    lib.pipe {
-      _serviceName = "${name}-build";
-      _configText = if config.rawConfig != null
-        then config.rawConfig
-        else quadletUtils.unitConfigToText unitConfig;
-      _autoStart = config.autoStart;
-      _autoEscapeRequired = quadletUtils.autoEscapeRequired buildConfig buildOpts;
-      ref = "${name}.build";
-    } [
-      (quadletOptions.applyRootlessConfig config)
-    ];
+    lib.pipe
+      {
+        _serviceName = "${name}-build";
+        _configText =
+          if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
+        _autoStart = config.autoStart;
+        _autoEscapeRequired = quadletUtils.autoEscapeRequired buildConfig buildOpts;
+        ref = "${name}.build";
+      }
+      [
+        (quadletOptions.applyRootlessConfig config)
+      ];
 }

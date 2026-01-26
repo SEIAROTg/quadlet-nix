@@ -1,17 +1,21 @@
-{ extraConfig, ... }: {
-  testConfig = { pkgs, ... }: {
-    virtualisation.quadlet = {
-      containers.nginx = {
-        rawConfig = ''
-          [Container]
-          Image=docker-archive:${pkgs.dockerTools.examples.nginx}
-          PublishPort=8080:80
-          [Service]
-          TimeoutStartSec=60
-        '';
-      } // extraConfig;
+{ extraConfig, ... }:
+{
+  testConfig =
+    { pkgs, ... }:
+    {
+      virtualisation.quadlet = {
+        containers.nginx = {
+          rawConfig = ''
+            [Container]
+            Image=docker-archive:${pkgs.dockerTools.examples.nginx}
+            PublishPort=8080:80
+            [Service]
+            TimeoutStartSec=60
+          '';
+        }
+        // extraConfig;
+      };
     };
-  };
   testScript = ''
     machine.wait_for_unit("nginx.service", user=systemd_user, timeout=30)
 

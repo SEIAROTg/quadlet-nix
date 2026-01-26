@@ -69,7 +69,7 @@ let
 
     globalArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
-      default = [  ];
+      default = [ ];
       example = [ "--log-level=debug" ];
       description = "Additional command line arguments to insert between `podman` and `pod create`";
       property = "GlobalArgs";
@@ -101,7 +101,10 @@ let
     };
 
     labels = quadletOptions.mkOption {
-      type = types.oneOf [ (types.listOf types.str) (types.attrsOf types.str) ];
+      type = types.oneOf [
+        (types.listOf types.str)
+        (types.attrsOf types.str)
+      ];
       default = { };
       example = {
         foo = "bar";
@@ -215,35 +218,40 @@ in
       unitConfig = {
         Unit = {
           Description = "Podman pod ${name}";
-        } // config.unitConfig;
+        }
+        // config.unitConfig;
         Pod = quadletUtils.configToProperties podConfig podOpts;
         Service = serviceConfigDefault // config.serviceConfig;
-      } // (if quadlet == { } then { } else { Quadlet = quadlet; });
+      }
+      // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    lib.pipe {
-      _serviceName = "${name}-pod";
-      _configText = if config.rawConfig != null
-        then config.rawConfig
-        else quadletUtils.unitConfigToText unitConfig;
-      _autoEscapeRequired = quadletUtils.autoEscapeRequired podConfig podOpts;
-      _autoStart = config.autoStart;
-      ref = "${name}.pod";
+    lib.pipe
+      {
+        _serviceName = "${name}-pod";
+        _configText =
+          if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
+        _autoEscapeRequired = quadletUtils.autoEscapeRequired podConfig podOpts;
+        _autoStart = config.autoStart;
+        ref = "${name}.pod";
 
-      # Quadlet manages pod infra container with PIDFile= at %t/%N.pid, which
-      # rootless process has no access to.
-      # We could point PIDFile= at another location but systemd won't be happy
-      # as the file is owned by unprivileged user, and the process is out of the
-      # service.
-      # We therefore make it a Type=oneshot instead of Type=forking, at the risk
-      # of leaking process in case stop command didn't work.
-      podConfig.podmanArgs = lib.mkIf config._rootless (lib.mkAfter [ "--infra-conmon-pidfile=" ]);
-      serviceConfig.Type = lib.mkIf config._rootless (lib.mkDefault "oneshot");
-      serviceConfig.RemainAfterExit = lib.mkIf config._rootless (lib.mkDefault "yes");
-      # Type= as a singular field will be overwritten by Quadlet, so force applies via overrides.
-      _overrides =
-        if builtins.hasAttr "Type" config.serviceConfig
-        then { serviceConfig.Type = config.serviceConfig.Type; } else { };
-    } [
-      (quadletOptions.applyRootlessConfig config)
-    ];
+        # Quadlet manages pod infra container with PIDFile= at %t/%N.pid, which
+        # rootless process has no access to.
+        # We could point PIDFile= at another location but systemd won't be happy
+        # as the file is owned by unprivileged user, and the process is out of the
+        # service.
+        # We therefore make it a Type=oneshot instead of Type=forking, at the risk
+        # of leaking process in case stop command didn't work.
+        podConfig.podmanArgs = lib.mkIf config._rootless (lib.mkAfter [ "--infra-conmon-pidfile=" ]);
+        serviceConfig.Type = lib.mkIf config._rootless (lib.mkDefault "oneshot");
+        serviceConfig.RemainAfterExit = lib.mkIf config._rootless (lib.mkDefault "yes");
+        # Type= as a singular field will be overwritten by Quadlet, so force applies via overrides.
+        _overrides =
+          if builtins.hasAttr "Type" config.serviceConfig then
+            { serviceConfig.Type = config.serviceConfig.Type; }
+          else
+            { };
+      }
+      [
+        (quadletOptions.applyRootlessConfig config)
+      ];
 }

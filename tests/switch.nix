@@ -1,4 +1,5 @@
-{ extraConfig, ... }: let
+{ extraConfig, ... }:
+let
   makeQuadletConfig = pkgs: networks: {
     containers.nginx = {
       containerConfig = {
@@ -6,22 +7,36 @@
         publishPorts = [ "8080:80" ];
         networks = map (x: "${x}.network") networks;
       };
-    } // extraConfig;
-    networks = builtins.listToAttrs (map (x: {
-      name = x;
-      value = { networkConfig.name = x; } // extraConfig;
-    }) networks);
+    }
+    // extraConfig;
+    networks = builtins.listToAttrs (
+      map (x: {
+        name = x;
+        value = {
+          networkConfig.name = x;
+        }
+        // extraConfig;
+      }) networks
+    );
   };
-in {
-  testConfig = { lib, pkgs, ... }: {
-    virtualisation.quadlet = lib.mkDefault (makeQuadletConfig pkgs [ "foo" ]);
-  };
+in
+{
+  testConfig =
+    { lib, pkgs, ... }:
+    {
+      virtualisation.quadlet = lib.mkDefault (makeQuadletConfig pkgs [ "foo" ]);
+    };
 
-  specialisation = { pkgs, ... }: {
-    step1Add.virtualisation.quadlet = makeQuadletConfig pkgs [ "foo" "bar" ];
-    step2Remove.virtualisation.quadlet = makeQuadletConfig  pkgs [ "bar" ];
-    step3AddRemove.virtualisation.quadlet = makeQuadletConfig pkgs [ "baz" ];
-  };
+  specialisation =
+    { pkgs, ... }:
+    {
+      step1Add.virtualisation.quadlet = makeQuadletConfig pkgs [
+        "foo"
+        "bar"
+      ];
+      step2Remove.virtualisation.quadlet = makeQuadletConfig pkgs [ "bar" ];
+      step3AddRemove.virtualisation.quadlet = makeQuadletConfig pkgs [ "baz" ];
+    };
 
   testScript = ''
     def check(expected_networks: set[str]) -> None:

@@ -1,27 +1,35 @@
-{ extraConfig, ... }: {
-  testConfig = { pkgs, config, ... }: {
-    virtualisation.quadlet = let
-     inherit (config.virtualisation.quadlet) pods;
-    in {
-      containers.nginx = {
-        containerConfig = {
-          image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
-          pod = pods.foo.ref;
+{ extraConfig, ... }:
+{
+  testConfig =
+    { pkgs, config, ... }:
+    {
+      virtualisation.quadlet =
+        let
+          inherit (config.virtualisation.quadlet) pods;
+        in
+        {
+          containers.nginx = {
+            containerConfig = {
+              image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
+              pod = pods.foo.ref;
+            };
+          }
+          // extraConfig;
+          containers.redis = {
+            containerConfig = {
+              image = "docker-archive:${pkgs.dockerTools.examples.redis}";
+              pod = pods.foo.ref;
+            };
+          }
+          // extraConfig;
+          pods.foo = {
+            podConfig = {
+              publishPorts = [ "8080:80" ];
+            };
+          }
+          // extraConfig;
         };
-      } // extraConfig;
-      containers.redis = {
-        containerConfig = {
-          image = "docker-archive:${pkgs.dockerTools.examples.redis}";
-          pod = pods.foo.ref;
-        };
-      } // extraConfig;
-      pods.foo = {
-        podConfig = {
-          publishPorts = [ "8080:80" ];
-        };
-      } // extraConfig;
     };
-  };
   testScript = ''
     machine.wait_for_unit("nginx.service", user=systemd_user, timeout=30)
     machine.wait_for_unit("redis.service", user=systemd_user, timeout=30)

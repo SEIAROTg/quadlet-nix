@@ -57,7 +57,7 @@ let
 
     globalArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
-      default = [  ];
+      default = [ ];
       example = [ "--log-level=debug" ];
       description = "Additional command line arguments to insert between `podman` and `network create`";
       property = "GlobalArgs";
@@ -101,7 +101,10 @@ let
     };
 
     labels = quadletOptions.mkOption {
-      type = types.oneOf [ (types.listOf types.str) (types.attrsOf types.str) ];
+      type = types.oneOf [
+        (types.listOf types.str)
+        (types.attrsOf types.str)
+      ];
       default = { };
       example = {
         foo = "bar";
@@ -128,7 +131,11 @@ let
 
     options = quadletOptions.mkOption {
       # TODO: drop string support and remove warning.
-      type = types.oneOf [ types.str (types.listOf types.str) (types.attrsOf types.str) ];
+      type = types.oneOf [
+        types.str
+        (types.listOf types.str)
+        (types.attrsOf types.str)
+      ];
       default = { };
       example = {
         isolate = "true";
@@ -163,8 +170,7 @@ in
 
   config =
     let
-      networkName =
-        if config.networkConfig.name != null then config.networkConfig.name else name;
+      networkName = if config.networkConfig.name != null then config.networkConfig.name else name;
       networkConfig = config.networkConfig // {
         name = networkName;
       };
@@ -172,23 +178,27 @@ in
       unitConfig = {
         Unit = {
           Description = "Podman network ${name}";
-        } // config.unitConfig;
+        }
+        // config.unitConfig;
         Network = quadletUtils.configToProperties networkConfig networkOpts;
         Service = {
           # TODO: switches to NetworkDeleteOnStop once podman in stable nixpkgs supports it
           ExecStop = "${getExe quadletUtils.podmanPackage} network rm ${networkName}";
-        } // config.serviceConfig;
-      } // (if quadlet == { } then { } else { Quadlet = quadlet; });
+        }
+        // config.serviceConfig;
+      }
+      // (if quadlet == { } then { } else { Quadlet = quadlet; });
     in
-    lib.pipe {
-      _serviceName = "${name}-network";
-      _configText = if config.rawConfig != null
-        then config.rawConfig
-        else quadletUtils.unitConfigToText unitConfig;
-      _autoStart = config.autoStart;
-      _autoEscapeRequired = quadletUtils.autoEscapeRequired networkConfig networkOpts;
-      ref = "${name}.network";
-    } [
-      (quadletOptions.applyRootlessConfig config)
-    ];
+    lib.pipe
+      {
+        _serviceName = "${name}-network";
+        _configText =
+          if config.rawConfig != null then config.rawConfig else quadletUtils.unitConfigToText unitConfig;
+        _autoStart = config.autoStart;
+        _autoEscapeRequired = quadletUtils.autoEscapeRequired networkConfig networkOpts;
+        ref = "${name}.network";
+      }
+      [
+        (quadletOptions.applyRootlessConfig config)
+      ];
 }

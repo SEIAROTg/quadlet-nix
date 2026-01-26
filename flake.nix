@@ -1,7 +1,7 @@
 {
   description = "NixOS and home-manager module for Podman Quadlets";
 
-  outputs = 
+  outputs =
     { self }:
     {
       nixosModules.quadlet = ./nixos-module.nix;
