@@ -9,7 +9,7 @@ let
 
   cfg = config.virtualisation.quadlet;
   quadletUtils = import ./utils.nix {
-    inherit lib;
+    inherit pkgs lib;
     inherit (import (pkgs.path + "/nixos/lib/utils.nix") { inherit lib config pkgs; }) systemdUtils;
     podmanPackage = config.virtualisation.podman.package;
     autoEscape = config.virtualisation.quadlet.autoEscape;

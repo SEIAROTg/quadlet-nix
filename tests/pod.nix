@@ -60,5 +60,10 @@
     assert containers.keys() >= {"nginx", "redis"}
     pods = get_pods()
     assert pods.keys() == {"foo"}
+
+    run_as("podman pod stop foo", user=podman_user)
+    wait_for_unit_inactive("foo-pod.service", user=systemd_user, timeout=10)
+    wait_for_unit_inactive("nginx.service", user=systemd_user, timeout=10)
+    wait_for_unit_inactive("redis.service", user=systemd_user, timeout=10)
   '';
 }

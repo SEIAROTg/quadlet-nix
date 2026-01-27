@@ -39,21 +39,38 @@
           podman_user = ${podmanUser}
           systemd_user = ${systemdUser}
 
-          def _run_as_user(command: str, *, user: Optional[str]) -> str:
+          def run_as(command: str, *, user: Optional[str]) -> str:
             if user is not None:
               command = f"sudo -u {user} -- {command}"
             return machine.succeed(command)
 
+          def wait_for_unit_inactive(unit: str, *, user: Optional[str], timeout: int) -> None:
+            def check_active(_last_try: bool) -> bool:
+              state = machine.get_unit_property(unit, "ActiveState", user)
+
+              if state == "inactive":
+                return True
+              if state in ("active", "deactivating"):
+                return False
+              assert False, f"{unit} reached state {state}"
+
+            with machine.nested(
+              f"waiting for unit {unit}"
+              + (f" with user {user}" if user is not None else "")
+              + " to be inactive"
+            ):
+              retry(check_active, timeout)
+
           def get_containers(*, user: Optional[str] = podman_user) -> dict[str, dict[str, Any]]:
-            containers = json.loads(_run_as_user("podman ps --format=json", user=user))
+            containers = json.loads(run_as("podman ps --format=json", user=user))
             return {name: container for container in containers for name in container["Names"]}
 
           def get_networks(*, user: Optional[str] = podman_user) -> dict[str, dict[str, Any]]:
-            networks = json.loads(_run_as_user("podman network ls --format=json", user=user))
+            networks = json.loads(run_as("podman network ls --format=json", user=user))
             return {network["name"]: network for network in networks}
 
           def get_pods(*, user: Optional[str] = podman_user) -> dict[str, dict[str, Any]]:
-            pods = json.loads(_run_as_user("podman pod ls --format=json", user=user))
+            pods = json.loads(run_as("podman pod ls --format=json", user=user))
             return {pod["Name"]: pod for pod in pods}
 
           def switch_to_specialisation(specialisation: str) -> str:

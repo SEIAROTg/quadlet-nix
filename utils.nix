@@ -1,4 +1,5 @@
 {
+  pkgs,
   lib,
   systemdUtils,
   podmanPackage,
@@ -97,6 +98,30 @@ let
     in
     lib.mapAttrs' encodeEntry nonNullConfig;
 
+  unionOfDisjointRecursive =
+    x: y:
+    let
+      intersectionY = builtins.intersectAttrs x y;
+      intersectionX = builtins.mapAttrs (n: _: x.${n}) intersectionY;
+      mergeFn =
+        name: values:
+        let
+          x = builtins.elemAt values 0;
+          y = builtins.elemAt values 1;
+        in
+        if builtins.isAttrs x && builtins.isAttrs y then
+          unionOfDisjointRecursive x y
+        else if x == y then
+          x
+        else
+          throw "unionOfDisjointRecursive: collision on ${name}";
+      merged = builtins.zipAttrsWith mergeFn [
+        intersectionX
+        intersectionY
+      ];
+    in
+    x // y // merged;
+
 in
 {
   configToProperties = config: options: configToProperties autoEscape config options;
@@ -116,5 +141,10 @@ in
     asssertions: map (x: x.message) (builtins.filter (x: !x.assertion) asssertions);
 
   inherit (systemdUtils.unitOptions) unitOption;
-  inherit podmanPackage encoders;
+  inherit
+    pkgs
+    podmanPackage
+    encoders
+    unionOfDisjointRecursive
+    ;
 }

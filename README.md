@@ -202,7 +202,7 @@ See [seiarotg.github.io/quadlet-nix](https://seiarotg.github.io/quadlet-nix) for
 <details>
 <summary>Rootless containers (in system systemd)</summary>
 
-⚠️ Use at your own risk. This is not officially supported by Podman.
+⚠️ Not officially supported by Podman. Use at your own risk and expect breaking changes.
 
 ```nix
 { config, ... }: {

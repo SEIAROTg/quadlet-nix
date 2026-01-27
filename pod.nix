@@ -7,7 +7,7 @@
 }:
 let
   inherit (lib) types;
-  inherit (quadletUtils) encoders;
+  inherit (quadletUtils) encoders pkgs;
 
   podOpts = {
     name = quadletOptions.mkOption {
@@ -240,6 +240,7 @@ in
         Service = serviceConfigDefault // config.serviceConfig;
       }
       // (if quadlet == { } then { } else { Quadlet = quadlet; });
+      rootlessPidFilePath = "/run/user/${toString config.rootlessConfig.uid}/%N.pid";
     in
     lib.pipe
       {
@@ -250,22 +251,48 @@ in
         _autoStart = config.autoStart;
         ref = "${name}.pod";
 
+        # [rootless hack]
         # Quadlet manages pod infra container with PIDFile= at %t/%N.pid, which
         # rootless process has no access to.
-        # We could point PIDFile= at another location but systemd won't be happy
-        # as the file is owned by unprivileged user, and the process is out of the
-        # service.
-        # We therefore make it a Type=oneshot instead of Type=forking, at the risk
-        # of leaking process in case stop command didn't work.
-        podConfig.podmanArgs = lib.mkIf config._rootless (lib.mkAfter [ "--infra-conmon-pidfile=" ]);
-        serviceConfig.Type = lib.mkIf config._rootless (lib.mkDefault "oneshot");
-        serviceConfig.RemainAfterExit = lib.mkIf config._rootless (lib.mkDefault "yes");
-        # Type= as a singular field will be overwritten by Quadlet, so force applies via overrides.
+        # Simply pointing PIDFile= at another location does not help as system
+        # systemd does not like PIDFIle= owned by unprivileged user while the
+        # process is out of the service.
+        # We therefore make it a Type=simple and wait for the pid in service.
+        podConfig.podmanArgs = lib.mkIf config._rootless (
+          lib.mkAfter [ "--infra-conmon-pidfile=${rootlessPidFilePath}" ]
+        );
+        serviceConfig.Type = lib.mkIf config._rootless (lib.mkDefault "simple");
+        serviceConfig.ExecStart = lib.mkIf config._rootless (
+          lib.mkDefault "/bin/sh -c \"${quadletUtils.podmanPackage}/bin/podman pod start ${podName} && (read pid < ${rootlessPidFilePath}; exec ${pkgs.coreutils}/bin/tail -f --pid \${pid:?})\""
+        );
+        serviceConfig.ExecStopPost = lib.mkIf config._rootless (
+          lib.mkAfter [
+            "${pkgs.coreutils}/bin/rm -f ${rootlessPidFilePath}"
+          ]
+        );
+
+        # some options conflict with stock quadlet and thus need force overriding
         _overrides =
-          if builtins.hasAttr "Type" config.serviceConfig then
-            { serviceConfig.Type = config.serviceConfig.Type; }
-          else
-            { };
+          quadletUtils.unionOfDisjointRecursive
+            (
+              # Type= as a singular field will be overwritten by Quadlet
+              if builtins.hasAttr "Type" config.serviceConfig then
+                { serviceConfig.Type = config.serviceConfig.Type; }
+              else
+                { }
+            )
+            (
+              # Type=simple does not support multiple ExecStart
+              if builtins.hasAttr "ExecStart" config.serviceConfig then
+                {
+                  serviceConfig.ExecStart = [
+                    ""
+                    config.serviceConfig.ExecStart
+                  ];
+                }
+              else
+                { }
+            );
       }
       [
         (quadletOptions.applyRootlessConfig config)

@@ -4,30 +4,6 @@
   supportRootless,
 }:
 let
-  unionOfDisjointRecursive =
-    x: y:
-    let
-      intersectionY = builtins.intersectAttrs x y;
-      intersectionX = builtins.mapAttrs (n: _: x.${n}) intersectionY;
-      mergeFn =
-        name: values:
-        let
-          x = builtins.elemAt values 0;
-          y = builtins.elemAt values 1;
-        in
-        if builtins.isAttrs x && builtins.isAttrs y then
-          unionOfDisjointRecursive x y
-        else if x == y then
-          x
-        else
-          throw "unionOfDisjointRecursive: collision on ${name}";
-      merged = builtins.zipAttrsWith mergeFn [
-        intersectionX
-        intersectionY
-      ];
-    in
-    x // y // merged;
-
   mkOption =
     {
       property,
@@ -258,7 +234,7 @@ let
         ifEnabled = lib.mkIf isEnabled;
         userService = "user@${toString prev.rootlessConfig.uid}.service";
       in
-      unionOfDisjointRecursive cfg {
+      quadletUtils.unionOfDisjointRecursive cfg {
         _rootless = isEnabled;
         serviceConfig.User = ifEnabled prev.rootlessConfig.uid;
         unitConfig.Wants = ifEnabled (lib.mkAfter [ "linger-users.service" ]);
