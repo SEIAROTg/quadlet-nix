@@ -13,6 +13,7 @@
               image = "docker-archive:${pkgs.dockerTools.examples.nginx}";
               pod = pods.foo.ref;
             };
+            serviceConfig.Restart = "on-failure";
           }
           // extraConfig;
           containers.redis = {
@@ -20,6 +21,7 @@
               image = "docker-archive:${pkgs.dockerTools.examples.redis}";
               pod = pods.foo.ref;
             };
+            serviceConfig.Restart = "on-failure";
           }
           // extraConfig;
           pods.foo = {
