@@ -370,6 +370,41 @@ See: https://docs.podman.io/en/v5.5.0/markdown/podman-run.1.html#image
 </details>
 
 <details>
+<summary>Auto enable dns access for bridges</summary>
+
+Bridge interfaces need DNS access (UDP port 53) opened in the firewall to access the internet. This code automatically configures firewall rules for all bridge-type quadlet networks that have named interfaces.
+
+```nix
+networking.firewall.interfaces =
+  let
+    netCfg = config.virtualisation.quadlet.networks;
+    networksWithInterface = builtins.filter (
+      name:
+      # Only create firewall rule if:
+      # 1) networkConfig has "interfaceName" attribute that is not null
+      # 2) networkConfig has "driver" attribute set to "bridge"
+      netCfg.${name}.networkConfig ? interfaceName
+      && netCfg.${name}.networkConfig ? driver
+      && netCfg.${name}.networkConfig.driver == "bridge"
+      && netCfg.${name}.networkConfig.interfaceName != null
+    ) (builtins.attrNames netCfg);
+
+    firewallConfig = builtins.listToAttrs (
+      map (name: {
+        name = netCfg.${name}.networkConfig.interfaceName;
+        value = {
+          allowedUDPPorts = [ 53 ];
+        };
+      }) networksWithInterface
+    );
+  in
+  lib.mkIf config.networking.firewall.enable firewallConfig;
+```
+
+</details>
+
+
+<details>
 <summary>Dependencies</summary>
 
 Obvious dependencies such as those between containers and their networks are automatically set up by Quadlet, and thus no additional configuration is needed.
