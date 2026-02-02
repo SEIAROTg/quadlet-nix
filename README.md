@@ -370,7 +370,7 @@ See: https://docs.podman.io/en/v5.5.0/markdown/podman-run.1.html#image
 </details>
 
 <details>
-<summary>Auto enable dns access for bridges</summary>
+<summary>Podman DNS not working?</summary>
 
 Bridge interfaces need DNS access (UDP port 53) opened in the firewall to access the internet. This code automatically configures firewall rules for all bridge-type quadlet networks that have named interfaces.
 
