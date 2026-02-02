@@ -419,8 +419,7 @@ networking.firewall.interfaces =
         };
       }) networksWithInterface
     );
-  in
-  lib.mkIf config.networking.firewall.enable firewallConfig;
+  in firewallConfig;
 ```
 
 </details>
