@@ -371,7 +371,29 @@ See: https://docs.podman.io/en/v5.5.0/markdown/podman-run.1.html#image
 
 <details>
 <summary>Podman DNS not working?</summary>
+To use Podman DNS, it needs to be enabled and allowed by your firewall.
 
+For the default network, below sets up both for you:
+
+```nix
+virtualisation.podman.defaultNetwork.settings.dns_enabled = true;
+```
+
+Or if you manage firewall separately, allow UDP port 53 on the input chain on host interface "podman0" and set:
+
+```nix
+virtualisation.podman.defaultNetwork.settings.dns_enabled = true;
+virtualisation.podman.defaultNetwork.settings.network_interface = "podman0";
+```
+
+For custom networks, Podman DNS is enabled by default, unless `disableDns` is set. To set up the firewall rules:
+
+```nix
+virtualisation.quadlet.networks.foo.networkConfig.interfaceName = "br-foo";
+networking.firewall.interfaces.br-foo.allowedUDPPorts = [ 53 ];
+```
+
+To apply this on all networks:
 Bridge interfaces need DNS access (UDP port 53) opened in the firewall to access the internet. This code automatically configures firewall rules for all bridge-type quadlet networks that have named interfaces.
 
 ```nix
