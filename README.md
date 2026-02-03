@@ -397,29 +397,12 @@ To apply this on all networks:
 Bridge interfaces need DNS access (UDP port 53) opened in the firewall to access the internet. This code automatically configures firewall rules for all bridge-type quadlet networks that have named interfaces.
 
 ```nix
-networking.firewall.interfaces =
-  let
-    netCfg = config.virtualisation.quadlet.networks;
-    networksWithInterface = builtins.filter (
-      name:
-      # Only create firewall rule if:
-      # 1) networkConfig has "interfaceName" attribute that is not null
-      # 2) networkConfig has "driver" attribute set to "bridge"
-      netCfg.${name}.networkConfig ? interfaceName
-      && netCfg.${name}.networkConfig ? driver
-      && netCfg.${name}.networkConfig.driver == "bridge"
-      && netCfg.${name}.networkConfig.interfaceName != null
-    ) (builtins.attrNames netCfg);
-
-    firewallConfig = builtins.listToAttrs (
-      map (name: {
-        name = netCfg.${name}.networkConfig.interfaceName;
-        value = {
-          allowedUDPPorts = [ 53 ];
-        };
-      }) networksWithInterface
-    );
-  in firewallConfig;
+{ config, lib, ... }: {
+  networking.firewall.interfaces = lib.mapAttrs' (name: _: {
+    name = "br-${name}";
+    value.allowedUDPPorts = [ 53 ];
+  }) config.virtualisation.quadlet.networks;
+}
 ```
 
 </details>

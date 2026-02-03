@@ -34,14 +34,12 @@ let
     };
 
     driver = quadletOptions.mkOption {
-      type = types.nullOr (
-        types.enum [
-          "bridge"
-          "macvlan"
-          "ipvlan"
-        ]
-      );
-      default = null;
+      type = types.enum [
+        "bridge"
+        "macvlan"
+        "ipvlan"
+      ];
+      default = "bridge";
       example = "bridge";
       cli = "--driver";
       property = "Driver";
@@ -65,8 +63,8 @@ let
     };
 
     interfaceName = quadletOptions.mkOption {
-      type = types.nullOr types.str;
-      default = null;
+      type = types.str;
+      default = "br-${name}";
       example = "enp1";
       cli = "--interface-name";
       property = "InterfaceName";
