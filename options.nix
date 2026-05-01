@@ -36,7 +36,7 @@ let
     defaultDependencies = mkOption {
       type = lib.types.nullOr lib.types.bool;
       default = null;
-      description = "Add Quadlet’s default network dependencies to the unit";
+      description = "Add Quadlet's default network dependencies to the unit";
       property = "DefaultDependencies";
     };
   };
@@ -47,9 +47,9 @@ let
       quadletConfig = quadletOpts;
 
       autoStart = lib.mkOption {
-        type = lib.types.bool;
+        type = lib.types.either lib.types.bool lib.types.str;
         default = true;
-        description = "When enabled, this ${objectType} is automatically started on boot.";
+        description = "When enabled, this ${objectType} is automatically started on boot. Set to a string to use a custom systemd target.";
       };
 
       unitConfig = lib.mkOption {
