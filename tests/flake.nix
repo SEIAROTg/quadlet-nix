@@ -89,7 +89,6 @@
         {
           name,
           template,
-          pkgs,
         }:
         let
           testCase = makeTestCase template {
@@ -117,6 +116,7 @@
                 quadlet-nix.nixosModules.quadlet
                 testConfig
               ];
+              virtualisation.diskSize = 2048; # 2GiB
               environment.systemPackages = [ pkgs.curl ];
               specialisation = builtins.mapAttrs (name: value: { configuration = value; }) (specialisation attrs);
             };
@@ -126,7 +126,6 @@
         {
           name,
           template,
-          pkgs,
         }:
         let
           testCase = makeTestCase template {
@@ -156,6 +155,7 @@
                 quadlet-nix.nixosModules.quadlet
                 testConfig
               ];
+              virtualisation.diskSize = 2048; # 2GiB
               environment.systemPackages = [ pkgs.curl ];
               specialisation = builtins.mapAttrs (name: value: { configuration = value; }) (specialisation attrs);
 
@@ -176,7 +176,6 @@
         {
           name,
           template,
-          pkgs,
         }:
         let
           testCase = makeTestCase template {
@@ -203,6 +202,7 @@
                 quadlet-nix.nixosModules.quadlet
                 home-manager.nixosModules.home-manager
               ];
+              virtualisation.diskSize = 2048; # 2GiB
               virtualisation.quadlet.enable = true;
               environment.systemPackages = [ pkgs.curl ];
 
@@ -256,7 +256,7 @@
           name = pkgs.lib.removeSuffix ".nix" (builtins.baseNameOf template);
           test = pkgs.testers.runNixOSTest (runTest {
             template = import template;
-            inherit name pkgs;
+            inherit name;
           });
         in
         {
