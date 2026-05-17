@@ -152,9 +152,9 @@ let
   };
 in
 {
-  options = quadletOptions.mkObjectOptions "image" {
+  options = lib.pipe (quadletOptions.mkObjectOptions "image" {
     imageConfig = imageOpts;
-  };
+  }) [ quadletOptions.applyRootlessOption ];
 
   config =
     let

@@ -41,103 +41,87 @@ let
     };
   };
 
-  mkCommonObjectOptions =
-    objectType:
-    {
-      quadletConfig = quadletOpts;
+  mkCommonObjectOptions = objectType: {
+    quadletConfig = quadletOpts;
 
-      autoStart = lib.mkOption {
-        type = lib.types.either lib.types.bool lib.types.str;
-        default = true;
-        description = "When enabled, this ${objectType} is automatically started on boot. Set to a string to use a custom systemd target.";
-      };
+    autoStart = lib.mkOption {
+      type = lib.types.either lib.types.bool lib.types.str;
+      default = true;
+      description = "When enabled, this ${objectType} is automatically started on boot. Set to a string to use a custom systemd target.";
+    };
 
-      unitConfig = lib.mkOption {
-        type = lib.types.attrsOf quadletUtils.unitOption;
-        default = { };
-        description = "systemd unit config passed through to [Unit] section.";
-      };
+    unitConfig = lib.mkOption {
+      type = lib.types.attrsOf quadletUtils.unitOption;
+      default = { };
+      description = "systemd unit config passed through to [Unit] section.";
+    };
 
-      serviceConfig = lib.mkOption {
-        type = lib.types.attrsOf quadletUtils.unitOption;
-        default = { };
-        description = "systemd service config passed through to [Service] section.";
-      };
+    serviceConfig = lib.mkOption {
+      type = lib.types.attrsOf quadletUtils.unitOption;
+      default = { };
+      description = "systemd service config passed through to [Service] section.";
+    };
 
-      rawConfig = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = ''
-          Raw quadlet config text. Using this will cause all other options
-          contributing to quadlet files to be ignored. autoStart is not affected.
-        '';
-      };
+    rawConfig = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = ''
+        Raw quadlet config text. Using this will cause all other options
+        contributing to quadlet files to be ignored. autoStart is not affected.
+      '';
+    };
 
-      _serviceName = lib.mkOption {
-        internal = true;
-        description = "Name of the systemd service unit, without the .service suffix.";
-      };
+    _serviceName = lib.mkOption {
+      internal = true;
+      description = "Name of the systemd service unit, without the .service suffix.";
+    };
 
-      _configText = lib.mkOption {
-        internal = true;
-        description = "Generated quadlet config text";
-      };
+    _configText = lib.mkOption {
+      internal = true;
+      description = "Generated quadlet config text";
+    };
 
-      _autoStart = lib.mkOption {
-        internal = true;
-        description = "Whether the service is automatically started on boot.";
-      };
+    _autoStart = lib.mkOption {
+      internal = true;
+      description = "Whether the service is automatically started on boot.";
+    };
 
-      _autoEscapeRequired = lib.mkOption {
-        internal = true;
-        description = ''
-          Whether `autoEscape` needs to be switched on for correct encoding.
-          This is false if already on.
-        '';
-      };
+    _autoEscapeRequired = lib.mkOption {
+      internal = true;
+      description = ''
+        Whether `autoEscape` needs to be switched on for correct encoding.
+        This is false if already on.
+      '';
+    };
 
-      _rootless = lib.mkOption {
-        internal = true;
-        default = false;
-        description = ''
-          Whether to run rootless under system systemd.
-        '';
-      };
+    _rootless = lib.mkOption {
+      internal = true;
+      default = false;
+      description = ''
+        Whether to run rootless under system systemd.
+      '';
+    };
 
-      _overrides = lib.mkOption {
-        internal = true;
-        default = { };
-        description = ''
-          Overrides to apply on systemd.services.<name>. Not applicable to user systemd.
-        '';
-      };
+    _overrides = lib.mkOption {
+      internal = true;
+      default = { };
+      description = ''
+        Overrides to apply on systemd.services.<name>. Not applicable to user systemd.
+      '';
+    };
 
-      ref = lib.mkOption {
-        readOnly = true;
-        description = ''
-          Reference to this ${objectType} from other quadlets.
+    ref = lib.mkOption {
+      readOnly = true;
+      description = ''
+        Reference to this ${objectType} from other quadlets.
 
-          Quadlet resolves this to object (e.g. container) names and sets up appropriate systemd dependencies.
+        Quadlet resolves this to object (e.g. container) names and sets up appropriate systemd dependencies.
 
-          This is recognized for most quadlet native options, but not by Podman command line.
-          Using this inside `podmanArgs` will therefore unlikely to work.
-        '';
-      };
-    }
-    // (
-      if !supportRootless then
-        { }
-      else
-        {
-          rootlessConfig = {
-            uid = lib.mkOption {
-              type = lib.types.nullOr lib.types.int;
-              default = null;
-              description = "User ID to run rootless podman as";
-            };
-          };
-        }
-    );
+        This is recognized for most quadlet native options, but not by Podman command line.
+        Using this inside `podmanArgs` will therefore unlikely to work.
+      '';
+    };
+  };
 
   commonTopLevelOptions =
     let
@@ -161,6 +145,11 @@ let
         type = lib.types.attrsOf (lib.types.submodule (import ./image.nix submoduleArgs));
         default = { };
         description = "Image pulls";
+      };
+      kubes = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.submodule (import ./kube.nix submoduleArgs));
+        default = { };
+        description = "Kubernetes YAML units";
       };
       networks = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule (import ./network.nix submoduleArgs));
@@ -210,6 +199,7 @@ let
         config.builds
         config.containers
         config.images
+        config.kubes
         config.networks
         config.pods
         config.volumes
@@ -222,6 +212,22 @@ let
     mkObjectOptions =
       objectType: extraOptions:
       lib.attrsets.unionOfDisjoint (mkCommonObjectOptions objectType) extraOptions;
+
+    applyRootlessOption =
+      opts:
+      if !supportRootless then
+        opts
+      else
+        opts
+        // {
+          rootlessConfig = {
+            uid = lib.mkOption {
+              type = lib.types.nullOr lib.types.int;
+              default = null;
+              description = "User ID to run rootless podman as";
+            };
+          };
+        };
 
     mkTopLevelOptions = extraOptions: lib.attrsets.unionOfDisjoint commonTopLevelOptions extraOptions;
 

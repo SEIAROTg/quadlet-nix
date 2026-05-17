@@ -172,9 +172,9 @@ let
   };
 in
 {
-  options = quadletOptions.mkObjectOptions "network" {
+  options = lib.pipe (quadletOptions.mkObjectOptions "network" {
     networkConfig = networkOpts;
-  };
+  }) [ quadletOptions.applyRootlessOption ];
 
   config =
     let

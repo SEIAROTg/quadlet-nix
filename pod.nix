@@ -216,9 +216,9 @@ let
   };
 in
 {
-  options = quadletOptions.mkObjectOptions "pod" {
+  options = lib.pipe (quadletOptions.mkObjectOptions "pod" {
     podConfig = podOpts;
-  };
+  }) [ quadletOptions.applyRootlessOption ];
 
   config =
     let

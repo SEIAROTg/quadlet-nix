@@ -148,9 +148,9 @@ let
   };
 in
 {
-  options = quadletOptions.mkObjectOptions "volume" {
+  options = lib.pipe (quadletOptions.mkObjectOptions "volume" {
     volumeConfig = volumeOpts;
-  };
+  }) [ quadletOptions.applyRootlessOption ];
 
   config =
     let

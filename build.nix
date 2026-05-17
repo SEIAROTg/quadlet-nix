@@ -254,9 +254,9 @@ let
   };
 in
 {
-  options = quadletOptions.mkObjectOptions "build" {
-    buildConfig = buildOpts;
-  };
+  options = lib.pipe (quadletOptions.mkObjectOptions "build" { buildConfig = buildOpts; }) [
+    quadletOptions.applyRootlessOption
+  ];
 
   config =
     let

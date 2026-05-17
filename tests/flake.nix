@@ -293,6 +293,17 @@
                   runHomeManagerTest
                 ];
               }
+              ++ [
+                # kube doesn't support rootless.
+                {
+                  runner = runRootfulTest;
+                  template = ./kube.nix;
+                }
+                {
+                  runner = runHomeManagerTest;
+                  template = ./kube.nix;
+                }
+              ]
             )
           );
         in

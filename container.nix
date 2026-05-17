@@ -773,9 +773,9 @@ let
   };
 in
 {
-  options = quadletOptions.mkObjectOptions "container" {
+  options = lib.pipe (quadletOptions.mkObjectOptions "container" {
     containerConfig = containerOpts;
-  };
+  }) [ quadletOptions.applyRootlessOption ];
 
   config =
     let
