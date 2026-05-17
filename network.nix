@@ -138,9 +138,7 @@ let
     };
 
     options = quadletOptions.mkOption {
-      # TODO: drop string support and remove warning.
       type = types.oneOf [
-        types.str
         (types.listOf types.str)
         (types.attrsOf types.str)
       ];
