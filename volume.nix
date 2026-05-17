@@ -41,6 +41,14 @@ let
       property = "Driver";
     };
 
+    gid = quadletOptions.mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      example = 5678;
+      cli = "--gid";
+      property = "GID";
+    };
+
     globalArgs = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -115,6 +123,14 @@ let
       cli = "--opt type=...";
       description = "Filesystem type of `device`";
       property = "Type";
+    };
+
+    uid = quadletOptions.mkOption {
+      type = types.nullOr types.int;
+      default = null;
+      example = 1234;
+      cli = "--uid";
+      property = "UID";
     };
 
     user = quadletOptions.mkOption {
