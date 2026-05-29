@@ -20,6 +20,7 @@ jobs:
           extra-conf: |
             lazy-trees = true
             eval-cores = 0
+            max-jobs = 1
       - run: nix run nixpkgs#nixfmt-tree -- --ci
 
   test:
@@ -47,6 +48,7 @@ jobs:
         extra-conf: |
           lazy-trees = true
           eval-cores = 0
+          max-jobs = 1
 
     - uses: endersonmenezes/free-disk-space@v3
       with:
@@ -59,7 +61,7 @@ jobs:
     - uses: cachix/cachix-action@v16
       env:
         CACHIX_AUTH_TOKEN_PRESENT: ${{ secrets.CACHIX_AUTH_TOKEN != '' }}
-      if: ${{ env.CACHIX_AUTH_TOKEN_PRESENT == 'true' }}
+      if: false # ${{ env.CACHIX_AUTH_TOKEN_PRESENT == 'true' }}
       with:
         name: quadlet-nix
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
