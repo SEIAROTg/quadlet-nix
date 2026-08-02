@@ -115,6 +115,7 @@
               imports = [
                 quadlet-nix.nixosModules.quadlet
                 testConfig
+                ./fast-boot.nix
               ];
               virtualisation.diskSize = 2048; # 2GiB
               virtualisation.memorySize = 512; # 512MiB
@@ -155,6 +156,7 @@
               imports = [
                 quadlet-nix.nixosModules.quadlet
                 testConfig
+                ./fast-boot.nix
               ];
               virtualisation.diskSize = 2048; # 2GiB
               virtualisation.memorySize = 512; # 512MiB
@@ -203,6 +205,7 @@
               imports = [
                 quadlet-nix.nixosModules.quadlet
                 home-manager.nixosModules.home-manager
+                ./fast-boot.nix
               ];
               virtualisation.diskSize = 2048; # 2GiB
               virtualisation.memorySize = 512; # 512MiB
@@ -224,6 +227,7 @@
               users.groups.alice = { };
 
               home-manager.extraSpecialArgs.testType = "home-manager";
+              home-manager.useGlobalPkgs = true;
               home-manager.users.alice = lib.mkDefault (
                 { config, ... }:
                 {
@@ -271,7 +275,18 @@
     {
       checks =
         let
-          pkgs = import nixpkgs { inherit system; };
+          pkgs = import nixpkgs {
+            inherit system;
+            overlays = [
+              (final: prev: {
+                dockerTools = prev.dockerTools // {
+                  examples = prev.dockerTools.examples // {
+                    nginx = prev.dockerTools.examples.nginx.override { maxLayers = 2; };
+                  };
+                };
+              })
+            ];
+          };
           lib = pkgs.lib;
           tests = builtins.listToAttrs (
             map ({ runner, template }: genTest pkgs runner template) (
