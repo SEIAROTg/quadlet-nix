@@ -59,15 +59,7 @@ in
               source = "${configPathLink}/out/${p._serviceName}.service";
             };
           }) allObjects
-        )
-        // {
-          # `systemctl`, `sleep`, etc. not found
-          "systemd/user/podman-user-wait-network-online.service.d/override.conf" = {
-            text = quadletUtils.unitConfigToText {
-              Service.ExecSearchPath = [ "/run/current-system/sw/bin/" ];
-            };
-          };
-        };
+        );
 
       systemd.user.services =
         mergeAttrsList (
