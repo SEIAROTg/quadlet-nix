@@ -6,15 +6,23 @@
       virtualisation.quadlet =
         let
           inherit (config.virtualisation.quadlet) builds;
+          buildContext = pkgs.runCommand "build-context" { } ''
+            mkdir -p "$out"
+            cp ${pkgs.dockerTools.examples.bash} "$out/base.tar.gz"
+          '';
         in
         {
           builds.hello = {
             buildConfig = {
               file = "${pkgs.writeText "Containerfile" ''
-                FROM docker-archive:${pkgs.dockerTools.examples.bash}
+                FROM docker-archive:base.tar.gz
                 CMD bash -c 'echo "Success" > /output/result.txt'
               ''}";
+              workdir = "${buildContext}";
             };
+            # for compatibility with podman<6 which resolves base image relative to process workdir.
+            # TODO: remove once we stop running tests for podman<6.
+            serviceConfig.WorkingDirectory = "${buildContext}";
           }
           // extraConfig;
 
