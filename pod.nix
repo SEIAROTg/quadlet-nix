@@ -223,7 +223,6 @@ in
   config =
     let
       serviceConfigDefault = {
-        Restart = "always";
         TimeoutStartSec = 900;
       };
       podName = if config.podConfig.name != null then config.podConfig.name else name;
