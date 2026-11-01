@@ -39,6 +39,20 @@ let
       description = "Add Quadlet's default network dependencies to the unit";
       property = "DefaultDependencies";
     };
+
+    setMountsDependency = mkOption {
+      type = lib.types.nullOr (
+        lib.types.enum [
+          "Requires"
+          "Wants"
+          "None"
+        ]
+      );
+      default = null;
+      example = "Wants";
+      description = "Configure dependencies for mount source paths";
+      property = "SetMountsDependency";
+    };
   };
 
   mkCommonObjectOptions = objectType: {

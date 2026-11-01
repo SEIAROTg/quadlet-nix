@@ -75,6 +75,15 @@ let
       property = "LogDriver";
     };
 
+    logOptions = quadletOptions.mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = [ "path=/var/log/mykube.json" ];
+      cli = "--log-opt";
+      property = "LogOpt";
+      encoders.scalar = encoders.scalar.quotedUnescaped;
+    };
+
     networks = quadletOptions.mkOption {
       type = types.listOf types.str;
       default = [ ];

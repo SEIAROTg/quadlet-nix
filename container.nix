@@ -363,6 +363,14 @@ let
       property = "Image";
     };
 
+    imageVolume = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "tmpfs";
+      cli = "--image-volume";
+      property = "ImageVolume";
+    };
+
     ip = quadletOptions.mkOption {
       type = types.nullOr types.str;
       default = null;
@@ -723,6 +731,15 @@ let
       example = [ "nofile=1000:10000" ];
       cli = "--ulimit";
       property = "Ulimit";
+    };
+
+    umask = quadletOptions.mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "0077";
+      description = "Set the umask inside the container. Defaults to 0022.";
+      cli = "--umask";
+      property = "Umask";
     };
 
     unmask = quadletOptions.mkOption {
