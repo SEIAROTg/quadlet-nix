@@ -70,6 +70,7 @@ in
             # sd-switch only starts new services with those symlinks.
             ${p._serviceName} = {
               Unit.X-QuadletNixConfigHash = builtins.hashString "sha256" p._configText;
+              Unit.X-SwitchMethod = "restart";
               Install.WantedBy =
                 if builtins.isString p._autoStart then
                   [ p._autoStart ]
