@@ -28,7 +28,7 @@ in
     };
 
   specialisation =
-    { pkgs, ... }:
+    { lib, pkgs, ... }:
     {
       step1Add.virtualisation.quadlet = makeQuadletConfig pkgs [
         "foo"
@@ -36,6 +36,10 @@ in
       ];
       step2Remove.virtualisation.quadlet = makeQuadletConfig pkgs [ "bar" ];
       step3AddRemove.virtualisation.quadlet = makeQuadletConfig pkgs [ "baz" ];
+      step4Change.virtualisation.quadlet = lib.mkMerge [
+        (makeQuadletConfig pkgs [ "baz" ])
+        { networks.baz.networkConfig.subnets = [ "10.89.20.0/24" ]; }
+      ];
     };
 
   testScript = ''
@@ -57,5 +61,9 @@ in
 
     switch_to_specialisation("step3AddRemove")
     check({"baz"})
+
+    switch_to_specialisation("step4Change")
+    check({"baz"})
+    assert get_networks()["baz"]["subnets"][0]["subnet"] == "10.89.20.0/24"
   '';
 }
